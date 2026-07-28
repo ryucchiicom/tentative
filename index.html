@@ -1,400 +1,466 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="color-scheme" content="light dark" />
-  <title>Touch FX</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
+  <title>Touch Effects</title>
   <style>
-    :root{
+    :root {
       color-scheme: light dark;
       --bg: #ffffff;
-      --fx-green: rgba(90, 255, 140, 0.28);
-      --fx-blue: rgba(70, 160, 255, 0.28);
-      --fx-red: rgba(255, 70, 70, 0.28);
     }
-    @media (prefers-color-scheme: dark){
-      :root{
+
+    @media (prefers-color-scheme: dark) {
+      :root {
         --bg: #000000;
       }
     }
-html, body{
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  background: var(--bg);
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  overscroll-behavior: none;
-}
-body{
-  position: fixed;
-  inset: 0;
-}
-#stage{
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  background: var(--bg);
-}
-.fx{
-  position: absolute;
-  left: 0;
-  top: 0;
-  pointer-events: none;
-  will-change: transform, opacity, filter;
-  transform: translate(-50%, -50%);
-}
-.pulse-green{
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--fx-green);
-  filter: blur(0.5px);
-  box-shadow:
-    0 0 18px 8px rgba(80, 255, 120, 0.18),
-    0 0 44px 18px rgba(80, 255, 120, 0.10);
-  animation: pulseGreen 700ms ease-out forwards;
-}
-@keyframes pulseGreen{
-  0%{
-    opacity: 0.95;
-    transform: translate(-50%, -50%) scale(0.12);
-    filter: blur(0px);
-  }
-  18%{
-    opacity: 0.95;
-  }
-  100%{
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(5.8);
-    filter: blur(2px);
-  }
-}
-.swipe-ball{
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: var(--fx-blue);
-  box-shadow:
-    0 0 16px 4px rgba(80, 160, 255, 0.12),
-    0 0 30px 10px rgba(80, 160, 255, 0.08);
-  filter: blur(0.6px);
-  animation: flyBall 620ms cubic-bezier(.2,.8,.2,1) forwards;
-}
-@keyframes flyBall{
-  0%{
-    opacity: 0.85;
-    transform: translate(-50%, -50%) scale(0.96);
-  }
-  100%{
-    opacity: 0;
-    transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) scale(1.08);
-  }
-}
-.trail-dot{
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(80, 160, 255, 0.18);
-  filter: blur(0.8px);
-  animation: trailFade 520ms ease-out forwards;
-}
-@keyframes trailFade{
-  0%{
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.45);
-  }
-  35%{
-    opacity: 0.40;
-    transform: translate(-50%, -50%) scale(0.92);
-  }
-  100%{
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(1.18);
-  }
-}
-.lasso-fill{
-  transform: none;
-  opacity: 0.62;
-  animation: lassoFade 420ms ease-out forwards;
-  filter: blur(0.2px);
-}
-@keyframes lassoFade{
-  0%{
-    opacity: 0.68;
-  }
-  30%{
-    opacity: 0.58;
-  }
-  100%{
-    opacity: 0;
-  }
-}
-.hint{
-  position: fixed;
-  inset: auto 0 18px 0;
-  text-align: center;
-  font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: rgba(127,127,127,0.35);
-  pointer-events: none;
-  letter-spacing: 0.02em;
-  display: none;
-}
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
-  <div id="stage"></div>
-  <div class="hint"></div>
+  <canvas id="c"></canvas>
+
   <script>
     (() => {
-      const stage = document.getElementById('stage');
-      const pointers = new Map();
-      const recentDots = [];
-      const TAP_MOVE_LIMIT = 14;
-      const SWIPE_MOVE_LIMIT = 52;
-      const LOOP_HIT_DISTANCE = 18;
-      const LOOP_IGNORE_RECENT = 8;
-      function addFx(el, x, y) {
-        el.classList.add('fx');
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        stage.appendChild(el);
-        return el;
+      const canvas = document.getElementById("c");
+      const ctx = canvas.getContext("2d", { alpha: true });
+
+      let dpr = Math.max(1, window.devicePixelRatio || 1);
+      let w = 0;
+      let h = 0;
+
+      const state = {
+        pointerDown: false,
+        pointerId: null,
+        startX: 0,
+        startY: 0,
+        lastX: 0,
+        lastY: 0,
+        points: [],
+        trail: [],
+        bursts: [],
+        swipes: [],
+        loops: []
+      };
+
+      const TAP_THRESHOLD = 12;
+      const SWIPE_THRESHOLD = 24;
+      const LINE_HIT_WIDTH = 18;
+
+      function resize() {
+        dpr = Math.max(1, window.devicePixelRatio || 1);
+        w = Math.floor(window.innerWidth);
+        h = Math.floor(window.innerHeight);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-      function removeLater(el, ms) {
-        window.setTimeout(() => {
-          if (el && el.parentNode) el.parentNode.removeChild(el);
-        }, ms);
+
+      function rand(min, max) {
+        return min + Math.random() * (max - min);
       }
-      function createPulse(x, y) {
-        const el = document.createElement('div');
-        el.className = 'pulse-green fx';
-        addFx(el, x, y);
-        removeLater(el, 900);
+
+      function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
       }
-      function createTrailDot(x, y) {
-        const el = document.createElement('div');
-        el.className = 'trail-dot fx';
-        addFx(el, x, y);
-        removeLater(el, 650);
+
+      function dist2(ax, ay, bx, by) {
+        const dx = ax - bx;
+        const dy = ay - by;
+        return dx * dx + dy * dy;
       }
-      function createSwipe(ballStart, dir, w, h) {
-        const ball = document.createElement('div');
-        ball.className = 'swipe-ball fx';
-        let startX = ballStart.x;
-        let startY = ballStart.y;
-        let endX = ballStart.x;
-        let endY = ballStart.y;
-        const margin = 90;
-        if (dir === 'right') {
-          startX = -margin;
-          endX = w + margin;
-          startY = endY = ballStart.y;
-        } else if (dir === 'left') {
-          startX = w + margin;
-          endX = -margin;
-          startY = endY = ballStart.y;
-        } else if (dir === 'down') {
-          startY = -margin;
-          endY = h + margin;
-          startX = endX = ballStart.x;
-        } else {
-          startY = h + margin;
-          endY = -margin;
-          startX = endX = ballStart.x;
+
+      function dist(ax, ay, bx, by) {
+        return Math.hypot(ax - bx, ay - by);
+      }
+
+      function norm(x, y) {
+        const len = Math.hypot(x, y) || 1;
+        return { x: x / len, y: y / len, len };
+      }
+
+      function lineIntersection(a, b, c, d) {
+        const rX = b.x - a.x;
+        const rY = b.y - a.y;
+        const sX = d.x - c.x;
+        const sY = d.y - c.y;
+        const denom = rX * sY - rY * sX;
+
+        if (Math.abs(denom) < 1e-8) return null;
+
+        const uNumer = (c.x - a.x) * rY - (c.y - a.y) * rX;
+        const tNumer = (c.x - a.x) * sY - (c.y - a.y) * sX;
+        const t = tNumer / denom;
+        const u = uNumer / denom;
+
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+          return {
+            x: a.x + t * rX,
+            y: a.y + t * rY,
+            tA: t,
+            tB: u
+          };
         }
-        ball.style.left = startX + 'px';
-        ball.style.top = startY + 'px';
-        ball.style.setProperty('--dx', endX + 'px');
-        ball.style.setProperty('--dy', endY + 'px');
-        stage.appendChild(ball);
-        removeLater(ball, 800);
-        const steps = Math.max(10, Math.ceil(Math.hypot(endX - startX, endY - startY) / 28));
-        for (let i = 0; i <= steps; i++) {
-          const t = i / steps;
-          const x = startX + (endX - startX) * t;
-          const y = startY + (endY - startY) * t;
-          window.setTimeout(() => createTrailDot(x, y), i * 18);
-        }
+        return null;
       }
-      function distance(a, b) {
-        return Math.hypot(a.x - b.x, a.y - b.y);
-      }
-      function distPointToSegment(p, a, b) {
-        const vx = b.x - a.x;
-        const vy = b.y - a.y;
-        const wx = p.x - a.x;
-        const wy = p.y - a.y;
-        const c1 = vx * wx + vy * wy;
-        if (c1 <= 0) return Math.hypot(p.x - a.x, p.y - a.y);
-        const c2 = vx * vx + vy * vy;
-        if (c2 <= c1) return Math.hypot(p.x - b.x, p.y - b.y);
-        const t = c1 / c2;
-        const px = a.x + t * vx;
-        const py = a.y + t * vy;
-        return Math.hypot(p.x - px, p.y - py);
-      }
-      function pointInPolygon(point, poly) {
-        let inside = false;
-        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-          const xi = poly[i].x, yi = poly[i].y;
-          const xj = poly[j].x, yj = poly[j].y;
-          const intersect = ((yi > point.y) !== (yj > point.y)) &&
-            (point.x < (xj - xi) * (point.y - yi) / ((yj - yi) || 1e-9) + xi);
-          if (intersect) inside = !inside;
-        }
-        return inside;
-      }
-      function isClockwise(points) {
-        let sum = 0;
-        for (let i = 0; i < points.length; i++) {
-          const a = points[i];
-          const b = points[(i + 1) % points.length];
-          sum += (b.x - a.x) * (b.y + a.y);
-        }
-        return sum > 0;
-      }
-      function makeSmoothPath(points) {
-        if (points.length < 2) return '';
-        if (points.length === 2) {
-          return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y} Z`;
-        }
-        const d = [];
-        d.push(`M ${points[0].x} ${points[0].y}`);
-        for (let i = 1; i < points.length - 1; i++) {
-          const p0 = points[i - 1];
-          const p1 = points[i];
-          const p2 = points[i + 1];
-          const c1x = p0.x + (p1.x - p0.x) * 0.5;
-          const c1y = p0.y + (p1.y - p0.y) * 0.5;
-          const c2x = p1.x + (p2.x - p1.x) * 0.5;
-          const c2y = p1.y + (p2.y - p1.y) * 0.5;
-          d.push(`Q ${p1.x} ${p1.y} ${c2x} ${c2y}`);
-        }
-        d.push('Z');
-        return d.join(' ');
-      }
-      function createLassoFill(points) {
-        if (points.length < 3) return;
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        path.setAttribute('class', 'fx lasso-fill');
-        path.setAttribute('width', '100%');
-        path.setAttribute('height', '100%');
-        path.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
-        path.style.left = '0';
-        path.style.top = '0';
-        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        poly.setAttribute('d', makeSmoothPath(points));
-        poly.setAttribute('fill', 'rgba(255, 75, 75, 0.28)');
-        poly.setAttribute('stroke', 'rgba(255, 75, 75, 0.18)');
-        poly.setAttribute('stroke-width', '1');
-        poly.setAttribute('vector-effect', 'non-scaling-stroke');
-        path.appendChild(poly);
-        stage.appendChild(path);
-        removeLater(path, 520);
-      }
-      function getEventPoint(ev) {
-        return { x: ev.clientX, y: ev.clientY };
-      }
-      function startPointer(ev) {
-        if (ev.button !== undefined && ev.button !== 0) return;
-        const p = getEventPoint(ev);
-        pointers.set(ev.pointerId, {
-          id: ev.pointerId,
-          start: p,
-          last: p,
-          points: [p],
-          moved: 0,
-          looped: false,
-          loopIndex: -1,
-          active: true,
-          downTime: performance.now(),
+
+      function addTapBurst(x, y) {
+        state.bursts.push({
+          x,
+          y,
+          t: 0,
+          life: 520,
+          maxR: rand(70, 130)
         });
       }
-      function movePointer(ev) {
-        const st = pointers.get(ev.pointerId);
-        if (!st || !st.active) return;
-        const p = getEventPoint(ev);
-        const prev = st.last;
-        const step = distance(prev, p);
-        if (step < 0.25) return;
-        st.moved += step;
-        st.last = p;
-        st.points.push(p);
-        const pts = st.points;
-        if (!st.looped && pts.length > LOOP_IGNORE_RECENT + 3) {
-          const curIndex = pts.length - 1;
-          const current = pts[curIndex];
-          for (let i = 0; i < curIndex - LOOP_IGNORE_RECENT - 1; i++) {
-            const a = pts[i];
-            const b = pts[i + 1];
-            const d = distPointToSegment(current, a, b);
-            if (d <= LOOP_HIT_DISTANCE) {
-              st.looped = true;
-              st.loopIndex = i;
-              break;
+
+      function addSwipe(x, y, vx, vy) {
+        const n = norm(vx, vy);
+        const speed = rand(850, 1200);
+        const dirX = n.x;
+        const dirY = n.y;
+
+        let tMax = 0;
+        const pad = 80;
+        if (dirX > 0) tMax = Math.max(tMax, (w + pad - x) / dirX);
+        if (dirX < 0) tMax = Math.max(tMax, (0 - pad - x) / dirX);
+        if (dirY > 0) tMax = Math.max(tMax, (h + pad - y) / dirY);
+        if (dirY < 0) tMax = Math.max(tMax, (0 - pad - y) / dirY);
+
+        const endX = x + dirX * tMax;
+        const endY = y + dirY * tMax;
+
+        state.swipes.push({
+          x,
+          y,
+          startX: x,
+          startY: y,
+          endX,
+          endY,
+          dirX,
+          dirY,
+          speed,
+          travel: 0,
+          dist: Math.hypot(endX - x, endY - y),
+          lastTrailX: x,
+          lastTrailY: y,
+          r: rand(14, 22),
+          life: 0
+        });
+      }
+
+      function addLoop(points) {
+        if (points.length < 3) return;
+        const poly = points.map(p => ({ x: p.x, y: p.y }));
+        state.loops.push({
+          points: poly,
+          t: 0,
+          life: 460
+        });
+      }
+
+      function pushPoint(x, y) {
+        state.points.push({ x, y });
+
+        if (state.points.length < 4) return;
+
+        const n = state.points.length;
+        const a = state.points[n - 2];
+        const b = state.points[n - 1];
+
+        for (let i = 0; i < n - 3; i++) {
+          const c = state.points[i];
+          const d = state.points[i + 1];
+
+          if (i === n - 4) continue;
+
+          const hit = lineIntersection(a, b, c, d);
+          if (hit) {
+            const loopPoints = [{ x: hit.x, y: hit.y }];
+
+            for (let j = i + 1; j < n - 1; j++) {
+              loopPoints.push({ x: state.points[j].x, y: state.points[j].y });
             }
+
+            loopPoints.push({ x: hit.x, y: hit.y });
+
+            addLoop(loopPoints);
+            state.points = [];
+            return;
           }
         }
-        recentDots.push(p);
-        if (recentDots.length > 2000) recentDots.splice(0, 1000);
       }
-      function endPointer(ev) {
-        const st = pointers.get(ev.pointerId);
-        if (!st) return;
-        st.active = false;
-        const end = getEventPoint(ev);
-        const start = st.start;
-        const dx = end.x - start.x;
-        const dy = end.y - start.y;
-        const adx = Math.abs(dx);
-        const ady = Math.abs(dy);
-        const total = Math.hypot(dx, dy);
-        if (st.looped && st.points.length >= 4) {
-          const pts = st.points.slice(Math.max(0, st.loopIndex));
-          if (pts.length >= 3) {
-            const closed = pts[0];
-            const last = pts[pts.length - 1];
-            if (distance(closed, last) > 8) pts.push({ x: closed.x, y: closed.y });
-            createLassoFill(pts);
-          }
-        } else if (total <= TAP_MOVE_LIMIT) {
-          createPulse(end.x, end.y);
-        } else if (total >= SWIPE_MOVE_LIMIT) {
-          const w = window.innerWidth;
-          const h = window.innerHeight;
-          let dir = 'right';
-          if (adx >= ady) {
-            dir = dx >= 0 ? 'right' : 'left';
-          } else {
-            dir = dy >= 0 ? 'down' : 'up';
-          }
-          createSwipe(start, dir, w, h);
+
+      function renderBurst(item, alphaScale) {
+        const p = item.t / item.life;
+        const ease = 1 - Math.pow(1 - p, 3);
+        const alpha = Math.max(0, (1 - p) * 0.42 * alphaScale);
+        const r = item.maxR * (0.25 + ease * 1.25);
+
+        ctx.save();
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = `rgba(70, 255, 120, ${alpha})`;
+        ctx.fillStyle = `rgba(70, 255, 120, ${alpha * 0.35})`;
+        ctx.lineWidth = Math.max(2, 10 * (1 - p));
+        ctx.beginPath();
+        ctx.arc(item.x, item.y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = `rgba(70, 255, 120, ${alpha * 0.55})`;
+        ctx.lineWidth = Math.max(1, 2.5 * (1 - p));
+        ctx.beginPath();
+        ctx.arc(item.x, item.y, r * 1.18, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function renderSwipe(item, alphaScale) {
+        const p = clamp(item.travel / item.dist, 0, 1);
+        const x = item.startX + item.dirX * item.travel;
+        const y = item.startY + item.dirY * item.travel;
+        const alpha = (1 - Math.pow(p, 1.35)) * 0.42 * alphaScale;
+
+        ctx.save();
+        ctx.globalCompositeOperation = "source-over";
+
+        const dx = item.dirX;
+        const dy = item.dirY;
+
+        const trailSteps = 16;
+        for (let i = 0; i < trailSteps; i++) {
+          const back = i * (item.r * 0.72);
+          const tx = x - dx * back;
+          const ty = y - dy * back;
+          const ta = alpha * (1 - i / trailSteps) * 0.75;
+          const rr = item.r * (1 - i / (trailSteps * 1.15)) * 0.95;
+
+          if (ta <= 0) continue;
+
+          ctx.fillStyle = `rgba(80, 145, 255, ${ta})`;
+          ctx.beginPath();
+          ctx.arc(tx, ty, rr, 0, Math.PI * 2);
+          ctx.fill();
         }
-        pointers.delete(ev.pointerId);
+
+        ctx.fillStyle = `rgba(80, 145, 255, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x, y, item.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
       }
-      stage.addEventListener('pointerdown', (ev) => {
-        stage.setPointerCapture?.(ev.pointerId);
-        startPointer(ev);
-      }, { passive: false });
-      stage.addEventListener('pointermove', (ev) => {
-        movePointer(ev);
-      }, { passive: false });
-      stage.addEventListener('pointerup', (ev) => {
-        endPointer(ev);
-      }, { passive: false });
-      stage.addEventListener('pointercancel', (ev) => {
-        pointers.delete(ev.pointerId);
-      }, { passive: false });
-      window.addEventListener('contextmenu', (e) => e.preventDefault());
-      // Keep full-screen clean.
-      document.documentElement.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
-      document.body.style.background = 'var(--bg)';
-      stage.style.background = 'var(--bg)';
+
+      function renderLoop(item, alphaScale) {
+        const p = item.t / item.life;
+        const alpha = 0.42 * (1 - p) * alphaScale;
+        const blurAlpha = 0.24 * (1 - p) * alphaScale;
+
+        if (item.points.length < 3) return;
+
+        ctx.save();
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = `rgba(255, 80, 80, ${alpha})`;
+        ctx.strokeStyle = `rgba(255, 80, 80, ${blurAlpha})`;
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(item.points[0].x, item.points[0].y);
+        for (let i = 1; i < item.points.length; i++) {
+          ctx.lineTo(item.points[i].x, item.points[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function update(dt) {
+        for (let i = state.bursts.length - 1; i >= 0; i--) {
+          const b = state.bursts[i];
+          b.t += dt;
+          if (b.t >= b.life) state.bursts.splice(i, 1);
+        }
+
+        for (let i = state.swipes.length - 1; i >= 0; i--) {
+          const s = state.swipes[i];
+          s.life += dt;
+          s.travel += s.speed * (dt / 1000);
+
+          const curX = s.startX + s.dirX * s.travel;
+          const curY = s.startY + s.dirY * s.travel;
+          const segment = dist(s.lastTrailX, s.lastTrailY, curX, curY);
+
+          if (segment >= 10) {
+            const steps = Math.max(1, Math.floor(segment / 14));
+            for (let k = 1; k <= steps; k++) {
+              const t = k / steps;
+              state.trail.push({
+                x: s.lastTrailX + (curX - s.lastTrailX) * t,
+                y: s.lastTrailY + (curY - s.lastTrailY) * t,
+                r: s.r * rand(0.75, 1.05),
+                t: 0,
+                life: 360
+              });
+            }
+            s.lastTrailX = curX;
+            s.lastTrailY = curY;
+          }
+
+          if (
+            s.travel > s.dist + 120 ||
+            curX < -160 || curX > w + 160 ||
+            curY < -160 || curY > h + 160
+          ) {
+            state.swipes.splice(i, 1);
+          }
+        }
+
+        for (let i = state.trail.length - 1; i >= 0; i--) {
+          const t = state.trail[i];
+          t.t += dt;
+          if (t.t >= t.life) state.trail.splice(i, 1);
+        }
+
+        for (let i = state.loops.length - 1; i >= 0; i--) {
+          const l = state.loops[i];
+          l.t += dt;
+          if (l.t >= l.life) state.loops.splice(i, 1);
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+
+        const alphaScale = 1;
+
+        for (const t of state.trail) {
+          const p = t.t / t.life;
+          const alpha = 0.32 * (1 - p) * alphaScale;
+          const r = t.r * (0.9 + p * 0.6);
+
+          ctx.save();
+          ctx.globalCompositeOperation = "source-over";
+          ctx.fillStyle = `rgba(80, 145, 255, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        for (const b of state.bursts) renderBurst(b, alphaScale);
+        for (const s of state.swipes) renderSwipe(s, alphaScale);
+        for (const l of state.loops) renderLoop(l, alphaScale);
+
+        if (state.pointerDown && state.points.length >= 2) {
+          const pts = state.points;
+          ctx.save();
+          ctx.globalCompositeOperation = "source-over";
+          ctx.fillStyle = "rgba(255, 80, 80, 0.16)";
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+          ctx.strokeStyle = "rgba(255, 80, 80, 0.08)";
+          ctx.lineWidth = LINE_HIT_WIDTH;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      let lastTime = performance.now();
+      function frame(now) {
+        const dt = Math.min(34, now - lastTime);
+        lastTime = now;
+        update(dt);
+        draw();
+        requestAnimationFrame(frame);
+      }
+
+      function getPos(e) {
+        return { x: e.clientX, y: e.clientY };
+      }
+
+      canvas.addEventListener("pointerdown", (e) => {
+        canvas.setPointerCapture?.(e.pointerId);
+        const p = getPos(e);
+        state.pointerDown = true;
+        state.pointerId = e.pointerId;
+        state.startX = p.x;
+        state.startY = p.y;
+        state.lastX = p.x;
+        state.lastY = p.y;
+        state.points = [{ x: p.x, y: p.y }];
+      });
+
+      canvas.addEventListener("pointermove", (e) => {
+        if (!state.pointerDown || state.pointerId !== e.pointerId) return;
+        const p = getPos(e);
+
+        const moved = dist(state.lastX, state.lastY, p.x, p.y);
+        if (moved >= 1) {
+          pushPoint(p.x, p.y);
+          state.lastX = p.x;
+          state.lastY = p.y;
+        }
+      });
+
+      function endPointer(e) {
+        if (!state.pointerDown || state.pointerId !== e.pointerId) return;
+
+        const p = getPos(e);
+        const total = dist(state.startX, state.startY, p.x, p.y);
+
+        if (state.points.length >= 3) {
+          state.points = [];
+        }
+
+        if (total < TAP_THRESHOLD) {
+          addTapBurst(p.x, p.y);
+        } else if (total >= SWIPE_THRESHOLD) {
+          addSwipe(state.startX, state.startY, p.x - state.startX, p.y - state.startY);
+        }
+
+        state.pointerDown = false;
+        state.pointerId = null;
+        state.points = [];
+      }
+
+      canvas.addEventListener("pointerup", endPointer);
+      canvas.addEventListener("pointercancel", endPointer);
+      window.addEventListener("resize", resize, { passive: true });
+      window.addEventListener("orientationchange", resize, { passive: true });
+
+      resize();
+      requestAnimationFrame(frame);
     })();
   </script>
 </body>
