@@ -1,84 +1,401 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>シンプルUIサイト</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Touch FX</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Helvetica Neue', sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
+    :root{
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --fx-green: rgba(90, 255, 140, 0.28);
+      --fx-blue: rgba(70, 160, 255, 0.28);
+      --fx-red: rgba(255, 70, 70, 0.28);
     }
-    header {
-      background-color: #ffffff;
-      padding: 20px;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #000000;
+      }
     }
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-    nav {
-      background-color: #fafafa;
-      display: flex;
-      justify-content: center;
-      border-bottom: 1px solid #eee;
-    }
-    nav a {
-      padding: 15px 20px;
-      text-decoration: none;
-      color: #555;
-      transition: color 0.3s;
-    }
-    nav a:hover {
-      color: #000;
-    }
-    main {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    main h2 {
-      padding: 20px;
-      margin: 0;
-      border-bottom: 1px solid #eee;
-    }
-    main p {
-      padding: 20px;
-      line-height: 1.6;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 14px;
-      color: #888;
-    }
+html, body{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+}
+body{
+  position: fixed;
+  inset: 0;
+}
+#stage{
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+.fx{
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  will-change: transform, opacity, filter;
+  transform: translate(-50%, -50%);
+}
+.pulse-green{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--fx-green);
+  filter: blur(0.5px);
+  box-shadow:
+    0 0 18px 8px rgba(80, 255, 120, 0.18),
+    0 0 44px 18px rgba(80, 255, 120, 0.10);
+  animation: pulseGreen 700ms ease-out forwards;
+}
+@keyframes pulseGreen{
+  0%{
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0.12);
+    filter: blur(0px);
+  }
+  18%{
+    opacity: 0.95;
+  }
+  100%{
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(5.8);
+    filter: blur(2px);
+  }
+}
+.swipe-ball{
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--fx-blue);
+  box-shadow:
+    0 0 16px 4px rgba(80, 160, 255, 0.12),
+    0 0 30px 10px rgba(80, 160, 255, 0.08);
+  filter: blur(0.6px);
+  animation: flyBall 620ms cubic-bezier(.2,.8,.2,1) forwards;
+}
+@keyframes flyBall{
+  0%{
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  100%{
+    opacity: 0;
+    transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) scale(1.08);
+  }
+}
+.trail-dot{
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(80, 160, 255, 0.18);
+  filter: blur(0.8px);
+  animation: trailFade 520ms ease-out forwards;
+}
+@keyframes trailFade{
+  0%{
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.45);
+  }
+  35%{
+    opacity: 0.40;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  100%{
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+}
+.lasso-fill{
+  transform: none;
+  opacity: 0.62;
+  animation: lassoFade 420ms ease-out forwards;
+  filter: blur(0.2px);
+}
+@keyframes lassoFade{
+  0%{
+    opacity: 0.68;
+  }
+  30%{
+    opacity: 0.58;
+  }
+  100%{
+    opacity: 0;
+  }
+}
+.hint{
+  position: fixed;
+  inset: auto 0 18px 0;
+  text-align: center;
+  font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: rgba(127,127,127,0.35);
+  pointer-events: none;
+  letter-spacing: 0.02em;
+  display: none;
+}
   </style>
 </head>
 <body>
-  <header>
-    <h1>シンプルなUIサイト</h1>
-  </header>
-  <nav>
-    <a href="#">ホーム</a>
-    <a href="#">サービス</a>
-    <a href="#">お問い合わせ</a>
-  </nav>
-  <main>
-    <h2>UIにこだわったシンプルサイト</h2>
-    <p>
-      このサイトはシンプルなデザインながら、直感的で使いやすいUIを目指しています。
-      視覚的に心地よく、必要な情報にすぐアクセスできるよう配慮しています。
-    </p>
-  </main>
-  <footer>
-    &copy; 2026 Simple UI Site
-  </footer>
+  <div id="stage"></div>
+  <div class="hint"></div>
+  <script>
+    (() => {
+      const stage = document.getElementById('stage');
+      const pointers = new Map();
+      const recentDots = [];
+      const TAP_MOVE_LIMIT = 14;
+      const SWIPE_MOVE_LIMIT = 52;
+      const LOOP_HIT_DISTANCE = 18;
+      const LOOP_IGNORE_RECENT = 8;
+      function addFx(el, x, y) {
+        el.classList.add('fx');
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        stage.appendChild(el);
+        return el;
+      }
+      function removeLater(el, ms) {
+        window.setTimeout(() => {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        }, ms);
+      }
+      function createPulse(x, y) {
+        const el = document.createElement('div');
+        el.className = 'pulse-green fx';
+        addFx(el, x, y);
+        removeLater(el, 900);
+      }
+      function createTrailDot(x, y) {
+        const el = document.createElement('div');
+        el.className = 'trail-dot fx';
+        addFx(el, x, y);
+        removeLater(el, 650);
+      }
+      function createSwipe(ballStart, dir, w, h) {
+        const ball = document.createElement('div');
+        ball.className = 'swipe-ball fx';
+        let startX = ballStart.x;
+        let startY = ballStart.y;
+        let endX = ballStart.x;
+        let endY = ballStart.y;
+        const margin = 90;
+        if (dir === 'right') {
+          startX = -margin;
+          endX = w + margin;
+          startY = endY = ballStart.y;
+        } else if (dir === 'left') {
+          startX = w + margin;
+          endX = -margin;
+          startY = endY = ballStart.y;
+        } else if (dir === 'down') {
+          startY = -margin;
+          endY = h + margin;
+          startX = endX = ballStart.x;
+        } else {
+          startY = h + margin;
+          endY = -margin;
+          startX = endX = ballStart.x;
+        }
+        ball.style.left = startX + 'px';
+        ball.style.top = startY + 'px';
+        ball.style.setProperty('--dx', endX + 'px');
+        ball.style.setProperty('--dy', endY + 'px');
+        stage.appendChild(ball);
+        removeLater(ball, 800);
+        const steps = Math.max(10, Math.ceil(Math.hypot(endX - startX, endY - startY) / 28));
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const x = startX + (endX - startX) * t;
+          const y = startY + (endY - startY) * t;
+          window.setTimeout(() => createTrailDot(x, y), i * 18);
+        }
+      }
+      function distance(a, b) {
+        return Math.hypot(a.x - b.x, a.y - b.y);
+      }
+      function distPointToSegment(p, a, b) {
+        const vx = b.x - a.x;
+        const vy = b.y - a.y;
+        const wx = p.x - a.x;
+        const wy = p.y - a.y;
+        const c1 = vx * wx + vy * wy;
+        if (c1 <= 0) return Math.hypot(p.x - a.x, p.y - a.y);
+        const c2 = vx * vx + vy * vy;
+        if (c2 <= c1) return Math.hypot(p.x - b.x, p.y - b.y);
+        const t = c1 / c2;
+        const px = a.x + t * vx;
+        const py = a.y + t * vy;
+        return Math.hypot(p.x - px, p.y - py);
+      }
+      function pointInPolygon(point, poly) {
+        let inside = false;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+          const xi = poly[i].x, yi = poly[i].y;
+          const xj = poly[j].x, yj = poly[j].y;
+          const intersect = ((yi > point.y) !== (yj > point.y)) &&
+            (point.x < (xj - xi) * (point.y - yi) / ((yj - yi) || 1e-9) + xi);
+          if (intersect) inside = !inside;
+        }
+        return inside;
+      }
+      function isClockwise(points) {
+        let sum = 0;
+        for (let i = 0; i < points.length; i++) {
+          const a = points[i];
+          const b = points[(i + 1) % points.length];
+          sum += (b.x - a.x) * (b.y + a.y);
+        }
+        return sum > 0;
+      }
+      function makeSmoothPath(points) {
+        if (points.length < 2) return '';
+        if (points.length === 2) {
+          return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y} Z`;
+        }
+        const d = [];
+        d.push(`M ${points[0].x} ${points[0].y}`);
+        for (let i = 1; i < points.length - 1; i++) {
+          const p0 = points[i - 1];
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          const c1x = p0.x + (p1.x - p0.x) * 0.5;
+          const c1y = p0.y + (p1.y - p0.y) * 0.5;
+          const c2x = p1.x + (p2.x - p1.x) * 0.5;
+          const c2y = p1.y + (p2.y - p1.y) * 0.5;
+          d.push(`Q ${p1.x} ${p1.y} ${c2x} ${c2y}`);
+        }
+        d.push('Z');
+        return d.join(' ');
+      }
+      function createLassoFill(points) {
+        if (points.length < 3) return;
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        path.setAttribute('class', 'fx lasso-fill');
+        path.setAttribute('width', '100%');
+        path.setAttribute('height', '100%');
+        path.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
+        path.style.left = '0';
+        path.style.top = '0';
+        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        poly.setAttribute('d', makeSmoothPath(points));
+        poly.setAttribute('fill', 'rgba(255, 75, 75, 0.28)');
+        poly.setAttribute('stroke', 'rgba(255, 75, 75, 0.18)');
+        poly.setAttribute('stroke-width', '1');
+        poly.setAttribute('vector-effect', 'non-scaling-stroke');
+        path.appendChild(poly);
+        stage.appendChild(path);
+        removeLater(path, 520);
+      }
+      function getEventPoint(ev) {
+        return { x: ev.clientX, y: ev.clientY };
+      }
+      function startPointer(ev) {
+        if (ev.button !== undefined && ev.button !== 0) return;
+        const p = getEventPoint(ev);
+        pointers.set(ev.pointerId, {
+          id: ev.pointerId,
+          start: p,
+          last: p,
+          points: [p],
+          moved: 0,
+          looped: false,
+          loopIndex: -1,
+          active: true,
+          downTime: performance.now(),
+        });
+      }
+      function movePointer(ev) {
+        const st = pointers.get(ev.pointerId);
+        if (!st || !st.active) return;
+        const p = getEventPoint(ev);
+        const prev = st.last;
+        const step = distance(prev, p);
+        if (step < 0.25) return;
+        st.moved += step;
+        st.last = p;
+        st.points.push(p);
+        const pts = st.points;
+        if (!st.looped && pts.length > LOOP_IGNORE_RECENT + 3) {
+          const curIndex = pts.length - 1;
+          const current = pts[curIndex];
+          for (let i = 0; i < curIndex - LOOP_IGNORE_RECENT - 1; i++) {
+            const a = pts[i];
+            const b = pts[i + 1];
+            const d = distPointToSegment(current, a, b);
+            if (d <= LOOP_HIT_DISTANCE) {
+              st.looped = true;
+              st.loopIndex = i;
+              break;
+            }
+          }
+        }
+        recentDots.push(p);
+        if (recentDots.length > 2000) recentDots.splice(0, 1000);
+      }
+      function endPointer(ev) {
+        const st = pointers.get(ev.pointerId);
+        if (!st) return;
+        st.active = false;
+        const end = getEventPoint(ev);
+        const start = st.start;
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const adx = Math.abs(dx);
+        const ady = Math.abs(dy);
+        const total = Math.hypot(dx, dy);
+        if (st.looped && st.points.length >= 4) {
+          const pts = st.points.slice(Math.max(0, st.loopIndex));
+          if (pts.length >= 3) {
+            const closed = pts[0];
+            const last = pts[pts.length - 1];
+            if (distance(closed, last) > 8) pts.push({ x: closed.x, y: closed.y });
+            createLassoFill(pts);
+          }
+        } else if (total <= TAP_MOVE_LIMIT) {
+          createPulse(end.x, end.y);
+        } else if (total >= SWIPE_MOVE_LIMIT) {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          let dir = 'right';
+          if (adx >= ady) {
+            dir = dx >= 0 ? 'right' : 'left';
+          } else {
+            dir = dy >= 0 ? 'down' : 'up';
+          }
+          createSwipe(start, dir, w, h);
+        }
+        pointers.delete(ev.pointerId);
+      }
+      stage.addEventListener('pointerdown', (ev) => {
+        stage.setPointerCapture?.(ev.pointerId);
+        startPointer(ev);
+      }, { passive: false });
+      stage.addEventListener('pointermove', (ev) => {
+        movePointer(ev);
+      }, { passive: false });
+      stage.addEventListener('pointerup', (ev) => {
+        endPointer(ev);
+      }, { passive: false });
+      stage.addEventListener('pointercancel', (ev) => {
+        pointers.delete(ev.pointerId);
+      }, { passive: false });
+      window.addEventListener('contextmenu', (e) => e.preventDefault());
+      // Keep full-screen clean.
+      document.documentElement.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+      document.body.style.background = 'var(--bg)';
+      stage.style.background = 'var(--bg)';
+    })();
+  </script>
 </body>
 </html>
