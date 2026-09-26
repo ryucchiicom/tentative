@@ -1,1 +1,595 @@
-<div style="font-size: 32px; color: #f00; ">ぽんたやねー</div>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#05070a">
+<title>Mini Action Game - Offline</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+body{touch-action:none}
+.page{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px;background:radial-gradient(circle at 50% 30%,rgba(38,86,134,.86) 0%,rgba(12,19,29,.97) 46%,rgba(2,5,8,1) 100%)}
+.heading{font-size:13px;letter-spacing:2px;font-weight:900;opacity:.65}
+.game-wrap{width:min(94vw,720px);height:min(78svh,300px)}
+
+.mini-action-root{position:relative;width:min(94vw,720px);height:min(44svh,300px);min-height:170px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:linear-gradient(180deg,rgba(20,27,39,.92),rgba(5,8,13,.98));overflow:hidden;box-shadow:inset 0 0 55px rgba(0,0,0,.25),0 14px 42px rgba(0,0,0,.2);color:#fff}
+.mini-action-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.mini-action-title{position:absolute;left:14px;top:10px;z-index:3;font-size:12px;font-weight:900;letter-spacing:.8px;opacity:.62;pointer-events:none}
+.mini-action-stage-label{position:absolute;left:14px;top:28px;z-index:3;max-width:60%;font-size:11px;font-weight:800;opacity:.82;pointer-events:none}
+.mini-action-score{position:absolute;right:14px;top:13px;z-index:3;font-size:11px;font-variant-numeric:tabular-nums;font-weight:900;opacity:.74;text-align:right;pointer-events:none}
+.mini-action-message{position:absolute;left:50%;top:50%;z-index:4;transform:translate(-50%,-50%) scale(.96);min-width:120px;padding:10px 16px;border-radius:12px;background:rgba(4,7,12,.82);border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 30px rgba(0,0,0,.3);text-align:center;font-size:14px;font-weight:900;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .16s ease}
+.mini-action-message.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.mini-action-touch-zone{position:absolute;inset:0;z-index:5;pointer-events:auto;touch-action:none}
+.mini-action-move-guide,.mini-action-move-circle{position:absolute;pointer-events:none;opacity:0;transition:opacity .08s ease}
+.mini-action-move-guide.show,.mini-action-move-circle.show{opacity:1}
+.mini-action-move-guide{width:2px;height:48px;transform:translate(-50%,-50%);border-radius:2px;background:linear-gradient(180deg,rgba(141,215,255,.15),rgba(141,215,255,.95),rgba(141,215,255,.15));box-shadow:0 0 10px rgba(98,196,255,.28)}
+.mini-action-move-circle{width:30px;height:30px;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.72);border-radius:50%;background:radial-gradient(circle,rgba(120,205,255,.42),rgba(78,125,255,.16) 58%,rgba(0,0,0,0) 72%);box-shadow:0 0 16px rgba(98,196,255,.3)}
+@media (orientation:portrait) and (pointer:coarse){.mini-action-root{width:min(94vw,430px);height:min(42svh,290px);min-height:170px}}
+@media (orientation:landscape) and (pointer:coarse){.mini-action-root{width:min(94vw,720px);height:calc(100svh - 18px);min-height:140px;max-height:calc(100svh - 18px)}}
+
+.hint{font-size:11px;opacity:.55;text-align:center;line-height:1.5}
+@media (orientation:portrait) and (pointer:coarse){.page{justify-content:flex-start;padding:12px 8px calc(12px + env(safe-area-inset-bottom));gap:6px;overflow-y:auto}.heading{font-size:14px}.game-wrap{width:min(94vw,430px);height:min(48svh,290px)}}
+@media (orientation:landscape) and (pointer:coarse){.page{justify-content:flex-start;padding:6px 8px}.heading,.hint{display:none}.game-wrap{width:min(94vw,720px);height:calc(100svh - 12px);min-height:140px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="heading">MINI ACTION · OFFLINE</div>
+  <div class="game-wrap"><div id="miniActionGame" class="mini-action-root"></div></div>
+  <div class="hint">PC: A / D または ← / → で移動、Space / W / ↑ でジャンプ、Rでステージを引き直し<br>スマホ: 左半分を押して左右移動、右半分をタップしてジャンプ</div>
+</div>
+<script>
+
+const MINI_ACTION_STAGES = [
+  {
+    id:1,
+    name:"NEON RUN",
+    worldWidth:1360,
+    start:{x:42,y:188},
+    goalX:1290,
+    platforms:[
+      {x:0,y:220,w:300,h:40},
+      {x:350,y:198,w:170,h:20},
+      {x:570,y:220,w:230,h:40},
+      {x:840,y:186,w:165,h:20},
+      {x:1030,y:220,w:170,h:40},
+      {x:1225,y:198,w:135,h:20}
+    ],
+    hazards:[
+      {x:438,y:180,w:24,h:18},
+      {x:664,y:201,w:24,h:19},
+      {x:1104,y:201,w:24,h:19}
+    ]
+  },
+  {
+    id:2,
+    name:"SKY STEP",
+    worldWidth:1380,
+    start:{x:42,y:188},
+    goalX:1300,
+    platforms:[
+      {x:0,y:220,w:230,h:40},
+      {x:275,y:190,w:115,h:20},
+      {x:430,y:158,w:115,h:20},
+      {x:585,y:190,w:105,h:20},
+      {x:730,y:142,w:125,h:20},
+      {x:905,y:176,w:125,h:20},
+      {x:1070,y:132,w:125,h:20},
+      {x:1235,y:186,w:145,h:20}
+    ],
+    hazards:[
+      {x:330,y:172,w:20,h:18},
+      {x:630,y:172,w:20,h:18},
+      {x:955,y:158,w:20,h:18}
+    ]
+  },
+  {
+    id:3,
+    name:"PILLAR DASH",
+    worldWidth:1480,
+    start:{x:42,y:188},
+    goalX:1410,
+    platforms:[
+      {x:0,y:220,w:1480,h:40}
+    ],
+    hazards:[
+      {x:250,y:198,w:26,h:22},
+      {x:420,y:198,w:26,h:22},
+      {x:600,y:198,w:26,h:22},
+      {x:800,y:198,w:26,h:22},
+      {x:1010,y:198,w:26,h:22},
+      {x:1210,y:198,w:26,h:22},
+      {x:1325,y:198,w:26,h:22}
+    ],
+    ceilings:[
+      {x:460,y:112,w:150,h:18},
+      {x:840,y:126,w:160,h:18},
+      {x:1110,y:108,w:145,h:18}
+    ]
+  }
+];
+
+class MiniActionGame {
+  constructor(container, options = {}) {
+    if (!container) throw new Error("MiniActionGame: container is required.");
+    this.container = container;
+    this.options = options;
+    this.canvas = document.createElement("canvas");
+    this.canvas.className = "mini-action-canvas";
+    this.message = document.createElement("div");
+    this.message.className = "mini-action-message";
+    this.overlay = document.createElement("div");
+    this.overlay.className = "mini-action-touch-zone";
+    this.guide = document.createElement("div");
+    this.guide.className = "mini-action-move-guide";
+    this.circle = document.createElement("div");
+    this.circle.className = "mini-action-move-circle";
+    this.title = document.createElement("div");
+    this.title.className = "mini-action-title";
+    this.stageLabel = document.createElement("div");
+    this.stageLabel.className = "mini-action-stage-label";
+    this.score = document.createElement("div");
+    this.score.className = "mini-action-score";
+
+    this.title.textContent = options.title || "MINI ACTION";
+    this.message.setAttribute("aria-live", "polite");
+    this.overlay.append(this.guide, this.circle);
+    this.container.append(this.canvas, this.title, this.stageLabel, this.score, this.message, this.overlay);
+
+    this.ctx = this.canvas.getContext("2d");
+    this.state = null;
+    this.input = {left:false,right:false,jump:false,jumpPressed:false};
+    this.touch = {movePointerId:null,moveOriginX:0,moveCurrentX:0,moveY:0,jumpPointerId:null,jumpStartX:0,jumpStartY:0,jumpStartTime:0};
+    this.previousStage = 0;
+    this.remotePlayers = [];
+    this.lastFrame = performance.now();
+    this.raf = 0;
+    this.destroyed = false;
+    this.visible = true;
+
+    this.bindTouch();
+    this.bindKeyboard();
+    this.resize = this.resize.bind(this);
+    window.addEventListener("resize", this.resize, {passive:true});
+    this.resize();
+    this.start();
+    this.raf = requestAnimationFrame(t => this.step(t));
+  }
+
+  get storagePrefix() {
+    return this.options.storagePrefix || "mini_action_best_stage_";
+  }
+
+  bestKey(stageId){
+    return `${this.storagePrefix}${stageId}`;
+  }
+
+  getBest(stageId){
+    try {
+      const value = Number(localStorage.getItem(this.bestKey(stageId)));
+      return Number.isFinite(value) && value > 0 ? value : null;
+    } catch { return null; }
+  }
+
+  saveBest(stageId,time){
+    const previous = this.getBest(stageId);
+    if (previous !== null && previous <= time) return false;
+    try { localStorage.setItem(this.bestKey(stageId), String(time)); } catch {}
+    return previous === null || time < previous;
+  }
+
+  chooseStage(){
+    if (MINI_ACTION_STAGES.length === 1) return MINI_ACTION_STAGES[0];
+    let stage = MINI_ACTION_STAGES[Math.floor(Math.random() * MINI_ACTION_STAGES.length)];
+    let guard = 0;
+    while(stage.id === this.previousStage && guard++ < 12){
+      stage = MINI_ACTION_STAGES[Math.floor(Math.random() * MINI_ACTION_STAGES.length)];
+    }
+    this.previousStage = stage.id;
+    return stage;
+  }
+
+  start(stage = this.chooseStage()){
+    if (this.destroyed) return;
+    this.resize();
+    const start = stage.start;
+    this.state = {
+      active:true, stage, x:start.x, y:start.y, vx:0, vy:0,
+      width:16, height:22, onGround:false, coyote:0, jumpBuffer:0,
+      startTime:performance.now(), elapsed:0, flashUntil:0, clearPending:false
+    };
+    this.input.left = this.input.right = this.input.jump = this.input.jumpPressed = false;
+    this.touch.movePointerId = this.touch.jumpPointerId = null;
+    this.hideTouch();
+    this.hideMessage();
+    this.render();
+    this.emit("start", this.publicState());
+  }
+
+  restartAfterMiss(message){
+    if (!this.state?.active) return;
+    this.showMessage(message);
+    const delay = 260;
+    const oldState = this.state;
+    setTimeout(() => {
+      if (this.destroyed || this.state !== oldState) return;
+      this.start(this.chooseStage());
+    }, delay);
+    this.emit("miss", this.publicState());
+  }
+
+  clear(){
+    if (!this.state?.active || this.state.clearPending) return;
+    this.state.clearPending = true;
+    const state = this.state;
+    state.elapsed = (performance.now() - state.startTime) / 1000;
+    const isBest = this.saveBest(state.stage.id,state.elapsed);
+    this.updateLabels();
+    this.showMessage(isBest ? `NEW BEST  ${state.elapsed.toFixed(2)}s` : `CLEAR  ${state.elapsed.toFixed(2)}s`);
+    this.emit("clear", this.publicState());
+    setTimeout(() => {
+      if(this.destroyed || this.state !== state || !this.state.active) return;
+      this.start(this.chooseStage());
+    },850);
+  }
+
+  reset(message = "TRY AGAIN!", randomStage = true){
+    if(!this.state?.active) return;
+    const stage = randomStage ? this.chooseStage() : this.state.stage;
+    this.start(stage);
+    if(message) {
+      this.showMessage(message);
+      setTimeout(() => { if(!this.destroyed && this.state?.active) this.hideMessage(); }, 400);
+    }
+    this.emit("reset", this.publicState());
+  }
+
+  setRemotePlayers(players){
+    if (players && !Array.isArray(players)) players = Object.values(players);
+    this.remotePlayers = Array.isArray(players) ? players : [];
+    this.render();
+  }
+
+  setVisible(visible){
+    this.visible = !!visible;
+    this.container.style.display = this.visible ? "" : "none";
+  }
+
+  publicState(){
+    const s = this.state;
+    if (!s) return null;
+    return {active:s.active,stageId:s.stage.id,stageName:s.stage.name,x:s.x,y:s.y,elapsed:s.elapsed};
+  }
+
+  emit(type, data){
+    if (typeof this.options.onEvent === "function") {
+      try { this.options.onEvent(type,data,this); } catch (error) { console.error(error); }
+    }
+    this.container.dispatchEvent(new CustomEvent(`mini-action:${type}`,{detail:data}));
+  }
+
+  resize(){
+    const rect = this.canvas.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const width = Math.max(1,Math.floor(rect.width*dpr));
+    const height = Math.max(1,Math.floor(rect.height*dpr));
+    if(this.canvas.width !== width || this.canvas.height !== height){
+      this.canvas.width = width;
+      this.canvas.height = height;
+    }
+    this.render();
+  }
+
+  showMessage(text){ this.message.textContent = text; this.message.classList.add("show"); }
+  hideMessage(){ this.message.textContent = ""; this.message.classList.remove("show"); }
+
+  updateLabels(){
+    if(!this.state) return;
+    const best = this.getBest(this.state.stage.id);
+    const time = Math.max(0,this.state.elapsed || 0);
+    this.stageLabel.textContent = `STAGE ${this.state.stage.id} · ${this.state.stage.name}`;
+    this.score.textContent = `TIME ${time.toFixed(2)}s · BEST ${best === null ? "--" : best.toFixed(2)+"s"}`;
+  }
+
+  worldToScreen(x,y){
+    const s = this.state;
+    const width = this.canvas.clientWidth || 420;
+    const height = this.canvas.clientHeight || 260;
+    const camera = Math.max(0,Math.min(s.stage.worldWidth-720,s.x-180));
+    const scale = Math.min(width/720,height/260);
+    const drawWidth = 720*scale;
+    const drawHeight = 260*scale;
+    const offsetX = (width-drawWidth)/2;
+    const offsetY = (height-drawHeight)/2;
+    return {x:(x-camera)*scale+offsetX,y:y*scale+offsetY};
+  }
+
+  drawRemotePlayers(ctx,stage,camera,scale,offsetX,offsetY){
+    for(const player of this.remotePlayers){
+      if(!player || player.active === false || player.uid === this.options.playerId) continue;
+      const stageId = player.stageId ?? player.miniStageId;
+      if(Number(stageId) !== Number(stage.id)) continue;
+      const x = Number(player.x ?? player.miniX);
+      const y = Number(player.y ?? player.miniY);
+      if(!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      ctx.save();
+      ctx.globalAlpha = 0.34;
+      const width = 16, height = 22;
+      const px = (x-camera)*scale+offsetX;
+      const py = y*scale+offsetY;
+      const grad = ctx.createLinearGradient(px,py,px,py+height*scale);
+      grad.addColorStop(0,"#ffffff");
+      grad.addColorStop(.28,"#79c9ff");
+      grad.addColorStop(1,"#3b5bff");
+      ctx.fillStyle = grad;
+      ctx.fillRect(px,py,width*scale,height*scale);
+      ctx.fillStyle = "rgba(7,22,41,.9)";
+      ctx.fillRect(px+3*scale,py+5*scale,(width-6)*scale,5*scale);
+      ctx.restore();
+    }
+  }
+
+  render(){
+    if(!this.ctx || !this.state) return;
+    const s = this.state;
+    const width = this.canvas.clientWidth || 420;
+    const height = this.canvas.clientHeight || 260;
+    const pixelScaleX = this.canvas.width / Math.max(1,width);
+    const pixelScaleY = this.canvas.height / Math.max(1,height);
+    const scale = Math.min(width/720,height/260);
+    const drawWidth = 720*scale;
+    const drawHeight = 260*scale;
+    const offsetX = (width-drawWidth)/2;
+    const offsetY = (height-drawHeight)/2;
+    const ctx = this.ctx;
+
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+    ctx.setTransform(pixelScaleX*scale,0,0,pixelScaleY*scale,pixelScaleX*offsetX,pixelScaleY*offsetY);
+
+    const bg = ctx.createLinearGradient(0,0,0,260);
+    bg.addColorStop(0,"#111c2b");
+    bg.addColorStop(.62,"#07101b");
+    bg.addColorStop(1,"#02050a");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,720,260);
+
+    const camera = Math.max(0,Math.min(s.stage.worldWidth-720,s.x-180));
+    const stage = s.stage;
+    ctx.save();
+    ctx.translate(-camera,0);
+
+    for(let i=0;i<12;i++){
+      const px = camera + ((i*127+stage.id*53)%760)-20;
+      const py = 48 + ((i*31+stage.id*17)%105);
+      ctx.fillStyle = "rgba(150,195,255,.13)";
+      ctx.beginPath(); ctx.arc(px,py,(i%3)+1,0,Math.PI*2); ctx.fill();
+    }
+
+    for(const platform of stage.platforms){
+      const grad = ctx.createLinearGradient(0,platform.y,0,platform.y+platform.h);
+      grad.addColorStop(0,"#28394f");
+      grad.addColorStop(1,"#0c1624");
+      ctx.fillStyle = grad;
+      ctx.fillRect(platform.x,platform.y,platform.w,platform.h);
+      ctx.strokeStyle = "rgba(103,196,255,.84)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(platform.x,platform.y+.5); ctx.lineTo(platform.x+platform.w,platform.y+.5); ctx.stroke();
+    }
+
+    for(const ceiling of stage.ceilings || []){
+      ctx.fillStyle = "#1a2a3d";
+      ctx.fillRect(ceiling.x,ceiling.y,ceiling.w,ceiling.h);
+      ctx.strokeStyle = "rgba(161,108,255,.56)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ceiling.x,ceiling.y+ceiling.h-.5); ctx.lineTo(ceiling.x+ceiling.w,ceiling.y+ceiling.h-.5); ctx.stroke();
+    }
+
+    for(const hazard of stage.hazards || []){
+      ctx.fillStyle = "#7f335f";
+      ctx.beginPath();
+      ctx.moveTo(hazard.x,hazard.y+hazard.h);
+      ctx.lineTo(hazard.x+hazard.w/2,hazard.y);
+      ctx.lineTo(hazard.x+hazard.w,hazard.y+hazard.h);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = "rgba(255,132,203,.72)";
+      ctx.lineWidth = 1.5; ctx.stroke();
+    }
+
+    const goalX = stage.goalX;
+    const goalPlatform = stage.platforms.find(p => goalX >= p.x && goalX <= p.x+p.w) || stage.platforms[stage.platforms.length-1];
+    const groundY = Number(goalPlatform?.y ?? 220);
+    const flagTopY = groundY-42;
+    ctx.strokeStyle = "rgba(170,221,255,.95)";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(goalX,flagTopY); ctx.lineTo(goalX,groundY); ctx.stroke();
+    ctx.fillStyle = "rgba(116,207,255,.86)";
+    ctx.beginPath(); ctx.moveTo(goalX+1,flagTopY); ctx.lineTo(goalX+34,flagTopY+10); ctx.lineTo(goalX+1,flagTopY+20); ctx.closePath(); ctx.fill();
+
+    for(const player of this.remotePlayers){
+      if(!player || player.active === false || player.uid === this.options.playerId) continue;
+      const stageId = player.stageId ?? player.miniStageId;
+      if(Number(stageId) !== Number(stage.id)) continue;
+      const x = Number(player.x ?? player.miniX);
+      const y = Number(player.y ?? player.miniY);
+      if(!Number.isFinite(x)||!Number.isFinite(y)) continue;
+      const alpha=0.34;
+      ctx.save(); ctx.globalAlpha=alpha;
+      const grad=ctx.createLinearGradient(x,y,x,y+22);
+      grad.addColorStop(0,"#ffffff"); grad.addColorStop(.28,"#79c9ff"); grad.addColorStop(1,"#3b5bff");
+      ctx.fillStyle=grad; ctx.fillRect(x,y,16,22);
+      ctx.fillStyle="rgba(7,22,41,.9)"; ctx.fillRect(x+3,y+5,10,5);
+      ctx.restore();
+    }
+
+    const p=s;
+    const playerGrad=ctx.createLinearGradient(p.x,p.y,p.x,p.y+p.height);
+    playerGrad.addColorStop(0,"#e7f4ff"); playerGrad.addColorStop(.28,"#79c9ff"); playerGrad.addColorStop(1,"#3b5bff");
+    ctx.fillStyle=playerGrad; ctx.fillRect(p.x,p.y,p.width,p.height);
+    ctx.fillStyle="rgba(7,22,41,.9)"; ctx.fillRect(p.x+3,p.y+5,p.width-6,5);
+    ctx.restore();
+
+    if(s.flashUntil > performance.now()){
+      const alpha=Math.max(0,(s.flashUntil-performance.now())/160)*.35;
+      ctx.fillStyle=`rgba(255,255,255,${alpha})`;
+      ctx.fillRect(0,0,720,260);
+    }
+    this.updateLabels();
+  }
+
+  step(time){
+    if(this.destroyed) return;
+    const delta=(time-this.lastFrame)/1000;
+    this.lastFrame=time;
+    if(this.state?.active && this.visible) this.update(delta);
+    this.raf=requestAnimationFrame(t=>this.step(t));
+  }
+
+  update(delta){
+    const state=this.state;
+    if(!state || !state.active) return;
+    const clamped=Math.min(.035,Math.max(.001,delta));
+    if(state.clearPending){ this.render(); return; }
+
+    if(this.input.jumpPressed){ state.jumpBuffer=.12; this.input.jumpPressed=false; }
+    else state.jumpBuffer=Math.max(0,state.jumpBuffer-clamped);
+
+    const horizontal=Number(this.input.right)-Number(this.input.left);
+    const targetSpeed=190, accel=980;
+    if(horizontal!==0){ state.vx+=(horizontal*targetSpeed-state.vx)*Math.min(1,accel*clamped/targetSpeed); }
+    else { state.vx*=Math.max(0,1-10*clamped); if(Math.abs(state.vx)<2) state.vx=0; }
+
+    if(state.onGround) state.coyote=.1; else state.coyote=Math.max(0,state.coyote-clamped);
+    if(state.jumpBuffer>0 && state.coyote>0){ state.vy=-455; state.onGround=false; state.coyote=0; state.jumpBuffer=0; }
+
+    const previousBottom=state.y+state.height;
+    state.x+=state.vx*clamped;
+    state.x=Math.max(0,Math.min(state.stage.worldWidth-state.width,state.x));
+    state.vy+=1180*clamped;
+    state.y+=state.vy*clamped;
+    state.onGround=false;
+
+    for(const platform of state.stage.platforms){
+      const overlap=state.x+state.width>platform.x && state.x<platform.x+platform.w;
+      if(!overlap) continue;
+      if(state.vy>=0 && previousBottom<=platform.y+5 && state.y+state.height>=platform.y){
+        state.y=platform.y-state.height; state.vy=0; state.onGround=true;
+      }
+    }
+
+    const rect={x:state.x,y:state.y,width:state.width,height:state.height};
+    for(const hazard of state.stage.hazards || []){
+      if(this.hit(rect,hazard)){
+        this.restartAfterMiss("TRY AGAIN!");
+        return;
+      }
+    }
+    if(state.y>290){ this.restartAfterMiss("MISS!"); return; }
+    if(state.x+state.width>=state.stage.goalX){ this.clear(); return; }
+
+    state.elapsed=(performance.now()-state.startTime)/1000;
+    this.emit("update",this.publicState());
+    this.render();
+  }
+
+  hit(a,b){ return a.x<b.x+b.w && a.x+a.width>b.x && a.y<b.y+b.h && a.y+a.height>b.y; }
+
+  bindTouch(){
+    const zone=this.overlay;
+    zone.addEventListener("pointerdown",event=>{
+      if(!this.state?.active) return;
+      event.preventDefault();
+      const p=this.point(event);
+      if(p.x<p.width/2){
+        if(this.touch.movePointerId!==null) return;
+        this.touch.movePointerId=event.pointerId;
+        this.touch.moveOriginX=p.x; this.touch.moveCurrentX=p.x; this.touch.moveY=p.y;
+        this.input.left=this.input.right=false;
+        try{zone.setPointerCapture(event.pointerId);}catch{}
+        this.touchVisual();
+      }else{
+        if(this.touch.jumpPointerId!==null) return;
+        this.touch.jumpPointerId=event.pointerId;
+        this.touch.jumpStartX=p.x; this.touch.jumpStartY=p.y; this.touch.jumpStartTime=performance.now();
+        try{zone.setPointerCapture(event.pointerId);}catch{}
+      }
+    },{passive:false});
+
+    zone.addEventListener("pointermove",event=>{
+      if(event.pointerId!==this.touch.movePointerId && event.pointerId!==this.touch.jumpPointerId) return;
+      event.preventDefault();
+      if(event.pointerId===this.touch.movePointerId){
+        const p=this.point(event); this.touch.moveCurrentX=p.x;
+        const threshold=3;
+        this.input.left=p.x<this.touch.moveOriginX-threshold;
+        this.input.right=p.x>this.touch.moveOriginX+threshold;
+        this.touchVisual();
+      }
+    },{passive:false});
+
+    const release=event=>{
+      if(event.pointerId===this.touch.movePointerId){
+        event.preventDefault(); this.touch.movePointerId=null; this.input.left=this.input.right=false; this.hideTouch();
+      }
+      if(event.pointerId===this.touch.jumpPointerId){
+        event.preventDefault();
+        const p=this.point(event);
+        const duration=performance.now()-this.touch.jumpStartTime;
+        const distance=Math.hypot(p.x-this.touch.jumpStartX,p.y-this.touch.jumpStartY);
+        if(duration<=260 && distance<=14){ this.input.jump=true; this.input.jumpPressed=true; setTimeout(()=>{this.input.jump=false;},80); }
+        this.touch.jumpPointerId=null;
+      }
+    };
+    zone.addEventListener("pointerup",release,{passive:false});
+    zone.addEventListener("pointercancel",release,{passive:false});
+  }
+
+  point(event){
+    const rect=this.overlay.getBoundingClientRect();
+    return {x:Math.max(0,Math.min(rect.width,event.clientX-rect.left)),y:Math.max(0,Math.min(rect.height,event.clientY-rect.top)),width:rect.width,height:rect.height};
+  }
+
+  touchVisual(){
+    if(this.touch.movePointerId===null){this.hideTouch();return;}
+    this.guide.style.left=`${this.touch.moveOriginX}px`; this.guide.style.top=`${this.touch.moveY}px`;
+    this.circle.style.left=`${this.touch.moveCurrentX}px`; this.circle.style.top=`${this.touch.moveY}px`;
+    this.guide.classList.add("show"); this.circle.classList.add("show");
+  }
+  hideTouch(){this.guide.classList.remove("show");this.circle.classList.remove("show");}
+
+  bindKeyboard(){
+    this.onKeyDown=event=>{
+      if(!this.visible || !this.state?.active) return;
+      if(event.code==="ArrowLeft"||event.code==="KeyA"){event.preventDefault();this.input.left=true;}
+      if(event.code==="ArrowRight"||event.code==="KeyD"){event.preventDefault();this.input.right=true;}
+      if(event.code==="Space"||event.code==="ArrowUp"||event.code==="KeyW"){event.preventDefault();this.input.jump=true;this.input.jumpPressed=true;}
+      if(event.code==="KeyR"){event.preventDefault();this.reset("TRY AGAIN!",true);}
+    };
+    this.onKeyUp=event=>{
+      if(event.code==="ArrowLeft"||event.code==="KeyA") this.input.left=false;
+      if(event.code==="ArrowRight"||event.code==="KeyD") this.input.right=false;
+      if(event.code==="Space"||event.code==="ArrowUp"||event.code==="KeyW") this.input.jump=false;
+    };
+    window.addEventListener("keydown",this.onKeyDown,{passive:false});
+    window.addEventListener("keyup",this.onKeyUp,{passive:false});
+  }
+
+  destroy(){
+    this.destroyed=true;
+    cancelAnimationFrame(this.raf);
+    window.removeEventListener("resize",this.resize);
+    window.removeEventListener("keydown",this.onKeyDown);
+    window.removeEventListener("keyup",this.onKeyUp);
+    this.container.innerHTML="";
+  }
+}
+
+window.MiniActionGame = MiniActionGame;
+window.MINI_ACTION_STAGES = MINI_ACTION_STAGES;
+
+new MiniActionGame(document.getElementById("miniActionGame"), {title:"MINI ACTION"});
+</script>
+</body>
+</html>
