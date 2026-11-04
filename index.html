@@ -4,224 +4,466 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101827">
-<title>北海道・東北 地理用語チャレンジ</title>
+<title>北海道・東北 読みクイズ</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#121e30;--panel2:#18263b;--line:#2b3b53;--text:#edf4ff;--muted:#9fb0c7;--blue:#74aaff;--green:#54d6a0;--red:#ff8585;--yellow:#f4ce75}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(1000px 500px at 50% -180px,#21385d 0%,transparent 70%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;padding:22px 14px calc(28px + env(safe-area-inset-bottom))}
-main{width:min(760px,100%);margin:0 auto}
-header{margin:8px 0 20px}
-.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--blue);font-weight:800}
-h1{font-size:clamp(25px,6vw,34px);line-height:1.2;margin:8px 0 9px;letter-spacing:.01em}
-.sub{color:var(--muted);font-size:14px;line-height:1.65;margin:0}
-.panel{background:linear-gradient(145deg,rgba(25,41,63,.97),rgba(17,29,46,.97));border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 12px 35px #0002}
-.progress-top{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:11px}
-.progress-top strong{font-size:25px;font-variant-numeric:tabular-nums}
-.progress-top span{color:var(--muted);font-size:13px}
-.track{height:10px;background:#0a1321;border:1px solid #30425b;border-radius:99px;overflow:hidden}
-.bar{height:100%;width:0;background:linear-gradient(90deg,#5598ff,#58dbad);border-radius:99px;transition:width .22s ease}
-.formrow{display:flex;gap:9px;margin-top:16px}
-input{min-width:0;flex:1;background:#0b1626;border:1px solid #3a4e6c;border-radius:12px;color:var(--text);padding:14px 13px;font-size:16px;outline:none}
-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #74aaff22}
-button{border:0;border-radius:12px;padding:12px 15px;font-size:14px;font-weight:750;cursor:pointer;color:#0b1422;background:var(--blue);white-space:nowrap}
-button:active{transform:translateY(1px)}
-button.secondary{background:#263951;color:var(--text);border:1px solid #405675}
-button.danger{background:#472a35;color:#ffd9df;border:1px solid #754153}
-button:focus-visible{outline:3px solid #fff;outline-offset:2px}
-.hint{font-size:12px;color:var(--muted);margin:10px 1px 0;line-height:1.6}
-#feedback{min-height:25px;margin-top:12px;font-size:14px;font-weight:700}
-#feedback.good{color:var(--green)}#feedback.bad{color:var(--red)}#feedback.note{color:var(--yellow)}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
-.section-title{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
-h2{font-size:17px;margin:0}
-.small{font-size:12px;color:var(--muted)}
-#answerBank[hidden],#historyPanel[hidden]{display:none}
-.answer-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:7px;margin:0;padding:0;list-style:none}
-.answer-list li{background:#0d1929;border:1px solid #273952;border-radius:10px;padding:9px 11px;font-size:13px;display:flex;justify-content:space-between;gap:10px;align-items:center}
-.answer-list ruby{font-size:14px}rt{font-size:10px;color:var(--muted)}
-.answer-list .done{border-color:#28634e;background:#102b27}
-.answer-list .done::after{content:"✓";color:var(--green);font-weight:900}
-.history{display:grid;gap:7px;max-height:360px;overflow:auto;padding-right:2px}
-.history-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;background:#0d1929;border:1px solid #273952;border-radius:10px;padding:9px 11px;font-size:13px}
-.history-item .answer{overflow-wrap:anywhere}
-.status{font-size:11px;font-weight:800;white-space:nowrap}
-.status.correct{color:var(--green)}.status.wrong{color:var(--red)}.status.duplicate{color:var(--yellow)}
-.empty{color:var(--muted);font-size:13px;padding:10px 2px}
-details{margin-top:12px;color:var(--muted);font-size:12px}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0a1321;border:1px solid var(--line);padding:10px;border-radius:9px;color:#c8d7ea;max-height:220px;overflow:auto}
-.complete{display:none;margin-top:14px;padding:13px;border-radius:12px;background:#123329;border:1px solid #28634e;color:#bdf7de;font-weight:750;text-align:center}
-.complete.show{display:block}
-footer{color:#74869e;font-size:11px;text-align:center;padding:10px 0 0}
-@media(max-width:430px){body{padding-left:11px;padding-right:11px}.panel{padding:15px}.formrow{flex-wrap:wrap}.formrow input{flex-basis:100%}.formrow button{flex:1}}
+:root{
+  color-scheme:dark;
+  --bg:#0c1320;--panel:#151f30;--panel2:#1b2940;--line:#2c3c55;
+  --text:#f2f6ff;--muted:#9aacc5;--accent:#70d7c1;--accent2:#79a9ff;
+  --good:#54d69a;--bad:#ff7f89;--warn:#ffd47a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{min-height:100%;background:var(--bg)}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#1b3150 0%,var(--bg) 58%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;overscroll-behavior-y:contain}
+button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}
+.app{width:min(100%,680px);margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 15px calc(22px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.brand{font-size:12px;letter-spacing:.14em;color:var(--accent);font-weight:800}
+h1{font-size:clamp(20px,5vw,27px);margin:4px 0 0;letter-spacing:.01em}
+.save-pill{font-size:10px;color:#b8c9df;border:1px solid var(--line);padding:6px 9px;border-radius:99px;white-space:nowrap}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:rgba(21,31,48,.9);border:1px solid var(--line);border-radius:14px;padding:11px 13px}
+.stat-label{color:var(--muted);font-size:11px}
+.stat-value{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
+.progress-wrap{height:8px;border-radius:99px;background:#253248;overflow:hidden;margin:0 1px 18px}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .25s ease}
+.card{background:linear-gradient(155deg,rgba(27,41,64,.98),rgba(20,30,47,.98));border:1px solid #344760;border-radius:21px;padding:21px 17px 17px;box-shadow:0 15px 36px #0003}
+.question-top{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}
+.tag{background:#263a55;color:#b9d5ff;border-radius:99px;padding:5px 9px;font-size:10px;white-space:nowrap}
+.term{font-size:clamp(32px,9vw,47px);font-weight:850;letter-spacing:.035em;text-align:center;margin:26px 0 8px;overflow-wrap:anywhere;line-height:1.35}
+.instruction{text-align:center;color:var(--muted);font-size:13px;margin:0 0 15px}
+.answer-box{min-height:58px;border:1.5px solid #425775;background:#0d1726;border-radius:13px;display:flex;align-items:center;justify-content:center;padding:9px 12px;font-size:25px;letter-spacing:.08em;overflow-wrap:anywhere;word-break:break-all;text-align:center}
+.answer-placeholder{color:#60728b;font-size:14px;letter-spacing:0}
+.answer-cursor{display:inline-block;width:2px;height:25px;background:var(--accent);margin-left:3px;vertical-align:-4px;animation:blink 1s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+.feedback{min-height:27px;text-align:center;font-size:13px;padding-top:9px;color:var(--muted)}
+.feedback.good{color:var(--good);font-weight:700}.feedback.bad{color:var(--bad)}.feedback.hint{color:var(--warn)}
+.answer-reveal{display:none;text-align:center;border:1px dashed #9d8450;color:#ffe0a0;background:#30291b;border-radius:11px;padding:9px;margin:4px 0 8px;font-size:15px}
+.answer-reveal.show{display:block}
+.actions{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin-top:10px}
+.action{border-radius:11px;padding:12px 8px;font-size:13px;font-weight:750;background:#293a53;border:1px solid #3a506e}
+.action.primary{background:linear-gradient(135deg,#69d7c0,#62bda9);color:#08231f;border:0}
+.action:disabled{opacity:.35;cursor:not-allowed}
+.action.subtle{background:#202d41}
+.keyboard{margin-top:17px;background:rgba(16,25,39,.82);border:1px solid var(--line);border-radius:18px;padding:11px 9px 10px;user-select:none;-webkit-user-select:none}
+.keyboard-head{display:flex;justify-content:space-between;align-items:center;margin:0 3px 9px;color:var(--muted);font-size:11px}
+.flick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.kana-key{position:relative;height:67px;border-radius:12px;background:linear-gradient(180deg,#33445d,#26364d);border:1px solid #455c7a;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:inset 0 1px #ffffff12,0 2px 0 #0a111c;}
+.kana-key.is-down{background:#45658b;transform:scale(.98);border-color:#8cbbff}
+.kana-key .main{font-size:25px;font-weight:800;pointer-events:none}
+.kana-key .hint{position:absolute;font-size:9px;color:#c1d0e4;opacity:.85;line-height:1;pointer-events:none}
+.kana-key .hint.up{top:4px;left:50%;transform:translateX(-50%)}
+.kana-key .hint.ul{top:4px;left:5px;font-weight:800;color:#e0ebfb}
+.kana-key .hint.down{bottom:4px;left:50%;transform:translateX(-50%)}
+.kana-key .hint.left{left:5px;top:50%;transform:translateY(-50%)}
+.kana-key .hint.right{right:5px;top:50%;transform:translateY(-50%)}
+.kana-key.function{background:#26354a;border-color:#3a506a}
+.kana-key.function .main{font-size:19px}
+.kana-key.delete .main{font-size:22px}
+.modifiers{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
+.mod{padding:10px 4px;border-radius:10px;background:#1b2a3f;border:1px solid #344b67;color:#d4e2f4;font-size:12px;font-weight:700}
+.mod.active{background:#3d4b36;color:#e4ffc0;border-color:#8ebd6c;box-shadow:0 0 0 1px #8ebd6c55}
+.keyboard-note{text-align:center;color:#71859f;font-size:10px;margin:9px 0 0}
+.utility-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.utility{flex:1 1 30%;min-width:90px;border-radius:10px;padding:11px 8px;background:#172438;border:1px solid #2e425d;color:#b9c9df;font-size:12px;font-weight:700}
+.utility.danger{color:#ffabb1;border-color:#62404a}
+.finished{display:none;text-align:center;padding:25px 12px}
+.finished.show{display:block}
+.finished h2{font-size:26px;margin:8px 0}.finished p{color:var(--muted);line-height:1.7}
+.panel{display:none;margin-top:13px;background:#121e2e;border:1px solid var(--line);border-radius:15px;padding:14px;max-height:52vh;overflow:auto}
+.panel.show{display:block}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:-14px;background:#121e2e;padding:2px 0 10px;z-index:2}
+.panel h3{font-size:15px;margin:0}.close-panel{background:#28394f;border-radius:8px;padding:6px 10px;font-size:12px}
+.record-item,.answer-item{padding:9px 1px;border-top:1px solid #28384d;font-size:12px;line-height:1.55}
+.record-item strong,.answer-item strong{font-size:14px;color:#ecf4ff}
+.record-meta{color:#92a5bf;font-size:10px}.record-correct{color:var(--good)}.record-wrong{color:var(--bad)}
+.answer-list{display:grid;grid-template-columns:1fr;gap:0}
+.empty{color:var(--muted);font-size:12px;padding:12px 0}
+.footer-note{color:#687e99;font-size:10px;line-height:1.6;text-align:center;margin:14px 5px 0}
+@media(min-width:560px){.app{padding-left:22px;padding-right:22px}.kana-key{height:76px}.panel{max-height:440px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<main>
-<header>
-  <div class="eyebrow">GEOGRAPHY · HOKKAIDO & TOHOKU</div>
-  <h1>北海道・東北<br>地理用語チャレンジ</h1>
-  <p class="sub">下の入力欄に、覚えた単語を好きな順番で入力しよう。<br>漢字・ひらがなのどちらでも正解になるよ。</p>
-</header>
-<section class="panel" aria-label="進捗と回答">
-  <div class="progress-top"><div><span>正解した単語</span><br><strong id="progressText">0 / 0</strong></div><span id="remainingText">残り 0 個</span></div>
-  <div class="track"><div class="bar" id="progressBar"></div></div>
-  <form id="answerForm" autocomplete="off">
-    <div class="formrow"><input id="answerInput" type="text" placeholder="単語を入力（例：奥羽山脈）" enterkeyhint="done" autocapitalize="off" spellcheck="false" aria-label="回答する単語"><button type="submit">回答する</button></div>
-  </form>
-  <p class="hint">読みだけでもOK。例：「おううさんみゃく」／「奥羽山脈（おううさんみゃく）」</p>
-  <div id="feedback" role="status" aria-live="polite"></div>
-  <div class="complete" id="completeMessage">🎉 全単語クリア！ おめでとう！</div>
-  <div class="actions">
-    <button class="secondary" id="toggleAnswers" type="button">答えを見る（カンニング）</button>
-    <button class="secondary" id="toggleHistory" type="button">LSの回答履歴</button>
-    <button class="danger" id="resetButton" type="button">最初からリセット</button>
-  </div>
-</section>
-<section class="panel" id="answerBank" hidden>
-  <div class="section-title"><h2>答え一覧</h2><span class="small">全 <span id="bankCount">0</span> 語・読み付き</span></div>
-  <ul class="answer-list" id="answerList"></ul>
-</section>
-<section class="panel" id="historyPanel" hidden>
-  <div class="section-title"><h2>localStorage に保存された回答</h2><span class="small" id="historyCount">0件</span></div>
-  <div class="history" id="historyList"></div>
-  <details><summary>localStorage の保存データ（JSON）を見る</summary><pre id="rawStorage"></pre></details>
-  <p class="hint">この履歴と正解状況は、このブラウザのlocalStorageに保存されるよ。ページを閉じたり再読み込みしても基本的に残る。</p>
-</section>
-<footer>保存先キー：hokkaido_tohoku_quiz_v1 · この端末・このブラウザ内に保存</footer>
-</main>
+<div class="app">
+  <header>
+    <div><div class="brand">GEOGRAPHY • HOKKAIDO / TOHOKU</div><h1>読み方チャレンジ</h1></div>
+    <div class="save-pill" id="saveState">LS 保存</div>
+  </header>
+
+  <section class="stats" aria-label="進捗">
+    <div class="stat"><div class="stat-label">回答済み</div><div class="stat-value"><span id="doneCount">0</span><span style="font-size:13px;color:var(--muted);font-weight:600"> / <span id="totalCount">0</span></span></div></div>
+    <div class="stat"><div class="stat-label">残り</div><div class="stat-value" id="leftCount">0</div></div>
+  </section>
+  <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+
+  <main>
+    <section class="card" id="quizCard">
+      <div class="question-top"><span id="questionNo">QUESTION 1</span><span class="tag">順番ランダム</span></div>
+      <div class="term" id="term">読み込み中…</div>
+      <p class="instruction">この語句の読みを、ひらがなで入力してね</p>
+      <div class="answer-box" id="answerBox"><span class="answer-placeholder">下のキーをフリック</span></div>
+      <div class="feedback" id="feedback" aria-live="polite">↖で基本文字、←↑→↓で母音を選んでフリック！</div>
+      <div class="answer-reveal" id="answerReveal"></div>
+      <div class="actions">
+        <button class="action primary" id="submitBtn" type="button">判定する</button>
+        <button class="action" id="nextBtn" type="button" hidden>次の問題へ</button>
+        <button class="action subtle" id="hintBtn" type="button">カンニング</button>
+      </div>
+    </section>
+
+    <section class="finished" id="finished">
+      <div style="font-size:42px">🎉</div>
+      <h2>全問クリア！</h2>
+      <p>登録された<strong id="finishedTotal">0</strong>語、全部正解できた！<br>おつかれさま！</p>
+      <button class="action primary" id="againBtn" type="button">もう一度ランダムに挑戦</button>
+    </section>
+
+    <section class="keyboard" id="keyboard" aria-label="フリック専用かなキーボード">
+      <div class="keyboard-head"><span>かなフリックキーボード</span><span>タップだけでは入力されないよ</span></div>
+      <div class="flick-grid" id="flickGrid">
+        <button class="kana-key" type="button" data-ul="あ" data-left="い" data-up="う" data-right="え" data-down="お"><span class="hint ul">↖あ</span><span class="hint up">う</span><span class="hint left">い</span><span class="hint right">え</span><span class="hint down">お</span><span class="main">あ</span></button>
+        <button class="kana-key" type="button" data-ul="か" data-left="き" data-up="く" data-right="け" data-down="こ"><span class="hint ul">↖か</span><span class="hint up">く</span><span class="hint left">き</span><span class="hint right">け</span><span class="hint down">こ</span><span class="main">か</span></button>
+        <button class="kana-key" type="button" data-ul="さ" data-left="し" data-up="す" data-right="せ" data-down="そ"><span class="hint ul">↖さ</span><span class="hint up">す</span><span class="hint left">し</span><span class="hint right">せ</span><span class="hint down">そ</span><span class="main">さ</span></button>
+        <button class="kana-key" type="button" data-ul="た" data-left="ち" data-up="つ" data-right="て" data-down="と"><span class="hint ul">↖た</span><span class="hint up">つ</span><span class="hint left">ち</span><span class="hint right">て</span><span class="hint down">と</span><span class="main">た</span></button>
+        <button class="kana-key" type="button" data-ul="な" data-left="に" data-up="ぬ" data-right="ね" data-down="の"><span class="hint ul">↖な</span><span class="hint up">ぬ</span><span class="hint left">に</span><span class="hint right">ね</span><span class="hint down">の</span><span class="main">な</span></button>
+        <button class="kana-key" type="button" data-ul="は" data-left="ひ" data-up="ふ" data-right="へ" data-down="ほ"><span class="hint ul">↖は</span><span class="hint up">ふ</span><span class="hint left">ひ</span><span class="hint right">へ</span><span class="hint down">ほ</span><span class="main">は</span></button>
+        <button class="kana-key" type="button" data-ul="ま" data-left="み" data-up="む" data-right="め" data-down="も"><span class="hint ul">↖ま</span><span class="hint up">む</span><span class="hint left">み</span><span class="hint right">め</span><span class="hint down">も</span><span class="main">ま</span></button>
+        <button class="kana-key" type="button" data-ul="や" data-left="" data-up="ゆ" data-right="" data-down="よ"><span class="hint ul">↖や</span><span class="hint up">ゆ</span><span class="hint left">—</span><span class="hint right">—</span><span class="hint down">よ</span><span class="main">や</span></button>
+        <button class="kana-key" type="button" data-ul="ら" data-left="り" data-up="る" data-right="れ" data-down="ろ"><span class="hint ul">↖ら</span><span class="hint up">る</span><span class="hint left">り</span><span class="hint right">れ</span><span class="hint down">ろ</span><span class="main">ら</span></button>
+        <button class="kana-key" type="button" data-ul="わ" data-left="を" data-up="ん" data-right="ー" data-down=""><span class="hint ul">↖わ</span><span class="hint up">ん</span><span class="hint left">を</span><span class="hint right">ー</span><span class="hint down">—</span><span class="main">わ</span></button>
+        <button class="kana-key function delete" id="deleteKey" type="button" aria-label="1文字削除"><span class="main">⌫</span><span class="hint down">削除</span></button>
+        <button class="kana-key function" id="clearKey" type="button"><span class="main">消去</span><span class="hint down">全消し</span></button>
+      </div>
+      <div class="modifiers">
+        <button class="mod" type="button" data-mod="dakuten">゛ 濁点</button>
+        <button class="mod" type="button" data-mod="handakuten">゜ 半濁点</button>
+        <button class="mod" type="button" data-mod="small">小文字</button>
+      </div>
+      <p class="keyboard-note">↖＝キーの基本文字／←い・↑う・→え・↓お。濁点・半濁点・小文字は先に選んでからフリックしてね。</p>
+    </section>
+
+    <div class="utility-row">
+      <button class="utility" id="recordsBtn" type="button">回答記録（LS）</button>
+      <button class="utility" id="allAnswersBtn" type="button">全答えを見る</button>
+      <button class="utility danger" id="resetBtn" type="button">リセット</button>
+    </div>
+    <section class="panel" id="recordsPanel">
+      <div class="panel-head"><h3>回答記録（localStorage）</h3><button class="close-panel" data-close="recordsPanel" type="button">閉じる</button></div>
+      <div id="recordsContent"></div>
+    </section>
+    <section class="panel" id="answersPanel">
+      <div class="panel-head"><h3>全答え一覧</h3><button class="close-panel" data-close="answersPanel" type="button">閉じる</button></div>
+      <div class="answer-list" id="answersContent"></div>
+    </section>
+  </main>
+  <p class="footer-note">進捗と回答履歴は、このブラウザの localStorage に保存されるよ。同じ端末・同じブラウザで開いてね。</p>
+</div>
+
 <script>
 'use strict';
-const WORDS = [{"term":"奥羽山脈","reading":"おううさんみゃく"},{"term":"北上高地","reading":"きたかみこうち"},{"term":"北上山地","reading":"きたかみさんち"},{"term":"出羽山地","reading":"でわさんち"},{"term":"阿武隈高地","reading":"あぶくまこうち"},{"term":"日高山脈","reading":"ひだかさんみゃく"},{"term":"北見山地","reading":"きたみさんち"},{"term":"天塩山地","reading":"てしおさんち"},{"term":"夕張山地","reading":"ゆうばりさんち"},{"term":"大雪山","reading":"たいせつざん"},{"term":"石狩平野","reading":"いしかりへいや"},{"term":"十勝平野","reading":"とかちへいや"},{"term":"根釧台地","reading":"こんせんだいち"},{"term":"上川盆地","reading":"かみかわぼんち"},{"term":"釧路湿原","reading":"くしろしつげん"},{"term":"津軽平野","reading":"つがるへいや"},{"term":"秋田平野","reading":"あきたへいや"},{"term":"庄内平野","reading":"しょうないへいや"},{"term":"仙台平野","reading":"せんだいへいや"},{"term":"山形盆地","reading":"やまがたぼんち"},{"term":"米沢盆地","reading":"よねざわぼんち"},{"term":"新庄盆地","reading":"しんじょうぼんち"},{"term":"石狩川","reading":"いしかりがわ"},{"term":"十勝川","reading":"とかちがわ"},{"term":"北上川","reading":"きたかみがわ"},{"term":"最上川","reading":"もがみがわ"},{"term":"阿武隈川","reading":"あぶくまがわ"},{"term":"三陸海岸","reading":"さんりくかいがん"},{"term":"リアス海岸","reading":"りあすかいがん"},{"term":"陸奥湾","reading":"むつわん"},{"term":"松島湾","reading":"まつしまわん"},{"term":"津軽海峡","reading":"つがるかいきょう"},{"term":"知床半島","reading":"しれとこはんとう"},{"term":"オホーツク海","reading":"おほーつくかい"},{"term":"三陸沖","reading":"さんりくおき"},{"term":"親潮","reading":"おやしお"},{"term":"黒潮","reading":"くろしお"},{"term":"潮目","reading":"しおめ"},{"term":"やませ","reading":"やませ"},{"term":"冷害","reading":"れいがい"},{"term":"亜寒帯","reading":"あかんたい"},{"term":"泥炭地","reading":"でいたんち"},{"term":"客土","reading":"きゃくど"},{"term":"土地改良","reading":"とちかいりょう"},{"term":"品種改良","reading":"ひんしゅかいりょう"},{"term":"屯田兵","reading":"とんでんへい"},{"term":"開拓使","reading":"かいたくし"},{"term":"アイヌ民族","reading":"あいぬみんぞく"},{"term":"アイヌ文化","reading":"あいぬぶんか"},{"term":"ウポポイ","reading":"うぽぽい"},{"term":"ねぶた祭","reading":"ねぶたまつり"},{"term":"竿燈まつり","reading":"かんとうまつり"},{"term":"仙台七夕まつり","reading":"せんだいたなばたまつり"},{"term":"さんさ踊り","reading":"さんさおどり"},{"term":"花笠まつり","reading":"はながさまつり"},{"term":"なまはげ","reading":"なまはげ"},{"term":"南部鉄器","reading":"なんぶてっき"},{"term":"会津塗","reading":"あいづぬり"},{"term":"津軽塗","reading":"つがるぬり"},{"term":"稲作","reading":"いなさく"},{"term":"畑作","reading":"はたさく"},{"term":"酪農","reading":"らくのう"},{"term":"養殖業","reading":"ようしょくぎょう"},{"term":"銘柄米","reading":"めいがらまい"},{"term":"減反政策","reading":"げんたんせいさく"},{"term":"りんご","reading":"りんご"},{"term":"さくらんぼ","reading":"さくらんぼ"},{"term":"もも","reading":"もも"},{"term":"小麦","reading":"こむぎ"},{"term":"じゃがいも","reading":"じゃがいも"},{"term":"てんさい","reading":"てんさい"},{"term":"大豆","reading":"だいず"},{"term":"たまねぎ","reading":"たまねぎ"},{"term":"乳牛","reading":"にゅうぎゅう"},{"term":"生乳","reading":"せいにゅう"},{"term":"ホタテ","reading":"ほたて"},{"term":"コンブ","reading":"こんぶ"},{"term":"サケ","reading":"さけ"},{"term":"流氷","reading":"りゅうひょう"},{"term":"札幌市","reading":"さっぽろし"},{"term":"旭川市","reading":"あさひかわし"},{"term":"函館市","reading":"はこだてし"},{"term":"釧路市","reading":"くしろし"},{"term":"帯広市","reading":"おびひろし"},{"term":"青森市","reading":"あおもりし"},{"term":"盛岡市","reading":"もりおかし"},{"term":"仙台市","reading":"せんだいし"},{"term":"秋田市","reading":"あきたし"},{"term":"山形市","reading":"やまがたし"},{"term":"福島市","reading":"ふくしまし"},{"term":"東北新幹線","reading":"とうほくしんかんせん"},{"term":"北海道新幹線","reading":"ほっかいどうしんかんせん"},{"term":"東日本大震災","reading":"ひがしにほんだいしんさい"},{"term":"高台移転","reading":"たかだいいてん"},{"term":"知床","reading":"しれとこ"},{"term":"世界自然遺産","reading":"せかいしぜんいさん"},{"term":"エコツーリズム","reading":"えこつーりずむ"}];
-const STORAGE_KEY = 'hokkaido_tohoku_quiz_v1';
+const WORDS = [["奥羽山脈","おううさんみゃく"],["北上高地","きたかみこうち"],["北上山地","きたかみさんち"],["出羽山地","でわさんち"],["阿武隈高地","あぶくまこうち"],["日高山脈","ひだかさんみゃく"],["北見山地","きたみさんち"],["天塩山地","てしおさんち"],["夕張山地","ゆうばりさんち"],["大雪山","たいせつざん"],["石狩平野","いしかりへいや"],["十勝平野","とかちへいや"],["根釧台地","こんせんだいち"],["上川盆地","かみかわぼんち"],["釧路湿原","くしろしつげん"],["津軽平野","つがるへいや"],["秋田平野","あきたへいや"],["庄内平野","しょうないへいや"],["仙台平野","せんだいへいや"],["山形盆地","やまがたぼんち"],["米沢盆地","よねざわぼんち"],["新庄盆地","しんじょうぼんち"],["石狩川","いしかりがわ"],["十勝川","とかちがわ"],["北上川","きたかみがわ"],["最上川","もがみがわ"],["阿武隈川","あぶくまがわ"],["三陸海岸","さんりくかいがん"],["リアス海岸","りあすかいがん"],["陸奥湾","むつわん"],["松島湾","まつしまわん"],["津軽海峡","つがるかいきょう"],["知床半島","しれとこはんとう"],["オホーツク海","おほーつくかい"],["三陸沖","さんりくおき"],["親潮","おやしお"],["黒潮","くろしお"],["潮目","しおめ"],["やませ","やませ"],["冷害","れいがい"],["亜寒帯","あかんたい"],["泥炭地","でいたんち"],["客土","きゃくど"],["土地改良","とちかいりょう"],["品種改良","ひんしゅかいりょう"],["屯田兵","とんでんへい"],["開拓使","かいたくし"],["アイヌ民族","あいぬみんぞく"],["アイヌ文化","あいぬぶんか"],["ウポポイ","うぽぽい"],["ねぶた祭","ねぶたまつり"],["竿燈まつり","かんとうまつり"],["仙台七夕まつり","せんだいたなばたまつり"],["さんさ踊り","さんさおどり"],["花笠まつり","はながさまつり"],["なまはげ","なまはげ"],["南部鉄器","なんぶてっき"],["会津塗","あいづぬり"],["津軽塗","つがるぬり"],["稲作","いなさく"],["畑作","はたさく"],["酪農","らくのう"],["養殖業","ようしょくぎょう"],["銘柄米","めいがらまい"],["減反政策","げんたんせいさく"],["りんご","りんご"],["さくらんぼ","さくらんぼ"],["もも","もも"],["小麦","こむぎ"],["じゃがいも","じゃがいも"],["てんさい","てんさい"],["大豆","だいず"],["たまねぎ","たまねぎ"],["乳牛","にゅうぎゅう"],["生乳","せいにゅう"],["ホタテ","ほたて"],["コンブ","こんぶ"],["サケ","さけ"],["流氷","りゅうひょう"],["札幌市","さっぽろし"],["旭川市","あさひかわし"],["函館市","はこだてし"],["釧路市","くしろし"],["帯広市","おびひろし"],["青森市","あおもりし"],["盛岡市","もりおかし"],["仙台市","せんだいし"],["秋田市","あきたし"],["山形市","やまがたし"],["福島市","ふくしまし"],["東北新幹線","とうほくしんかんせん"],["北海道新幹線","ほっかいどうしんかんせん"],["東日本大震災","ひがしにほんだいしんさい"],["高台移転","たかだいいてん"],["知床","しれとこ"],["世界自然遺産","せかいしぜんいさん"],["エコツーリズム","えこつーりずむ"]];
+const STORAGE_KEY = 'ryucchii_hokkaido_tohoku_reading_quiz_v1';
 const $ = (id) => document.getElementById(id);
-let state = { solved: [], history: [] };
-let storageAvailable = true;
+const shuffle = (array) => {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+};
+const makeFreshState = () => ({
+  version: 1,
+  order: shuffle(WORDS.map((_, i) => i)),
+  currentPos: 0,
+  completed: {},
+  attempts: [],
+  draft: '',
+  phase: 'question',
+  modifier: null
+});
+let state;
+let storageWorks = true;
+let hintVisible = false;
+let currentFeedback = '';
 
-function normalize(value) {
-  return String(value ?? '')
-    .normalize('NFKC')
-    .toLowerCase()
-    .replace(/[\s　。、，．・「」『』【】［］［］()（）［\]{}｛｝：:;；,，.!！?？〜～ー]/g, '');
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return makeFreshState();
+    const parsed = JSON.parse(raw);
+    const validOrder = Array.isArray(parsed.order) && parsed.order.length === WORDS.length && new Set(parsed.order).size === WORDS.length && parsed.order.every(n => Number.isInteger(n) && n >= 0 && n < WORDS.length);
+    if (parsed.version !== 1 || !validOrder || !parsed.completed || !Array.isArray(parsed.attempts)) return makeFreshState();
+    return {
+      ...makeFreshState(), ...parsed,
+      currentPos: Math.max(0, Math.min(Number(parsed.currentPos) || 0, WORDS.length)),
+      draft: typeof parsed.draft === 'string' ? parsed.draft : '',
+      modifier: ['dakuten','handakuten','small'].includes(parsed.modifier) ? parsed.modifier : null,
+      phase: parsed.phase === 'success' ? 'success' : 'question'
+    };
+  } catch (error) {
+    storageWorks = false;
+    return makeFreshState();
+  }
 }
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    storageAvailable = true;
+    $('saveState').textContent = 'LS 保存済み';
+    $('saveState').style.color = 'var(--accent)';
   } catch (error) {
-    storageAvailable = false;
-  }
-  render();
-}
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const validTerms = new Set(WORDS.map(w => w.term));
-      state.solved = Array.isArray(parsed.solved) ? parsed.solved.filter(x => validTerms.has(x)) : [];
-      state.history = Array.isArray(parsed.history) ? parsed.history.slice(-300) : [];
-    }
-  } catch (error) {
-    storageAvailable = false;
-    state = { solved: [], history: [] };
+    storageWorks = false;
+    $('saveState').textContent = 'LS 保存不可';
+    $('saveState').style.color = 'var(--bad)';
   }
 }
-function findWord(value) {
-  const answer = normalize(value);
-  if (!answer) return null;
-  return WORDS.find(word => {
-    const candidates = [word.term, word.reading, word.term + word.reading];
-    return candidates.some(candidate => normalize(candidate) === answer);
-  }) || null;
+function completedCount() { return Object.keys(state.completed).length; }
+function currentIndex() { return state.order[state.currentPos]; }
+function seekNextUnanswered() {
+  while (state.currentPos < state.order.length && state.completed[String(state.order[state.currentPos])]) {
+    state.currentPos++;
+  }
+  if (state.currentPos >= state.order.length) state.currentPos = state.order.length;
 }
-function addHistory(answer, result, matchedTerm = '') {
-  state.history.push({ answer, result, matchedTerm, time: new Date().toISOString() });
-  if (state.history.length > 300) state.history = state.history.slice(-300);
-}
-function submitAnswer(event) {
-  event.preventDefault();
-  const input = $('answerInput');
-  const answer = input.value.trim();
-  const feedback = $('feedback');
-  if (!answer) {
-    feedback.className = 'note'; feedback.textContent = '単語を入力してね。';
-    input.focus(); return;
-  }
-  const word = findWord(answer);
-  if (!word) {
-    addHistory(answer, 'wrong');
-    feedback.className = 'bad'; feedback.textContent = `「${answer}」はリストにないみたい。答えを確認してみてね。`;
-    input.select(); saveState(); return;
-  }
-  if (state.solved.includes(word.term)) {
-    addHistory(answer, 'duplicate', word.term);
-    feedback.className = 'note'; feedback.textContent = `「${word.term}」はもう正解済み！`;
-    input.value = ''; saveState(); input.focus(); return;
-  }
-  state.solved.push(word.term);
-  addHistory(answer, 'correct', word.term);
-  feedback.className = 'good'; feedback.textContent = `正解！「${word.term}」を登録したよ。`;
-  input.value = '';
-  saveState();
-  input.focus();
+function getWordIndex() {
+  if (state.phase === 'success' && state.currentPos < state.order.length) return currentIndex();
+  seekNextUnanswered();
+  return currentIndex();
 }
 function render() {
-  const solved = new Set(state.solved);
-  const count = solved.size;
-  $('progressText').textContent = `${count} / ${WORDS.length}`;
-  $('remainingText').textContent = `残り ${WORDS.length - count} 個`;
-  $('progressBar').style.width = `${count / WORDS.length * 100}%`;
-  $('completeMessage').classList.toggle('show', count === WORDS.length);
-  $('answerList').innerHTML = WORDS.map(word => {
-    const done = solved.has(word.term);
-    return `<li class="${done ? 'done' : ''}"><span><ruby>${escapeHTML(word.term)}<rt>${escapeHTML(word.reading)}</rt></ruby></span></li>`;
-  }).join('');
-  $('bankCount').textContent = WORDS.length;
-  $('historyCount').textContent = `${state.history.length}件`;
-  const history = [...state.history].reverse();
-  $('historyList').innerHTML = history.length ? history.map(item => {
-    const labels = { correct: ['正解', 'correct'], wrong: ['不正解', 'wrong'], duplicate: ['回答済み', 'duplicate'] };
-    const [label, cls] = labels[item.result] || ['記録', ''];
-    const date = new Date(item.time);
-    const time = Number.isNaN(date.getTime()) ? '' : date.toLocaleString('ja-JP');
-    const extra = item.matchedTerm ? ` → ${escapeHTML(item.matchedTerm)}` : '';
-    return `<div class="history-item"><span class="answer">${escapeHTML(item.answer)}${extra}<br><span class="small">${escapeHTML(time)}</span></span><span class="status ${cls}">${label}</span></div>`;
-  }).join('') : '<div class="empty">まだ回答履歴はないよ。</div>';
-  let raw = '(localStorageに保存データはありません)';
-  try { raw = localStorage.getItem(STORAGE_KEY) || raw; } catch (error) { raw = 'localStorageを読み取れませんでした。'; }
-  $('rawStorage').textContent = raw;
-  if (!storageAvailable) {
-    $('historyList').insertAdjacentHTML('afterbegin', '<div class="empty">⚠️ localStorageを利用できないため、再読み込み後に記録が消える可能性があるよ。</div>');
+  const done = completedCount();
+  $('doneCount').textContent = done;
+  $('totalCount').textContent = WORDS.length;
+  $('leftCount').textContent = WORDS.length - done;
+  $('progressFill').style.width = `${(done / WORDS.length) * 100}%`;
+  const idx = getWordIndex();
+  const finished = idx === undefined || state.currentPos >= state.order.length || done === WORDS.length;
+  $('finished').classList.toggle('show', finished);
+  $('quizCard').style.display = finished ? 'none' : '';
+  $('keyboard').style.display = finished ? 'none' : '';
+  if (finished) {
+    $('finishedTotal').textContent = WORDS.length;
+    $('questionNo').textContent = 'COMPLETE';
+    renderRecords();
+    renderAllAnswers();
+    return;
   }
+  const [term, reading] = WORDS[idx];
+  $('questionNo').textContent = `QUESTION ${done + (state.phase === 'success' ? 0 : 1)} / ${WORDS.length}`;
+  $('term').textContent = term;
+  $('answerBox').innerHTML = state.draft
+    ? `${escapeHtml(state.draft)}<span class="answer-cursor"></span>`
+    : '<span class="answer-placeholder">下のキーをフリック</span>';
+  $('submitBtn').hidden = state.phase === 'success';
+  $('nextBtn').hidden = state.phase !== 'success';
+  $('submitBtn').disabled = state.draft.length === 0;
+  $('answerReveal').classList.toggle('show', hintVisible);
+  $('answerReveal').textContent = hintVisible ? `正解：${reading}` : '';
+  if (state.phase === 'success') {
+    $('feedback').textContent = `正解！「${reading}」で登録したよ。次へ進もう！`;
+    $('feedback').className = 'feedback good';
+  } else if (currentFeedback) {
+    $('feedback').textContent = currentFeedback;
+    $('feedback').className = 'feedback ' + (currentFeedback.startsWith('不正解') ? 'bad' : 'hint');
+  } else {
+    $('feedback').textContent = state.modifier ? `${modifierLabel(state.modifier)}を選択中。次の文字をフリックしてね。` : '↖で基本文字、←↑→↓で母音を選んでフリック！';
+    $('feedback').className = 'feedback';
+  }
+  document.querySelectorAll('.mod').forEach(button => button.classList.toggle('active', button.dataset.mod === state.modifier));
+  saveState();
 }
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function escapeHtml(value) {
+  return value.replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
-$('answerForm').addEventListener('submit', submitAnswer);
-$('toggleAnswers').addEventListener('click', () => {
-  const panel = $('answerBank');
-  panel.hidden = !panel.hidden;
-  $('toggleAnswers').textContent = panel.hidden ? '答えを見る（カンニング）' : '答えを隠す';
-});
-$('toggleHistory').addEventListener('click', () => {
-  const panel = $('historyPanel');
-  panel.hidden = !panel.hidden;
-  $('toggleHistory').textContent = panel.hidden ? 'LSの回答履歴' : '回答履歴を閉じる';
-  if (!panel.hidden) render();
-});
-$('resetButton').addEventListener('click', () => {
-  if (!confirm('正解状況と回答履歴をすべて消して、最初からやり直す？')) return;
-  state = { solved: [], history: [] };
-  try { localStorage.removeItem(STORAGE_KEY); storageAvailable = true; }
-  catch (error) { storageAvailable = false; }
-  $('feedback').className = 'note';
-  $('feedback').textContent = 'リセットしたよ。もう一度チャレンジ！';
+function modifierLabel(modifier) {
+  return ({dakuten:'濁点', handakuten:'半濁点', small:'小文字'})[modifier] || '';
+}
+const DAKUTEN = {'か':'が','き':'ぎ','く':'ぐ','け':'げ','こ':'ご','さ':'ざ','し':'じ','す':'ず','せ':'ぜ','そ':'ぞ','た':'だ','ち':'ぢ','つ':'づ','て':'で','と':'ど','は':'ば','ひ':'び','ふ':'ぶ','へ':'べ','ほ':'ぼ','う':'ゔ'};
+const HANDAKUTEN = {'は':'ぱ','ひ':'ぴ','ふ':'ぷ','へ':'ぺ','ほ':'ぽ'};
+const SMALL = {'あ':'ぁ','い':'ぃ','う':'ぅ','え':'ぇ','お':'ぉ','や':'ゃ','ゆ':'ゅ','よ':'ょ','つ':'っ','わ':'ゎ'};
+function applyModifier(character) {
+  if (!state.modifier) return character;
+  const table = state.modifier === 'dakuten' ? DAKUTEN : state.modifier === 'handakuten' ? HANDAKUTEN : SMALL;
+  const converted = table[character] || character;
+  state.modifier = null;
+  return converted;
+}
+function addKana(character) {
+  if (!character || state.phase === 'success') return;
+  state.draft += applyModifier(character);
+  currentFeedback = '';
+  hintVisible = false;
+  saveState();
   render();
-  $('answerInput').value = '';
-  $('answerInput').focus();
+}
+function deleteOne() {
+  if (state.phase === 'success') return;
+  state.draft = Array.from(state.draft).slice(0, -1).join('');
+  currentFeedback = '';
+  saveState();
+  render();
+}
+function clearDraft() {
+  if (state.phase === 'success') return;
+  state.draft = '';
+  state.modifier = null;
+  currentFeedback = '';
+  saveState();
+  render();
+}
+function submitAnswer() {
+  if (!state.draft || state.phase === 'success') return;
+  const idx = currentIndex();
+  if (idx === undefined) return;
+  const [term, answer] = WORDS[idx];
+  const typed = state.draft.normalize('NFC');
+  const isCorrect = typed === answer.normalize('NFC');
+  state.attempts.push({index:idx, term, typed, correct:isCorrect, time:Date.now()});
+  if (state.attempts.length > 1000) state.attempts = state.attempts.slice(-1000);
+  if (isCorrect) {
+    state.completed[String(idx)] = {typed, time:Date.now()};
+    state.phase = 'success';
+    currentFeedback = '';
+    hintVisible = false;
+  } else {
+    currentFeedback = '不正解。もう一度入力してみよう！';
+  }
+  saveState();
+  render();
+  renderRecords();
+}
+function nextQuestion() {
+  if (state.phase !== 'success') return;
+  state.currentPos++;
+  state.phase = 'question';
+  state.draft = '';
+  state.modifier = null;
+  currentFeedback = '';
+  hintVisible = false;
+  seekNextUnanswered();
+  saveState();
+  render();
+}
+function setModifier(modifier) {
+  if (state.phase === 'success') return;
+  state.modifier = state.modifier === modifier ? null : modifier;
+  currentFeedback = '';
+  render();
+}
+function renderRecords() {
+  const target = $('recordsContent');
+  const attempts = [...state.attempts].reverse();
+  if (!attempts.length) {
+    target.innerHTML = '<div class="empty">まだ回答履歴はないよ。回答すると、入力した文字がここにLS保存されるよ。</div>';
+    return;
+  }
+  target.innerHTML = attempts.map((entry, i) => {
+    const stamp = new Date(entry.time).toLocaleString('ja-JP');
+    return `<div class="record-item"><strong>${escapeHtml(entry.term)}</strong><br>入力：<b>${escapeHtml(entry.typed)}</b> <span class="${entry.correct?'record-correct':'record-wrong'}">${entry.correct?'正解':'不正解'}</span><div class="record-meta">${stamp}</div></div>`;
+  }).join('');
+}
+function renderAllAnswers() {
+  $('answersContent').innerHTML = WORDS.map(([term, reading], index) => {
+    const done = Boolean(state.completed[String(index)]);
+    return `<div class="answer-item"><strong>${escapeHtml(term)}</strong>：${escapeHtml(reading)} <span class="record-meta">${done?'✓ 回答済み':'未回答'}</span></div>`;
+  }).join('');
+}
+function togglePanel(id) {
+  const panel = $(id);
+  const willOpen = !panel.classList.contains('show');
+  document.querySelectorAll('.panel').forEach(item => item.classList.remove('show'));
+  if (willOpen) panel.classList.add('show');
+  if (id === 'recordsPanel') renderRecords();
+  if (id === 'answersPanel') renderAllAnswers();
+}
+
+// Flick-only input: a short tap is deliberately ignored.
+let activePointer = null;
+document.querySelectorAll('.kana-key[data-ul]').forEach(key => {
+  key.addEventListener('pointerdown', event => {
+    if (state.phase === 'success') return;
+    event.preventDefault();
+    activePointer = {key, id:event.pointerId, x:event.clientX, y:event.clientY};
+    key.classList.add('is-down');
+    try { key.setPointerCapture(event.pointerId); } catch (_) {}
+  });
+  key.addEventListener('pointerup', event => {
+    if (!activePointer || activePointer.key !== key || activePointer.id !== event.pointerId) return;
+    event.preventDefault();
+    const dx = event.clientX - activePointer.x;
+    const dy = event.clientY - activePointer.y;
+    const distance = Math.hypot(dx, dy);
+    key.classList.remove('is-down');
+    activePointer = null;
+    if (distance < 18) {
+      currentFeedback = 'タップでは入力されないよ。18px以上フリックしてね。';
+      render();
+      return;
+    }
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    let direction = null;
+    // 5-way flick: ↖ inserts the key's base kana; four cardinal directions select vowels.
+    if (angle >= -157.5 && angle < -112.5) direction = 'ul';
+    else if (angle >= -112.5 && angle < -67.5) direction = 'up';
+    else if (angle >= -22.5 && angle < 22.5) direction = 'right';
+    else if (angle >= 67.5 && angle < 112.5) direction = 'down';
+    else if (angle >= 157.5 || angle < -157.5) direction = 'left';
+    const char = direction ? key.dataset[direction] : '';
+    if (char) addKana(char);
+    else {
+      currentFeedback = 'その方向には文字がないよ。別の方向にフリックしてね。';
+      render();
+    }
+  });
+  key.addEventListener('pointercancel', () => {
+    key.classList.remove('is-down');
+    activePointer = null;
+  });
+  key.addEventListener('contextmenu', event => event.preventDefault());
 });
-loadState();
+$('deleteKey').addEventListener('click', deleteOne);
+$('clearKey').addEventListener('click', clearDraft);
+document.querySelectorAll('.mod').forEach(button => button.addEventListener('click', () => setModifier(button.dataset.mod)));
+$('submitBtn').addEventListener('click', submitAnswer);
+$('nextBtn').addEventListener('click', nextQuestion);
+$('hintBtn').addEventListener('click', () => { hintVisible = !hintVisible; render(); });
+$('recordsBtn').addEventListener('click', () => togglePanel('recordsPanel'));
+$('allAnswersBtn').addEventListener('click', () => togglePanel('answersPanel'));
+document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => $(button.dataset.close).classList.remove('show')));
+$('resetBtn').addEventListener('click', () => {
+  if (!confirm('回答済みデータ・間違い履歴をすべて消して、最初からやり直す？')) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch (_) { storageWorks = false; }
+  state = makeFreshState();
+  hintVisible = false;
+  currentFeedback = '';
+  document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('show'));
+  render();
+  renderRecords();
+  renderAllAnswers();
+});
+$('againBtn').addEventListener('click', () => {
+  if (!confirm('全問クリアの記録を残したまま、新しいランダム順でもう一周する？')) return;
+  state.order = shuffle(WORDS.map((_, i) => i));
+  state.currentPos = 0;
+  state.completed = {};
+  state.draft = '';
+  state.phase = 'question';
+  state.modifier = null;
+  hintVisible = false;
+  currentFeedback = '';
+  saveState();
+  render();
+});
+
+state = loadState();
+// Resume safely from the first unanswered item unless a correct answer is waiting for the Next button.
+if (state.phase !== 'success') seekNextUnanswered();
+$('totalCount').textContent = WORDS.length;
+if (!storageWorks) $('saveState').textContent = 'LS 読込不可';
 render();
+renderRecords();
+renderAllAnswers();
 </script>
 </body>
 </html>
