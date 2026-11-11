@@ -12,6 +12,7 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="https://rolloff.live/" />
     <title>Roll Off</title>
     <meta name="description" content="Practice Fall Guys' Roll Off, the final round, in your browser, with accurate physics and timings, bots, multiplayer lobbies and DualSense support." />
     <link rel="canonical" href="https://rolloff.live/" />
@@ -49,6 +50,60 @@
     <noscript>
       <style>.loading{display:none}body>noscript{padding:24px;display:block}</style>
     </noscript>
+    <script>
+      (() => {
+        let reported = false;
+        const showLoadError = (detail) => {
+          if (reported) return;
+          const loading = document.getElementById('loading');
+          const stack = loading && loading.querySelector('.loading-stack');
+          if (!stack) return;
+          reported = true;
+          stack.replaceChildren();
+
+          const title = document.createElement('strong');
+          title.textContent = 'ゲーム本体を読み込めなかったよ';
+          title.style.cssText = 'display:block;font-size:20px;margin-bottom:10px';
+
+          const message = document.createElement('p');
+          message.textContent = detail || '通信エラー、またはブラウザのセキュリティ制限で、元サイトのゲームデータを取得できなかった可能性があるよ。';
+          message.style.cssText = 'max-width: min(90vw, 520px); line-height:1.6; margin:0 auto 16px; white-space:normal';
+
+          const link = document.createElement('a');
+          link.href = 'https://rolloff.live/';
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = 'Roll Off の公式サイトを開く';
+          link.style.cssText = 'display:inline-block;padding:12px 18px;border-radius:12px;background:#8b5cf6;color:white;text-decoration:none;font-weight:700';
+
+          const note = document.createElement('p');
+          note.textContent = 'この修正版は元サイトからゲーム本体を読み込むため、インターネット接続が必要だよ。';
+          note.style.cssText = 'font-size:12px;opacity:.75;margin:14px auto 0;max-width:min(90vw,520px);line-height:1.5';
+
+          stack.append(title, message, link, note);
+        };
+
+        const mainScript = document.querySelector('script[type="module"][src*="index-DvDmP377.js"]');
+        const mainStyle = document.querySelector('link[rel="stylesheet"][href*="index-BnlZazRv.css"]');
+        if (mainScript) mainScript.addEventListener('error', () => showLoadError('ゲーム本体のJavaScriptを取得できなかったよ。ネット接続、元サイトの公開状態、またはブラウザのCORS制限を確認してね。'));
+        if (mainStyle) mainStyle.addEventListener('error', () => showLoadError('ゲーム画面のCSSを取得できなかったよ。ネット接続か元サイトの公開状態を確認してね。'));
+
+        window.addEventListener('unhandledrejection', () => {
+          const loading = document.getElementById('loading');
+          if (loading && getComputedStyle(loading).display !== 'none') {
+            showLoadError('ゲームデータの読み込み中にエラーが発生したよ。通信が切れたか、元サイト側のデータを取得できなかった可能性があるよ。');
+          }
+        });
+
+        // 46 MB級のデータ読み込みに時間がかかる場合があるため、判定は3分後に行う。
+        window.setTimeout(() => {
+          const loading = document.getElementById('loading');
+          if (loading && getComputedStyle(loading).display !== 'none') {
+            showLoadError('3分待っても読み込みが終わらなかったよ。通信速度が遅いか、元サイトのデータにアクセスできない可能性があるよ。');
+          }
+        }, 180000);
+      })();
+    </script>
     <script type="module" crossorigin src="/v/b08bb94482b0/assets/index-DvDmP377.js"></script>
     <link rel="stylesheet" crossorigin href="/v/b08bb94482b0/assets/index-BnlZazRv.css">
   </head>
