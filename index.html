@@ -1,131 +1,37 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0SR67521NN"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-      gtag('config', 'G-0SR67521NN');
-    </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="https://rolloff.live/" />
-    <title>Roll Off</title>
-    <meta name="description" content="Practice Fall Guys' Roll Off, the final round, in your browser, with accurate physics and timings, bots, multiplayer lobbies and DualSense support." />
-    <link rel="canonical" href="https://rolloff.live/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Roll Off" />
-    <meta property="og:title" content="Roll Off: Fall Guys Roll Off Practice" />
-    <meta property="og:description" content="Practice Fall Guys' Roll Off, the final round, in your browser, with accurate physics and timings, bots, multiplayer lobbies and DualSense support." />
-    <meta property="og:url" content="https://rolloff.live/" />
-    <meta property="og:image" content="https://rolloff.live/social.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="The Roll Off arena" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Roll Off: Fall Guys Roll Off Practice" />
-    <meta name="twitter:description" content="Practice Fall Guys' Roll Off, the final round, in your browser, with accurate physics and timings, bots, multiplayer lobbies and DualSense support." />
-    <meta name="twitter:image" content="https://rolloff.live/social.jpg" />
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "Roll Off",
-        "url": "https://rolloff.live/",
-        "description": "Practice Fall Guys' Roll Off, the final round, in your browser, with accurate physics and timings, bots, multiplayer lobbies and DualSense support.",
-        "applicationCategory": "GameApplication",
-        "operatingSystem": "Any",
-        "image": "https://rolloff.live/social.jpg",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-      }
-    </script>
-    <meta name="theme-color" content="#140a28" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/v/b08bb94482b0/icons/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/v/b08bb94482b0/icons/favicon-16.png" />
-    <link rel="apple-touch-icon" href="/v/b08bb94482b0/icons/apple-touch-icon.png" />
-    <link rel="manifest" href="/v/b08bb94482b0/manifest.webmanifest" />
-    <noscript>
-      <style>.loading{display:none}body>noscript{padding:24px;display:block}</style>
-    </noscript>
-    <script>
-      (() => {
-        let reported = false;
-        const showLoadError = (detail) => {
-          if (reported) return;
-          const loading = document.getElementById('loading');
-          const stack = loading && loading.querySelector('.loading-stack');
-          if (!stack) return;
-          reported = true;
-          stack.replaceChildren();
-
-          const title = document.createElement('strong');
-          title.textContent = 'ゲーム本体を読み込めなかったよ';
-          title.style.cssText = 'display:block;font-size:20px;margin-bottom:10px';
-
-          const message = document.createElement('p');
-          message.textContent = detail || '通信エラー、またはブラウザのセキュリティ制限で、元サイトのゲームデータを取得できなかった可能性があるよ。';
-          message.style.cssText = 'max-width: min(90vw, 520px); line-height:1.6; margin:0 auto 16px; white-space:normal';
-
-          const link = document.createElement('a');
-          link.href = 'https://rolloff.live/';
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-          link.textContent = 'Roll Off の公式サイトを開く';
-          link.style.cssText = 'display:inline-block;padding:12px 18px;border-radius:12px;background:#8b5cf6;color:white;text-decoration:none;font-weight:700';
-
-          const note = document.createElement('p');
-          note.textContent = 'この修正版は元サイトからゲーム本体を読み込むため、インターネット接続が必要だよ。';
-          note.style.cssText = 'font-size:12px;opacity:.75;margin:14px auto 0;max-width:min(90vw,520px);line-height:1.5';
-
-          stack.append(title, message, link, note);
-        };
-
-        const mainScript = document.querySelector('script[type="module"][src*="index-DvDmP377.js"]');
-        const mainStyle = document.querySelector('link[rel="stylesheet"][href*="index-BnlZazRv.css"]');
-        if (mainScript) mainScript.addEventListener('error', () => showLoadError('ゲーム本体のJavaScriptを取得できなかったよ。ネット接続、元サイトの公開状態、またはブラウザのCORS制限を確認してね。'));
-        if (mainStyle) mainStyle.addEventListener('error', () => showLoadError('ゲーム画面のCSSを取得できなかったよ。ネット接続か元サイトの公開状態を確認してね。'));
-
-        window.addEventListener('unhandledrejection', () => {
-          const loading = document.getElementById('loading');
-          if (loading && getComputedStyle(loading).display !== 'none') {
-            showLoadError('ゲームデータの読み込み中にエラーが発生したよ。通信が切れたか、元サイト側のデータを取得できなかった可能性があるよ。');
-          }
-        });
-
-        // 46 MB級のデータ読み込みに時間がかかる場合があるため、判定は3分後に行う。
-        window.setTimeout(() => {
-          const loading = document.getElementById('loading');
-          if (loading && getComputedStyle(loading).display !== 'none') {
-            showLoadError('3分待っても読み込みが終わらなかったよ。通信速度が遅いか、元サイトのデータにアクセスできない可能性があるよ。');
-          }
-        }, 180000);
-      })();
-    </script>
-    <script type="module" crossorigin src="/v/b08bb94482b0/assets/index-DvDmP377.js"></script>
-    <link rel="stylesheet" crossorigin href="/v/b08bb94482b0/assets/index-BnlZazRv.css">
-  </head>
-  <body>
-    <canvas id="scene"></canvas>
-    <noscript>
-      <h1>Roll Off</h1>
-      <p>
-        A browser practice tool for Roll Off, the final round of Fall Guys. It needs JavaScript. Play solo against
-        bots, or create or join a lobby to roll with friends.
-      </p>
-    </noscript>
-    <div id="hud"></div>
-    <div id="loading" data-bytes="46035010" class="loading">
-      <div class="loading-stack">
-        Loading…
-        <div class="loading-progress" hidden>
-          <div class="loading-bar"><div class="loading-fill"></div></div>
-          <span class="loading-percent"></span>
-        </div>
-      </div>
-    </div>
-  <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"bcdbbb0d32044f0d9c0456ccfb97ff7c","r":1,"spa":2}' crossorigin="anonymous"></script>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0;url=https://rolloff.live/">
+  <meta name="theme-color" content="#140a28">
+  <title>Roll Off を開く</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      min-height: 100vh; margin: 0; display: grid; place-items: center;
+      padding: 24px; box-sizing: border-box; background: #140a28;
+      color: #fff; font-family: system-ui, -apple-system, sans-serif;
+      text-align: center;
+    }
+    main { max-width: 520px; }
+    a {
+      display: inline-block; margin-top: 14px; padding: 13px 22px;
+      border-radius: 12px; background: #8b5cf6; color: #fff;
+      font-weight: 700; text-decoration: none;
+    }
+    p { line-height: 1.7; color: #ddd6fe; }
+  </style>
+  <script>
+    // JavaScriptが有効ならブラウザを直接公式サイトへ移動する。
+    window.location.replace('https://rolloff.live/');
+  </script>
+</head>
+<body>
+  <main>
+    <h1>Roll Off を開いています…</h1>
+    <p>自動で移動しない場合は、下のリンクをタップしてね。</p>
+    <a href="https://rolloff.live/">Roll Off 公式サイトを開く</a>
+  </main>
 </body>
 </html>
