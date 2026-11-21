@@ -68,6 +68,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 #warning.show{opacity:1}
 #physicsTag{position:absolute;right:16px;bottom:16px;font-size:9px;color:#ffffff72;letter-spacing:.05em;pointer-events:none}
 @media (pointer:coarse){.bottom-help{display:none}#mobileHint{display:block}#statusLine{top:74px;font-size:9px}}
+@media (max-width:390px){#mobileHint{font-size:9px;padding:7px 9px;max-width:calc(100vw - 18px);white-space:normal;text-align:center;line-height:1.55}.pill{min-width:60px}.pill-label{font-size:8px}}
 @media (max-width:560px){.brand{padding:8px 10px 8px 8px;gap:8px}.brand-mark{width:29px;height:29px}.brand-main{font-size:10px}.brand-sub{font-size:8px}.pill{min-width:67px;padding:7px 9px}.pill-value{font-size:16px}#timerPill .pill-value{font-size:20px}#pauseBtn{width:36px;height:36px}.topbar{gap:6px}.hud-right{gap:6px}.controls{grid-template-columns:1fr}.controlCard{padding:9px 11px}.controlText{font-size:10px}.panel{border-radius:19px}.lead{margin:12px 0 16px}}
 @media (max-height:620px) and (orientation:landscape){#startScreen,#pauseScreen,#endScreen{padding:8px}.panel{max-height:95dvh;padding:18px 22px}.heroTitle{font-size:34px}.lead{margin:8px 0 12px}.controls{margin-top:10px}.controlCard{padding:8px}.disclaimer{margin-top:8px}}
 </style>
@@ -78,10 +79,10 @@ button{font:inherit;color:inherit;cursor:pointer}
   <div id="vignette"></div>
   <div id="hud">
     <div class="topbar">
-      <div class="brand"><div class="brand-mark">★</div><div><div class="brand-main">JUMP SHOWDOWN</div><div class="brand-sub">SOLO PRACTICE / FINAL</div></div></div>
+      <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-main">JUMP SHOWDOWN</div><div class="brand-sub">FINAL ROUND · SOLO</div></div></div>
       <div class="hud-right">
         <div class="pill" id="timerPill"><div class="pill-label">TIME LEFT</div><div class="pill-value" id="timer">05:00</div></div>
-        <div class="pill" id="alivePill"><div class="pill-label">ALIVE</div><div class="pill-value" id="alive">1 / 1</div></div>
+        <div class="pill" id="alivePill"><div class="pill-label">TILES</div><div class="pill-value" id="alive">8 / 8</div></div>
         <button id="pauseBtn" aria-label="Pause" title="Pause">Ⅱ</button>
       </div>
     </div>
@@ -91,21 +92,21 @@ button{font:inherit;color:inherit;cursor:pointer}
     <div class="bottom-help" id="desktopHint"><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span><span>移動</span><span class="help-sep"></span><span class="key">SPACE</span><span>ジャンプ</span><span class="help-sep"></span><span class="key">CTRL</span><span>ダイブ</span><span class="help-sep"></span><span>マウス移動：視点</span></div>
     <div id="mobileHint"><b>左スワイプ</b> 移動　 <b>右スワイプ</b> 視点　 <b>右上タップ</b> ダイブ　 <b>右下タップ</b> ジャンプ</div>
     <div id="joystick"><div id="stickKnob"></div></div>
-    <div id="physicsTag">LOCAL SOLO · 3D PHYSICS</div>
+    <div id="physicsTag">SOLO PRACTICE · 3D</div>
   </div>
 
   <div id="startScreen">
     <div class="panel">
       <div class="eyebrow">FINAL ROUND / SOLO TRAINING</div>
       <div class="heroTitle">JUMP<span>SHOWDOWN</span></div>
-      <p class="lead">回転する2本のゴールドバーを避けながら、最後まで足場に残ろう。時間とともにバーは加速し、青と黄色の足場は順番に崩れていく。</p>
+      <p class="lead">2本のゴールドバーを見極めてジャンプ！ 下のバーは時間とともに加速し、8枚の足場は少しずつ崩れていく。最後の2枚まで生き残ろう。</p>
       <button class="primary" id="startBtn">ラウンド開始　▶</button>
       <div class="controls">
-        <div class="controlCard"><div class="controlHead">⌨ KEYBOARD / MOUSE</div><div class="controlText">WASD：移動<br>Space：ジャンプ<br>Ctrl：ダイブ<br>マウス移動：視点</div></div>
-        <div class="controlCard"><div class="controlHead">🎮 CONTROLLER</div><div class="controlText">左スティック：移動<br>右スティック：視点<br>A / ✕：ジャンプ<br>X / □：ダイブ</div></div>
+        <div class="controlCard"><div class="controlHead">⌨ KEYBOARD / MOUSE</div><div class="controlText">WASD / 矢印：移動<br>Space：ジャンプ<br>Ctrl：ダイブ<br>マウス：視点操作</div></div>
+        <div class="controlCard"><div class="controlHead">🎮 CONTROLLER</div><div class="controlText">左スティック：移動<br>右スティック：視点<br>A / Cross：ジャンプ<br>X / Square：ダイブ</div></div>
         <div class="controlCard"><div class="controlHead">📱 TOUCH</div><div class="controlText">左側をスワイプ：移動<br>右側をスワイプ：視点<br>右上をタップ：ダイブ<br>右下をタップ：ジャンプ</div></div>
       </div>
-      <p class="disclaimer">1人用の練習版。オンライン対戦・つかみ・ランダムファンは未実装。元ファイルに含まれていなかったPhysXのWASM本体を利用できないため、この版ではRapier 3D物理エンジンを使用している。</p>
+      <p class="disclaimer">SOLO PRACTICE BUILD · オンライン対戦・つかみ・ランダムファンは未実装。アップロードされたZIPにはPhysXのJavaScriptバインディングはありましたが、実行に必要なWASM本体が含まれていなかったため、この版はRapier 3Dで動作します。</p>
     </div>
   </div>
 
@@ -165,6 +166,9 @@ const rand = (a, b) => a + Math.random() * (b - a);
 let renderer, scene, camera, world;
 let playerBody, playerCollider, playerRoot, beanBody;
 let lowerBody, upperBody, lowerPivot, upperPivot;
+let playerArms = [];
+let playerFeet = [];
+let playerHands = [];
 let tiles = [];
 let phase = 'ready';
 let elapsed = 0;
@@ -172,6 +176,7 @@ let timeLeft = ROUND_SECONDS;
 let accumulator = 0;
 let lastFrame = 0;
 let barAngle = 0;
+let upperAngle = 0.18;
 let barSpeed = 0.72;
 let nextCollapse = 26;
 let collapseQueue = null;
@@ -243,7 +248,7 @@ function makeWorldScene() {
   const key = new THREE.DirectionalLight(0xfff2d5, 2.3);
   key.position.set(-9, 18, 10);
   key.castShadow = true;
-  key.shadow.mapSize.set(1536, 1536);
+  key.shadow.mapSize.set(isTouchDevice ? 768 : 1280, isTouchDevice ? 768 : 1280);
   key.shadow.camera.left = -14; key.shadow.camera.right = 14;
   key.shadow.camera.top = 14; key.shadow.camera.bottom = -14;
   key.shadow.bias = -0.00025;
@@ -293,6 +298,24 @@ function buildEnvironment() {
   base.position.y = .20; decorRoot.add(base);
   const outerBand = new THREE.Mesh(new THREE.TorusGeometry(8.47,.11,10,96), new THREE.MeshStandardMaterial({ color: 0xffd276, metalness: .65, roughness: .3 }));
   outerBand.rotation.x = Math.PI / 2; outerBand.position.y = .47; decorRoot.add(outerBand);
+
+  // Bright orange support pylons around the arena, inspired by the original final-round set.
+  const supportMat = new THREE.MeshStandardMaterial({ color:0xf47b35, metalness:.34, roughness:.42 });
+  const capMat = new THREE.MeshStandardMaterial({ color:0xffd47a, metalness:.66, roughness:.28 });
+  for (let i=0;i<8;i++) {
+    const a=i/8*TAU;
+    const x=Math.cos(a)*8.58, z=Math.sin(a)*8.58;
+    const post=new THREE.Group(); post.position.set(x,-.20,z); post.rotation.y=-a;
+    const stem=new THREE.Mesh(new THREE.CylinderGeometry(.16,.21,1.48,14),supportMat);
+    stem.position.y=.18; stem.castShadow=true; post.add(stem);
+    const foot=new THREE.Mesh(new THREE.CylinderGeometry(.31,.36,.22,16),capMat);
+    foot.position.y=-.58; post.add(foot);
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(.25,.19,.22,16),capMat);
+    cap.position.y=.94; post.add(cap);
+    decorRoot.add(post);
+  }
+  const outerHalo = new THREE.Mesh(new THREE.TorusGeometry(8.66,.045,8,128), new THREE.MeshStandardMaterial({color:0xffa34c,metalness:.52,roughness:.34}));
+  outerHalo.rotation.x=Math.PI/2; outerHalo.position.y=.36; decorRoot.add(outerHalo);
 }
 
 function buildArenaVisual() {
@@ -359,18 +382,18 @@ function buildBarsVisual() {
   const lowMat = new THREE.MeshStandardMaterial({ color:0xffc04e, metalness:.58, roughness:.28, emissive:0x8f3b08, emissiveIntensity:.13 });
   const highMat = new THREE.MeshStandardMaterial({ color:0xffb94b, metalness:.62, roughness:.27, emissive:0x7d2b00, emissiveIntensity:.16 });
   const stripeMat = new THREE.MeshStandardMaterial({ color:0xffed9a, metalness:.48, roughness:.25 });
-  lowerPivot = new THREE.Group(); lowerPivot.position.y = 1.04; barVisualRoot.add(lowerPivot);
-  const lowBeam = new THREE.Mesh(new THREE.BoxGeometry(16.2,.22,.42), lowMat);
-  lowBeam.castShadow = true; lowBeam.receiveShadow = true; lowerPivot.add(lowBeam);
-  const lowStripe = new THREE.Mesh(new THREE.BoxGeometry(15.7,.035,.15), stripeMat); lowStripe.position.y=.126; lowerPivot.add(lowStripe);
+  lowerPivot = new THREE.Group(); lowerPivot.position.y = 1.08; barVisualRoot.add(lowerPivot);
+  const lowBeam = new THREE.Mesh(new THREE.CylinderGeometry(.21,.21,16.12,24,1,false), lowMat);
+  lowBeam.rotation.z=Math.PI/2; lowBeam.castShadow = true; lowBeam.receiveShadow = true; lowerPivot.add(lowBeam);
+  const lowStripe = new THREE.Mesh(new THREE.BoxGeometry(15.72,.034,.075), stripeMat); lowStripe.position.set(0,.165,0); lowerPivot.add(lowStripe);
   for (const x of [-8.02,8.02]) {
     const cap = new THREE.Mesh(new THREE.SphereGeometry(.22,16,12), new THREE.MeshStandardMaterial({color:0xffdf87,metalness:.6,roughness:.24}));
     cap.position.x=x; lowerPivot.add(cap);
   }
-  upperPivot = new THREE.Group(); upperPivot.position.y = 4.10; barVisualRoot.add(upperPivot);
-  const highBeam = new THREE.Mesh(new THREE.BoxGeometry(16.2,.58,.58), highMat);
-  highBeam.castShadow = true; highBeam.receiveShadow = true; upperPivot.add(highBeam);
-  const highStripe = new THREE.Mesh(new THREE.BoxGeometry(15.85,.045,.19), stripeMat); highStripe.position.y=.302; upperPivot.add(highStripe);
+  upperPivot = new THREE.Group(); upperPivot.position.y = 2.76; barVisualRoot.add(upperPivot);
+  const highBeam = new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,16.12,28,1,false), highMat);
+  highBeam.rotation.z=Math.PI/2; highBeam.castShadow = true; highBeam.receiveShadow = true; upperPivot.add(highBeam);
+  const highStripe = new THREE.Mesh(new THREE.BoxGeometry(15.78,.045,.12), stripeMat); highStripe.position.set(0,.285,0); upperPivot.add(highStripe);
   for (const x of [-8.02,8.02]) {
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.58,20), new THREE.MeshStandardMaterial({color:0xf6a144,metalness:.6,roughness:.26}));
     cap.rotation.z=Math.PI/2; cap.position.x=x; upperPivot.add(cap);
@@ -380,6 +403,7 @@ function buildBarsVisual() {
 }
 
 function buildPlayerVisual() {
+  playerArms=[]; playerFeet=[]; playerHands=[];
   playerRoot = new THREE.Group();
   playerVisualRoot.add(playerRoot);
   beanBody = new THREE.Group();
@@ -391,6 +415,8 @@ function buildPlayerVisual() {
   belly.scale.set(.94,.74,.34); belly.position.set(0,-.18,.34); beanBody.add(belly);
   const eyeMat = new THREE.MeshBasicMaterial({color:0x17132e});
   const shineMat = new THREE.MeshBasicMaterial({color:0xffffff});
+  const chestMark = new THREE.Mesh(new THREE.TorusGeometry(.105,.027,8,24),new THREE.MeshStandardMaterial({color:0xffd875,metalness:.42,roughness:.32}));
+  chestMark.position.set(0,-.39,.39); beanBody.add(chestMark);
   for (const x of [-.135,.135]) {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(.065,14,12),eyeMat);
     eye.scale.set(.78,1.18,.5); eye.position.set(x,.18,.421); beanBody.add(eye);
@@ -400,11 +426,13 @@ function buildPlayerVisual() {
   const armMat = new THREE.MeshPhysicalMaterial({color:0x25b8dc,roughness:.4,clearcoat:.2});
   for (const side of [-1,1]) {
     const arm = new THREE.Mesh(new THREE.CapsuleGeometry(.13,.28,5,10),armMat);
-    arm.position.set(side*.48,-.18,.01); arm.rotation.z=side*.65; arm.castShadow=true; beanBody.add(arm);
-    const hand = new THREE.Mesh(new THREE.SphereGeometry(.145,12,10),bodyMat);
-    hand.position.set(side*.54,-.35,.055); hand.scale.set(.95,.8,.8); beanBody.add(hand);
-    const foot = new THREE.Mesh(new THREE.SphereGeometry(.18,14,10),new THREE.MeshStandardMaterial({color:0x167bba,roughness:.55}));
-    foot.position.set(side*.23,-.68,.035); foot.scale.set(1,.75,1.15); beanBody.add(foot);
+    arm.position.set(side*.48,-.18,.01); arm.rotation.z=side*.65; arm.castShadow=true; beanBody.add(arm); playerArms.push(arm);
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(.145,14,12),bodyMat);
+    hand.position.set(side*.54,-.35,.055); hand.scale.set(.95,.8,.8); hand.castShadow=true; beanBody.add(hand); playerHands.push(hand);
+    const cuff = new THREE.Mesh(new THREE.TorusGeometry(.135,.035,8,18),new THREE.MeshStandardMaterial({color:0xffd77a,metalness:.55,roughness:.3}));
+    cuff.position.set(side*.54,-.28,.055); cuff.rotation.z=side*.25; beanBody.add(cuff);
+    const foot = new THREE.Mesh(new THREE.SphereGeometry(.18,16,12),new THREE.MeshStandardMaterial({color:0x167bba,roughness:.55}));
+    foot.position.set(side*.23,-.68,.035); foot.scale.set(1,.75,1.15); foot.castShadow=true; beanBody.add(foot); playerFeet.push(foot);
   }
   const shadow = new THREE.Mesh(new THREE.CircleGeometry(.56,32),new THREE.MeshBasicMaterial({color:0x160e3d,transparent:true,opacity:.22,depthWrite:false}));
   shadow.rotation.x=-Math.PI/2; shadow.position.y=-.685; playerRoot.add(shadow);
@@ -467,10 +495,10 @@ function setupPhysicsWorld() {
     tile.collider = world.createCollider(cd,rb);
     tile.body = rb;
   }
-  lowerBody = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0,1.04,0));
-  world.createCollider(RAPIER.ColliderDesc.cuboid(7.78,.11,.21).setFriction(.72).setRestitution(.02),lowerBody);
-  upperBody = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0,4.10,0));
-  world.createCollider(RAPIER.ColliderDesc.cuboid(7.78,.29,.29).setFriction(.72).setRestitution(.02),upperBody);
+  lowerBody = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0,1.08,0));
+  world.createCollider(RAPIER.ColliderDesc.cuboid(7.78,.105,.21).setFriction(.72).setRestitution(.02),lowerBody);
+  upperBody = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0,2.76,0));
+  world.createCollider(RAPIER.ColliderDesc.cuboid(7.78,.34,.34).setFriction(.72).setRestitution(.02),upperBody);
   const playerDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(0,PLAYER_START_Y,6.1).setLinearDamping(.18).setAngularDamping(1.3).setCanSleep(false).setCcdEnabled(true).lockRotations();
   playerBody = world.createRigidBody(playerDesc);
   playerCollider = world.createCollider(RAPIER.ColliderDesc.capsule(PLAYER_HALF_SEGMENT,PLAYER_RADIUS).setFriction(.82).setRestitution(0).setDensity(1.1),playerBody);
@@ -493,12 +521,7 @@ function isOnFloor() {
   const v = playerBody.linvel();
   const tile = getTileAt(p.x,p.z);
   const bottom = p.y - PLAYER_HALF_HEIGHT;
-  if (!tile || bottom > FLOOR_Y + .12 || v.y > 1.5) return false;
-  if (bottom < FLOOR_Y - .06) {
-    playerBody.setTranslation({x:p.x,y:PLAYER_START_Y,z:p.z},true);
-    const vel = playerBody.linvel();
-    if (vel.y < 0) playerBody.setLinvel({x:vel.x,y:0,z:vel.z},true);
-  }
+  if (!tile || bottom > FLOOR_Y + .07 || bottom < FLOOR_Y - .14 || v.y > .35) return false;
   return true;
 }
 
@@ -510,22 +533,20 @@ function setTimerText(seconds) {
 }
 function updateHud() {
   setTimerText(timeLeft);
-  $('alive').textContent = phase === 'won' ? '1 / 1' : phase === 'eliminated' ? '0 / 1' : '1 / 1';
-  if (phase==='playing') {
-    const remaining = tiles.filter(t=>t.active).length;
-    $('statusLine').textContent = `LAST BEAN STANDING · ${remaining} TILES LEFT`;
-  }
+  const remaining = tiles.filter(t=>t.active).length;
+  $('alive').textContent = `${remaining} / 8`;
+  if (phase==='playing') $('statusLine').textContent = `SURVIVE · ${remaining} PLATFORMS REMAINING`;
 }
 
 function startRound() {
   if (phase==='playing' || phase==='paused') return;
   setupPhysicsWorld();
-  elapsed=0; timeLeft=ROUND_SECONDS; accumulator=0; barAngle=0; barSpeed=.72;
+  elapsed=0; timeLeft=ROUND_SECONDS; accumulator=0; barAngle=0; upperAngle=.18; barSpeed=.72;
   nextCollapse=26; collapseQueue=null; collapseMessageTimer=0; countdownTimer=0;
   jumpQueued=false; diveQueued=false; jumpCooldown=0; diveCooldown=0; diveTimer=0; grounded=true; coyoteTime=.12;
   cameraYaw=0; cameraPitch=.30; cameraDistance=7.8; cameraMode=0; touchMove.x=touchMove.y=0;
   playerRoot.position.set(0,PLAYER_START_Y,6.1); playerRoot.rotation.set(0,0,0);
-  lowerPivot.rotation.y=0; upperPivot.rotation.y=0;
+  lowerPivot.rotation.y=0; upperPivot.rotation.y=upperAngle;
   setPhase('countdown');
   $('startScreen').classList.add('hidden'); $('pauseScreen').style.display='none'; $('endScreen').style.display='none';
   countdownValue=3;
@@ -651,8 +672,22 @@ function updateCharacterPhysics(dt, move) {
   const current=playerBody.translation();
   playerRoot.position.set(current.x,current.y,current.z);
   const verticalSpeed=playerBody.linvel().y;
-  const stretch=grounded?1+Math.sin(elapsed*13)*.012:1;
-  beanBody.scale.set(1,stretch,1);
+  const walk=elapsed*11.5;
+  const stride=grounded?Math.min(1,dl)*Math.sin(walk):0;
+  playerArms.forEach((arm,i)=>{
+    const side=i===0?-1:1;
+    arm.rotation.z=side*(.65+stride*.28);
+    arm.rotation.x=diveTimer>0?-.34:Math.max(-.25,Math.min(.25,-stride*.22));
+  });
+  playerFeet.forEach((foot,i)=>{
+    const side=i===0?-1:1;
+    foot.position.y=-.68+(grounded?Math.max(0,Math.sin(walk+side*Math.PI/2))*Math.min(1,dl)*.065:0);
+    foot.rotation.x=grounded?stride*.16:clamp(-verticalSpeed*.035,-.28,.28);
+  });
+  playerHands.forEach((hand,i)=>{ hand.rotation.x=diveTimer>0?-.25:0; });
+  let stretch=grounded?1+Math.sin(elapsed*13)*.012:1+clamp(verticalSpeed*.012,-.09,.11);
+  if (diveTimer>0) stretch=.84;
+  beanBody.scale.set(diveTimer>0?1.08:.98,stretch,diveTimer>0?1.12:1);
   if (current.y < -3.5 || Math.hypot(current.x,current.z)>14.5) endRound(false);
 }
 
@@ -706,13 +741,13 @@ function updateTiles(dt) {
 
 function updateBars(dt) {
   const progress=clamp(elapsed/220,0,1);
-  barSpeed=.72 + progress*1.25;
+  barSpeed=.72 + progress*1.18;
   barAngle += barSpeed*dt;
+  upperAngle += .30*dt;
   lowerPivot.rotation.y=barAngle;
-  upperPivot.rotation.y=barAngle+.035;
+  upperPivot.rotation.y=upperAngle;
   const lo={x:0,y:Math.sin(barAngle/2),z:0,w:Math.cos(barAngle/2)};
-  const hiA=barAngle+.035;
-  const hi={x:0,y:Math.sin(hiA/2),z:0,w:Math.cos(hiA/2)};
+  const hi={x:0,y:Math.sin(upperAngle/2),z:0,w:Math.cos(upperAngle/2)};
   lowerBody.setNextKinematicRotation(lo);
   upperBody.setNextKinematicRotation(hi);
 }
@@ -738,7 +773,7 @@ function stepSimulation(dt) {
     }
     updateBars(0);
   } else if (phase==='ready') {
-    barAngle+=dt*.16; lowerPivot.rotation.y=barAngle; upperPivot.rotation.y=barAngle+.035;
+    barAngle+=dt*.16; upperAngle+=dt*.30; lowerPivot.rotation.y=barAngle; upperPivot.rotation.y=upperAngle;
   }
 }
 
@@ -778,7 +813,7 @@ function animate(now) {
     }
   } else if (phase==='ready') {
     accumulator=0;
-    lowerPivot.rotation.y+=dt*.16; upperPivot.rotation.y=lowerPivot.rotation.y+.035;
+    lowerPivot.rotation.y+=dt*.16; upperPivot.rotation.y+=dt*.30;
   }
   if (phase==='playing') updateHud();
   updateCamera(dt || .016);
@@ -804,11 +839,11 @@ function setupKeyboardAndMouse() {
     if (e.code==='KeyV' && phase==='playing') { cameraMode=1-cameraMode; }
   },{passive:false});
   window.addEventListener('keyup',e=>keys.delete(e.code));
-  window.addEventListener('blur',()=>{keys.clear();touchMove.x=touchMove.y=0;});
+  window.addEventListener('blur',()=>{keys.clear();touchMove.x=touchMove.y=0;touchStates.clear();$('joystick').style.display='none';});
   $('scene').addEventListener('contextmenu',e=>e.preventDefault());
   $('scene').addEventListener('click',()=>{
     if (!isTouchDevice && phase==='playing' && document.pointerLockElement!==$('scene') && $('scene').requestPointerLock) {
-      $('scene').requestPointerLock().catch(()=>{});
+      try { const lock=$('scene').requestPointerLock(); lock?.catch?.(()=>{}); } catch {}
     }
   });
   document.addEventListener('mousemove',e=>{
@@ -902,7 +937,7 @@ async function boot() {
   } catch (err) {
     console.error(err);
     $('loadingScreen').style.display='none';
-    $('errorText').textContent='3Dエンジンの読み込みに失敗した。インターネット接続を確認し、SafariまたはChromeで開き直してみて。詳細: '+(err?.message||String(err));
+    $('errorText').textContent='3Dエンジンの読み込みに失敗した。ネット接続を確認して、Safari / ChromeでHTTPSのページから開き直してみて。詳細: '+(err?.message||String(err));
     $('errorScreen').style.display='grid';
   }
 }
