@@ -2,946 +2,771 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#15102d">
-<title>JUMP SHOWDOWN — Solo Practice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#11152e">
+<title>JUMP SHOWDOWN — Practice Arena</title>
 <style>
-:root{color-scheme:dark;--ink:#fff;--muted:#b9bfd8;--panel:rgba(20,17,48,.76);--line:rgba(255,255,255,.16);--cyan:#55d8ff;--gold:#ffd36b;--pink:#ff6ba8}
+:root{color-scheme:dark;--ink:#f7f7ff;--muted:#b8c1db;--gold:#ffc857;--cyan:#52d6f4;--panel:rgba(12,18,44,.72);--line:rgba(255,255,255,.18)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#17112e;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;user-select:none}
-button{font:inherit;color:inherit;cursor:pointer}
-#game{position:fixed;inset:0;overflow:hidden;background:linear-gradient(180deg,#8bdcff 0%,#d5f6ff 48%,#f7a4c7 100%)}
-#scene{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
-#vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 38%,rgba(17,9,40,.12) 100%)}
-#hud{position:absolute;inset:0;pointer-events:none}
-.topbar{position:absolute;left:clamp(12px,2.4vw,32px);right:clamp(12px,2.4vw,32px);top:max(12px,env(safe-area-inset-top));display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.brand{display:flex;align-items:center;gap:11px;padding:10px 15px 10px 11px;border:1px solid var(--line);border-radius:14px;background:rgba(23,17,48,.68);box-shadow:0 8px 25px rgba(14,9,38,.18);backdrop-filter:blur(14px)}
-.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,#ffdc79,#ff9c59);display:grid;place-items:center;color:#3b2146;font-size:19px;font-weight:1000;box-shadow:inset 0 1px 0 #fff8}
-.brand-main{font-size:12px;line-height:1.05;font-weight:1000;letter-spacing:.15em}
-.brand-sub{font-size:9px;color:#d4d4e8;letter-spacing:.16em;margin-top:4px}
-.hud-right{display:flex;gap:9px;align-items:flex-start}
-.pill{background:rgba(23,17,48,.72);border:1px solid var(--line);border-radius:13px;backdrop-filter:blur(12px);box-shadow:0 8px 25px rgba(14,9,38,.16);padding:8px 12px;min-width:82px;text-align:center}
-.pill-label{font-size:9px;color:#c1c8df;letter-spacing:.15em;font-weight:800}
-.pill-value{font-size:19px;font-weight:1000;letter-spacing:.04em;margin-top:2px;font-variant-numeric:tabular-nums}
-#timerPill .pill-value{font-size:23px;color:#fff0c5}
-#alivePill .pill-value{color:#8ef0c0}
-#pauseBtn{pointer-events:auto;width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:rgba(23,17,48,.78);backdrop-filter:blur(12px);font-size:18px;display:grid;place-items:center;box-shadow:0 8px 25px rgba(14,9,38,.16)}
-#pauseBtn:active,.iconBtn:active{transform:scale(.96)}
-#statusLine{position:absolute;top:88px;left:50%;transform:translateX(-50%);padding:7px 13px;border-radius:999px;background:rgba(21,16,46,.56);border:1px solid rgba(255,255,255,.16);font-size:10px;font-weight:900;letter-spacing:.18em;color:#e9eaff;white-space:nowrap;backdrop-filter:blur(12px)}
-#toast{position:absolute;left:50%;top:22%;transform:translate(-50%,-8px);padding:10px 17px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:rgba(36,20,52,.72);font-size:13px;font-weight:900;letter-spacing:.08em;opacity:0;transition:opacity .18s,transform .18s;white-space:nowrap;box-shadow:0 10px 30px #14092e33}
-#toast.show{opacity:1;transform:translate(-50%,0)}
-.bottom-help{position:absolute;bottom:max(13px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;white-space:nowrap;padding:8px 13px;border:1px solid var(--line);border-radius:13px;background:rgba(19,14,42,.72);backdrop-filter:blur(14px);font-size:10px;color:#d8d9ec;box-shadow:0 8px 25px rgba(14,9,38,.14)}
-.key{display:inline-grid;place-items:center;min-width:22px;height:21px;padding:0 5px;border-radius:6px;background:linear-gradient(180deg,#fff,#dce3f7);color:#25203f;font-size:10px;font-weight:1000;box-shadow:0 2px 0 #9aa7c7}
-.help-sep{width:1px;height:17px;background:#ffffff2a;margin:0 2px}
-#mobileHint{display:none;position:absolute;left:50%;bottom:max(13px,env(safe-area-inset-bottom));transform:translateX(-50%);padding:8px 12px;border-radius:13px;background:rgba(19,14,42,.75);border:1px solid var(--line);font-size:10px;color:#edf1ff;white-space:nowrap;backdrop-filter:blur(12px)}
-#mobileHint b{color:#ffe5a0}
-#joystick{position:absolute;width:118px;height:118px;left:0;top:0;display:none;pointer-events:none;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(255,255,255,.42);background:rgba(255,255,255,.12);box-shadow:inset 0 0 30px #fff2,0 8px 25px #100a2c22}
-#stickKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;border-radius:50%;transform:translate(-50%,-50%);border:1px solid #ffffffa0;background:linear-gradient(145deg,#fff9,#9adfff88);box-shadow:0 4px 15px #100a2c44}
-#startScreen,#pauseScreen,#endScreen,#errorScreen{position:absolute;inset:0;display:grid;place-items:center;padding:22px;background:linear-gradient(180deg,rgba(17,12,43,.05),rgba(17,12,43,.34));pointer-events:auto}
-#pauseScreen,#endScreen,#errorScreen{display:none;background:rgba(13,9,34,.53);backdrop-filter:blur(8px)}
-#startScreen.hidden{display:none}
-.panel{width:min(560px,100%);max-height:min(88dvh,760px);overflow:auto;border:1px solid rgba(255,255,255,.2);border-radius:23px;padding:clamp(20px,4vw,34px);background:linear-gradient(145deg,rgba(26,21,62,.91),rgba(28,15,55,.88));box-shadow:0 25px 80px rgba(12,7,35,.35),inset 0 1px 0 #ffffff15;backdrop-filter:blur(18px)}
-.eyebrow{color:#95eaff;font-size:10px;letter-spacing:.25em;font-weight:1000}
-.heroTitle{margin:10px 0 5px;font-size:clamp(34px,8vw,62px);line-height:.92;font-weight:1000;letter-spacing:-.055em;text-shadow:0 5px 0 rgba(0,0,0,.1)}
-.heroTitle span{display:block;color:#ffd36b;font-size:.56em;letter-spacing:.05em;margin-top:11px}
-.lead{margin:16px 0 21px;color:#d4d6eb;font-size:13px;line-height:1.75}
-.primary{width:100%;border:0;border-radius:13px;padding:14px 18px;background:linear-gradient(135deg,#ffe27a,#ffab57);color:#351b3d;font-size:15px;font-weight:1000;letter-spacing:.07em;box-shadow:0 5px 0 #b75a43,0 12px 24px #ffb04a32;transition:transform .12s,filter .12s}
-.primary:active{transform:translateY(3px);box-shadow:0 2px 0 #b75a43}
-.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:18px}
-.controlCard{border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:12px;background:rgba(255,255,255,.045);min-width:0}
-.controlHead{font-size:10px;color:#9eeaff;font-weight:1000;letter-spacing:.12em;margin-bottom:8px}
-.controlText{font-size:10px;color:#d7d9ef;line-height:1.8}
-.disclaimer{font-size:10px;line-height:1.65;color:#aeb5d2;margin:15px 0 0}
-.panelActions{display:flex;gap:9px;margin-top:16px}
-.secondary{flex:1;border:1px solid #ffffff2a;border-radius:11px;padding:11px;background:#ffffff0b;font-size:12px;font-weight:800}
-.secondary:hover{background:#ffffff18}
-.endTitle{font-size:clamp(34px,8vw,54px);font-weight:1000;letter-spacing:-.05em;margin:8px 0}
-.endTitle.gold{color:#ffdc75}
-.endSub{color:#d2d5ea;font-size:13px;line-height:1.7;margin-bottom:21px}
-#loadingScreen{position:absolute;inset:0;display:grid;place-items:center;background:#18122f;z-index:50}
-.loadingBox{text-align:center;color:#e9eaff}
-.loader{width:46px;height:46px;margin:0 auto 15px;border:4px solid #ffffff22;border-top-color:#ffd36b;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loadingTitle{font-weight:1000;letter-spacing:.2em;font-size:14px}
-.loadingText{font-size:11px;color:#afb6d5;margin-top:8px}
-#warning{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);font-size:11px;color:#fff2bd;text-shadow:0 2px 8px #190b34;white-space:nowrap;opacity:0;transition:opacity .15s}
-#warning.show{opacity:1}
-#physicsTag{position:absolute;right:16px;bottom:16px;font-size:9px;color:#ffffff72;letter-spacing:.05em;pointer-events:none}
-@media (pointer:coarse){.bottom-help{display:none}#mobileHint{display:block}#statusLine{top:74px;font-size:9px}}
-@media (max-width:390px){#mobileHint{font-size:9px;padding:7px 9px;max-width:calc(100vw - 18px);white-space:normal;text-align:center;line-height:1.55}.pill{min-width:60px}.pill-label{font-size:8px}}
-@media (max-width:560px){.brand{padding:8px 10px 8px 8px;gap:8px}.brand-mark{width:29px;height:29px}.brand-main{font-size:10px}.brand-sub{font-size:8px}.pill{min-width:67px;padding:7px 9px}.pill-value{font-size:16px}#timerPill .pill-value{font-size:20px}#pauseBtn{width:36px;height:36px}.topbar{gap:6px}.hud-right{gap:6px}.controls{grid-template-columns:1fr}.controlCard{padding:9px 11px}.controlText{font-size:10px}.panel{border-radius:19px}.lead{margin:12px 0 16px}}
-@media (max-height:620px) and (orientation:landscape){#startScreen,#pauseScreen,#endScreen{padding:8px}.panel{max-height:95dvh;padding:18px 22px}.heroTitle{font-size:34px}.lead{margin:8px 0 12px}.controls{margin-top:10px}.controlCard{padding:8px}.disclaimer{margin-top:8px}}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10162f;font-family:Inter,ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;color:var(--ink);touch-action:none;user-select:none}
+#game{position:fixed;inset:0;display:block;width:100%;height:100%;outline:0}
+#vignette{pointer-events:none;position:fixed;inset:0;z-index:2;background:radial-gradient(ellipse at center,transparent 48%,rgba(5,8,27,.22) 100%)}
+#hud{position:fixed;inset:0;z-index:5;pointer-events:none;padding:calc(env(safe-area-inset-top) + 13px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px) calc(env(safe-area-inset-left) + 16px)}
+.hud-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;text-shadow:0 2px 12px #1118}
+.brand-mark{width:43px;height:43px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,#ffe27a,#f99d36);box-shadow:0 5px 18px #ffac3555,inset 0 2px 2px #fff8;color:#563119;font-size:22px;transform:rotate(-5deg)}
+.brand-kicker{font-size:10px;letter-spacing:.22em;font-weight:900;color:#ffe39a;line-height:1.1}
+.brand-name{font-size:clamp(15px,2vw,21px);font-weight:1000;letter-spacing:.04em;line-height:1.2}
+.hud-center{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translateX(-50%);text-align:center;min-width:130px}
+.timer-box{padding:8px 19px 7px;border:1px solid #ffffff32;border-radius:15px;background:linear-gradient(180deg,#27345fdd,#111a3cdd);box-shadow:0 10px 30px #080d2866,inset 0 1px #ffffff33;backdrop-filter:blur(12px)}
+.timer-label{font-size:9px;letter-spacing:.23em;font-weight:900;color:#c2cce5}
+#timer{font-variant-numeric:tabular-nums;font-size:clamp(24px,4vw,35px);font-weight:1000;letter-spacing:.08em;line-height:1.05;color:#fff;text-shadow:0 0 18px #70d7ff55}
+.hud-right{display:flex;align-items:center;gap:9px}
+.stat{min-width:82px;padding:9px 12px;border:1px solid #ffffff26;border-radius:13px;background:var(--panel);backdrop-filter:blur(10px);box-shadow:0 8px 24px #070b2060}
+.stat-label{font-size:9px;color:#b9c6e1;font-weight:900;letter-spacing:.16em}
+.stat-value{font-size:19px;font-weight:1000;line-height:1.25;color:white;font-variant-numeric:tabular-nums}
+#pauseBtn{pointer-events:auto;width:42px;height:42px;border-radius:13px;border:1px solid #ffffff32;background:#111a3ddd;color:white;font-size:17px;cursor:pointer;backdrop-filter:blur(10px)}
+#tileProgress{position:absolute;top:calc(env(safe-area-inset-top) + 76px);left:50%;transform:translateX(-50%);display:flex;gap:5px;align-items:center}
+.tile-dot{width:13px;height:7px;border-radius:4px;background:#ffffff2b;border:1px solid #ffffff22;transition:.3s}
+.tile-dot.live{background:#38c9ef;box-shadow:0 0 10px #44d9ff77}
+.tile-dot.warn{background:#ffbe51;animation:blink .28s infinite alternate}
+@keyframes blink{to{opacity:.35;transform:scaleY(.65)}}
+#objective{position:absolute;left:18px;bottom:calc(env(safe-area-inset-bottom) + 20px);padding:9px 12px;border-radius:12px;background:rgba(11,17,42,.6);border:1px solid #ffffff19;backdrop-filter:blur(8px);font-size:11px;letter-spacing:.06em;color:#dce7ff}
+#objective b{color:#ffe18a}
+#controlsHint{position:absolute;right:18px;bottom:calc(env(safe-area-inset-bottom) + 20px);max-width:270px;text-align:right;font-size:10px;line-height:1.55;letter-spacing:.04em;color:#e3ebffb8;text-shadow:0 2px 8px #0a0d22}
+#physxStatus{position:absolute;right:18px;top:calc(env(safe-area-inset-top) + 83px);font-size:9px;font-weight:800;letter-spacing:.12em;color:#b8d0df;background:#07142677;border:1px solid #8ce8ff26;padding:5px 8px;border-radius:8px}
+#toast{position:absolute;left:50%;top:28%;transform:translate(-50%,-50%) scale(.9);opacity:0;padding:10px 18px;border-radius:12px;background:#111a3de8;border:1px solid #ffffff2c;color:#fff;font-size:13px;font-weight:900;letter-spacing:.12em;transition:opacity .2s,transform .2s;white-space:nowrap;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(ellipse at 50% 36%,rgba(33,54,116,.25),rgba(5,8,24,.73));backdrop-filter:blur(5px)}
+.panel{width:min(560px,100%);max-height:min(92dvh,850px);overflow:auto;border:1px solid #ffffff28;border-radius:26px;background:linear-gradient(155deg,rgba(32,45,91,.96),rgba(9,15,42,.96));box-shadow:0 28px 100px #020512aa,inset 0 1px #ffffff20;padding:clamp(22px,5vw,38px);text-align:center}
+.logo-top{font-size:11px;letter-spacing:.32em;font-weight:1000;color:#82e3fa;margin-bottom:10px}
+.logo-title{margin:0;font-size:clamp(35px,8vw,58px);font-weight:1000;line-height:.96;letter-spacing:-.045em;color:#fff;text-shadow:0 4px 0 #1a2855,0 8px 20px #03091b;transform:skew(-4deg)}
+.logo-title span{display:block;color:#ffd56c;text-shadow:0 3px 0 #a65e20,0 8px 22px #e88f3155}
+.subline{margin:15px 0 21px;color:#c4d0ec;font-size:12px;letter-spacing:.12em;font-weight:800}
+.rule-card{margin:18px 0;padding:15px;border:1px solid #ffffff20;border-radius:16px;background:#ffffff09;text-align:left}
+.rule-head{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:1000;letter-spacing:.13em;color:#ffe08b;margin-bottom:8px}
+.rule-copy{font-size:12px;line-height:1.7;color:#e0e8fa}
+.rule-copy strong{color:#fff}
+.control-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:13px 0 20px;text-align:left}
+.control-card{padding:10px 11px;border-radius:13px;background:#ffffff0a;border:1px solid #ffffff16;font-size:10px;color:#cbd6ef;line-height:1.55}
+.control-card b{display:block;font-size:11px;color:white;margin-bottom:3px}
+.key{display:inline-block;border:1px solid #ffffff40;border-bottom-width:3px;border-radius:5px;background:#ffffff12;padding:1px 6px;color:#fff;font-size:10px;font-weight:900;margin:0 1px}
+.primary{width:100%;border:0;border-radius:15px;padding:15px 18px;background:linear-gradient(180deg,#ffe38b,#ffb53e);box-shadow:0 7px 0 #b96c24,0 13px 26px #ffb54838,inset 0 2px #fff9;color:#573219;font-size:15px;font-weight:1000;letter-spacing:.13em;cursor:pointer;transition:transform .12s,filter .12s}
+.primary:active{transform:translateY(3px);box-shadow:0 4px 0 #b96c24,0 8px 20px #ffb54833}
+.secondary{margin-top:12px;color:#b9c8e8;font-size:10px;line-height:1.6}
+#resultTitle{font-size:34px;font-weight:1000;color:#ffe38f;margin:0 0 7px}
+#resultText{font-size:13px;color:#d9e4fc;line-height:1.6;margin:0 0 19px}
+#joystick{position:fixed;z-index:8;left:0;top:0;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:1px solid #ffffff66;background:#d6efff1e;box-shadow:0 0 25px #61d8ff26,inset 0 0 20px #ffffff12;pointer-events:none;display:none;backdrop-filter:blur(3px)}
+#stickKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;border:1px solid #ffffffa8;background:linear-gradient(145deg,#ffffffa8,#5dcff4a0);box-shadow:0 4px 15px #07112688,inset 0 1px #fff}
+#mobileHints{position:fixed;z-index:4;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 12px);display:none;justify-content:space-between;padding:0 18px;pointer-events:none;color:#fff9;font-size:9px;font-weight:900;letter-spacing:.14em;text-shadow:0 2px 5px #10162f}
+#bootError{display:none;position:fixed;z-index:50;inset:0;background:#080d20;color:#fff;padding:30px;align-items:center;justify-content:center;text-align:center}
+#bootError.show{display:flex}
+#bootError .panel{max-width:520px}
+@media(max-width:700px){
+ #hud{padding-left:10px;padding-right:10px}
+ .brand-mark{width:34px;height:34px;border-radius:11px;font-size:18px}
+ .brand-kicker{font-size:8px}.brand-name{font-size:14px}
+ .hud-center{top:calc(env(safe-area-inset-top) + 7px)}
+ .timer-box{padding:6px 12px 5px;border-radius:12px}
+ #timer{font-size:24px}.timer-label{font-size:8px}
+ .stat{min-width:56px;padding:7px 8px;border-radius:11px}.stat-label{font-size:8px}.stat-value{font-size:16px}
+ #pauseBtn{width:36px;height:36px;border-radius:11px}
+ #tileProgress{top:calc(env(safe-area-inset-top) + 65px);gap:3px}.tile-dot{width:10px;height:6px}
+ #physxStatus{right:10px;top:calc(env(safe-area-inset-top) + 79px);font-size:8px}
+ #objective{left:10px;bottom:calc(env(safe-area-inset-bottom) + 13px);font-size:9px;padding:7px 9px}
+ #controlsHint{display:none}
+ #mobileHints{display:flex}
+ .panel{border-radius:21px;padding:23px 19px}
+ .control-grid{grid-template-columns:1fr 1fr;gap:6px}
+ .control-card{font-size:9px;padding:8px}
+}
+@media(max-height:560px) and (orientation:landscape){.panel{padding:18px 24px}.logo-title{font-size:38px}.rule-card{margin:11px 0;padding:10px}.control-grid{margin:8px 0 12px}.subline{margin:9px 0 12px}}
 </style>
 </head>
 <body>
-<div id="game">
-  <canvas id="scene" aria-label="3D Jump Showdown practice arena"></canvas>
-  <div id="vignette"></div>
-  <div id="hud">
-    <div class="topbar">
-      <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-main">JUMP SHOWDOWN</div><div class="brand-sub">FINAL ROUND · SOLO</div></div></div>
-      <div class="hud-right">
-        <div class="pill" id="timerPill"><div class="pill-label">TIME LEFT</div><div class="pill-value" id="timer">05:00</div></div>
-        <div class="pill" id="alivePill"><div class="pill-label">TILES</div><div class="pill-value" id="alive">8 / 8</div></div>
-        <button id="pauseBtn" aria-label="Pause" title="Pause">Ⅱ</button>
-      </div>
-    </div>
-    <div id="statusLine">LAST BEAN STANDING</div>
-    <div id="toast"></div>
-    <div id="warning">足場が揺れている！</div>
-    <div class="bottom-help" id="desktopHint"><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span><span>移動</span><span class="help-sep"></span><span class="key">SPACE</span><span>ジャンプ</span><span class="help-sep"></span><span class="key">CTRL</span><span>ダイブ</span><span class="help-sep"></span><span>マウス移動：視点</span></div>
-    <div id="mobileHint"><b>左スワイプ</b> 移動　 <b>右スワイプ</b> 視点　 <b>右上タップ</b> ダイブ　 <b>右下タップ</b> ジャンプ</div>
-    <div id="joystick"><div id="stickKnob"></div></div>
-    <div id="physicsTag">SOLO PRACTICE · 3D</div>
+<canvas id="game" aria-label="Jump Showdown 3D game"></canvas>
+<div id="vignette"></div>
+<div id="hud">
+ <div class="hud-top">
+  <div class="brand"><div class="brand-mark">★</div><div><div class="brand-kicker">FINAL ROUND</div><div class="brand-name">JUMP SHOWDOWN</div></div></div>
+  <div class="hud-center"><div class="timer-box"><div class="timer-label">TIME LEFT</div><div id="timer">5:00</div></div></div>
+  <div class="hud-right">
+   <div class="stat"><div class="stat-label">PLATFORMS</div><div class="stat-value" id="platformCount">8 / 8</div></div>
+   <button id="pauseBtn" aria-label="Pause" title="Pause">Ⅱ</button>
   </div>
-
-  <div id="startScreen">
-    <div class="panel">
-      <div class="eyebrow">FINAL ROUND / SOLO TRAINING</div>
-      <div class="heroTitle">JUMP<span>SHOWDOWN</span></div>
-      <p class="lead">2本のゴールドバーを見極めてジャンプ！ 下のバーは時間とともに加速し、8枚の足場は少しずつ崩れていく。最後の2枚まで生き残ろう。</p>
-      <button class="primary" id="startBtn">ラウンド開始　▶</button>
-      <div class="controls">
-        <div class="controlCard"><div class="controlHead">⌨ KEYBOARD / MOUSE</div><div class="controlText">WASD / 矢印：移動<br>Space：ジャンプ<br>Ctrl：ダイブ<br>マウス：視点操作</div></div>
-        <div class="controlCard"><div class="controlHead">🎮 CONTROLLER</div><div class="controlText">左スティック：移動<br>右スティック：視点<br>A / Cross：ジャンプ<br>X / Square：ダイブ</div></div>
-        <div class="controlCard"><div class="controlHead">📱 TOUCH</div><div class="controlText">左側をスワイプ：移動<br>右側をスワイプ：視点<br>右上をタップ：ダイブ<br>右下をタップ：ジャンプ</div></div>
-      </div>
-      <p class="disclaimer">SOLO PRACTICE BUILD · オンライン対戦・つかみ・ランダムファンは未実装。アップロードされたZIPにはPhysXのJavaScriptバインディングはありましたが、実行に必要なWASM本体が含まれていなかったため、この版はRapier 3Dで動作します。</p>
-    </div>
-  </div>
-
-  <div id="pauseScreen">
-    <div class="panel">
-      <div class="eyebrow">ROUND PAUSED</div>
-      <div class="endTitle">PAUSED</div>
-      <p class="endSub">ラウンドを一時停止中。</p>
-      <div class="panelActions"><button class="secondary" id="resumeBtn">再開</button><button class="secondary" id="restartPauseBtn">最初から</button></div>
-    </div>
-  </div>
-
-  <div id="endScreen">
-    <div class="panel">
-      <div class="eyebrow" id="endEyebrow">ROUND COMPLETE</div>
-      <div class="endTitle gold" id="endTitle">QUALIFIED!</div>
-      <p class="endSub" id="endSub">最後まで生き残った！</p>
-      <button class="primary" id="againBtn">もう一度プレイ　↻</button>
-      <div class="panelActions"><button class="secondary" id="backBtn">タイトルへ</button></div>
-    </div>
-  </div>
-
-  <div id="errorScreen">
-    <div class="panel">
-      <div class="eyebrow">STARTUP ERROR</div>
-      <div class="endTitle">起動できない</div>
-      <p class="endSub" id="errorText">3Dエンジンを読み込めなかった。</p>
-      <button class="primary" onclick="location.reload()">再読み込み</button>
-    </div>
-  </div>
-
-  <div id="loadingScreen"><div class="loadingBox"><div class="loader"></div><div class="loadingTitle">JUMP SHOWDOWN</div><div class="loadingText" id="loadingText">3Dエンジンを読み込み中…</div></div></div>
+ </div>
+ <div id="tileProgress"></div>
+ <div id="physxStatus">PHYSX · LOADING</div>
+ <div id="objective"><b>OBJECTIVE</b>　5分間、生き残れ！</div>
+ <div id="controlsHint">W A S D / ← ↑ → ↓　MOVE<br>SPACE　JUMP　　SHIFT　DIVE<br>MOUSE DRAG　CAMERA　　ESC　PAUSE</div>
+ <div id="toast"></div>
 </div>
-
+<div id="mobileHints"><span>SWIPE TO MOVE</span><span>DRAG TO LOOK · TAP TO ACT</span></div>
+<div id="joystick"><div id="stickKnob"></div></div>
+<div id="overlay">
+ <div class="panel" id="startPanel">
+  <div class="logo-top">THE FINAL TEST</div>
+  <h1 class="logo-title">JUMP<span>SHOWDOWN</span></h1>
+  <div class="subline">BE THE LAST BEAN ABOVE THE SLIME</div>
+  <div class="rule-card">
+   <div class="rule-head"><span>✦</span> ROUND RULES</div>
+   <div class="rule-copy">上下2本の回転バーを避けながら、<strong>5分間生き残ろう。</strong><br>足場は時間とともに揺れ始め、順番に落下する。最後には<strong>2枚だけ</strong>が残る。</div>
+  </div>
+  <div class="control-grid">
+   <div class="control-card"><b>⌨ PC / KEYBOARD</b><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> 移動<br><span class="key">SPACE</span> ジャンプ　<span class="key">SHIFT</span> ダイブ</div>
+   <div class="control-card"><b>🎮 CONTROLLER</b>左スティック 移動<br>右スティック 視点<br>A / × ジャンプ　B / ○ ダイブ</div>
+   <div class="control-card"><b>📱 SMARTPHONE</b>左側をスワイプして移動<br>右側をスワイプして視点変更</div>
+   <div class="control-card"><b>📱 TAP ACTIONS</b>右下をタップ：ジャンプ<br>右上をタップ：ダイブ</div>
+  </div>
+  <button class="primary" id="startBtn">PLAY SOLO　▶</button>
+  <div class="secondary">練習モード · 対戦・ボットなし · 5:00 SURVIVAL</div>
+ </div>
+ <div class="panel" id="resultPanel" hidden>
+  <div class="logo-top">ROUND COMPLETE</div>
+  <h2 id="resultTitle">ELIMINATED</h2>
+  <p id="resultText">もう一度挑戦しよう。</p>
+  <button class="primary" id="restartBtn">PLAY AGAIN　↻</button>
+  <div class="secondary">ジャンプ・ショーダウン · SOLO PRACTICE</div>
+ </div>
+ <div class="panel" id="pausePanel" hidden>
+  <div class="logo-top">TAKE A BREATHER</div>
+  <h2 class="logo-title" style="font-size:38px">PAUSED</h2>
+  <p class="secondary" style="font-size:12px;margin:14px 0 20px">ゲームは一時停止中</p>
+  <button class="primary" id="resumeBtn">RESUME　▶</button>
+  <button class="primary" id="pauseRestartBtn" style="margin-top:14px;background:linear-gradient(180deg,#c5ddff,#6fb4f6);box-shadow:0 7px 0 #376fb2;color:#102b4c">RESTART　↻</button>
+ </div>
+</div>
+<div id="bootError"><div class="panel"><h2>読み込みに失敗した</h2><p id="bootErrorText">Three.js または PhysX の読み込みを確認してね。</p><button class="primary" onclick="location.reload()">RELOAD</button></div></div>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
-import RAPIER from 'https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.21.0/+esm';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+import PhysX from 'https://cdn.jsdelivr.net/npm/physx-js-webidl@2.9.1/physx-js-webidl.mjs';
 
 const $ = id => document.getElementById(id);
-const FIXED_DT = 1 / 60;
-const ROUND_SECONDS = 300;
-const TILE_COUNT = 8;
-const INNER_RADIUS = 1.72;
-const OUTER_RADIUS = 8.18;
-const FLOOR_Y = 0.65;
-const TILE_BASE_Y = 0.35;
-const PLAYER_RADIUS = 0.48;
-const PLAYER_HALF_SEGMENT = 0.20;
-const PLAYER_HALF_HEIGHT = PLAYER_RADIUS + PLAYER_HALF_SEGMENT;
-const PLAYER_START_Y = FLOOR_Y + PLAYER_HALF_HEIGHT + 0.015;
+const canvas = $('game');
 const TAU = Math.PI * 2;
-const SECTOR = TAU / TILE_COUNT;
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const lerp = (a, b, t) => a + (b - a) * t;
-const rand = (a, b) => a + Math.random() * (b - a);
+const TILE_COUNT = 8;
+const PLATFORM_INNER = 1.62;
+const PLATFORM_OUTER = 7.05;
+const FLOOR_TOP = 0.02;
+const FLOOR_CENTER = -0.17;
+const ROUND_SECONDS = 300;
+const FIXED_DT = 1 / 60;
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const wrapAngle = a => ((a % TAU) + TAU) % TAU;
+const isMobile = matchMedia('(hover: none) and (pointer: coarse)').matches || /iPhone|iPad|Android/i.test(navigator.userAgent);
 
-let renderer, scene, camera, world;
-let playerBody, playerCollider, playerRoot, beanBody;
-let lowerBody, upperBody, lowerPivot, upperPivot;
-let playerArms = [];
-let playerFeet = [];
-let playerHands = [];
-let tiles = [];
-let phase = 'ready';
-let elapsed = 0;
-let timeLeft = ROUND_SECONDS;
-let accumulator = 0;
-let lastFrame = 0;
-let barAngle = 0;
-let upperAngle = 0.18;
-let barSpeed = 0.72;
-let nextCollapse = 26;
-let collapseQueue = null;
-let collapseMessageTimer = 0;
-let jumpQueued = false;
-let diveQueued = false;
-let jumpCooldown = 0;
-let diveCooldown = 0;
-let diveTimer = 0;
-let grounded = false;
-let coyoteTime = 0;
-let lastMove = new THREE.Vector3(0, 0, -1);
-let cameraYaw = 0;
-let cameraPitch = 0.30;
-let cameraDistance = 7.8;
-let cameraMode = 0;
-let toastTimer = 0;
-let touchMove = { x: 0, y: 0 };
-let mouseLook = { x: 0, y: 0 };
-let touchStates = new Map();
-let keys = new Set();
-let previousPadButtons = [];
-let padIndex = null;
-let isTouchDevice = matchMedia('(pointer:coarse)').matches;
-let clock = new THREE.Clock();
+let renderer, scene, camera, clock, physics, phys, playerActor, playerVisual, lowerActor, upperActor;
+let lowerVisual, upperVisual, playerMaterial, slimeGeo, slimePositions;
+let tileObjects = [], ambientThings = [], worldReady = false;
+let gameState = 'menu', elapsed = 0, remaining = ROUND_SECONDS, nextCollapseAt = 43, collapseSerial = 0;
+let lowerAngle = 0, upperAngle = 0, lowerSpeed = 0.67, upperSpeed = 0.43;
+let cameraYaw = 0.20, cameraPitch = 0.24, cameraDistance = isMobile ? 8.7 : 8.2;
+let lastFrame = 0, accumulator = 0, toastTimeout = 0, diveTimer = 0, lastHitAt = -10;
+let playerPosition = new THREE.Vector3(0,0.8,5.1), playerQuaternion = new THREE.Quaternion();
+let inputX = 0, inputY = 0, jumpQueued = false, diveQueued = false, jumpWasDown = false, diveWasDown = false;
+let grounded = false, wasGrounded = false, isDiving = false;
+const keys = new Set();
+const tempV3 = new THREE.Vector3();
+const tempV3b = new THREE.Vector3();
+const tempQuat = new THREE.Quaternion();
+const worldUp = new THREE.Vector3(0,1,0);
+const moveForward = new THREE.Vector3();
+const moveRight = new THREE.Vector3();
+const moveWish = new THREE.Vector3();
+const rayOrigin = new THREE.Vector3();
+let physxApi = null;
 
-const tileVisualRoot = new THREE.Group();
-const decorRoot = new THREE.Group();
-const barVisualRoot = new THREE.Group();
-const playerVisualRoot = new THREE.Group();
-const materialCache = {};
-
-function showToast(text, duration = 1.6) {
-  $('toast').textContent = text;
-  $('toast').classList.add('show');
-  toastTimer = duration;
+function showBootError(err){
+  console.error(err);
+  $('bootErrorText').textContent = String(err?.message || err || '外部ライブラリを読み込めなかった。インターネット接続を確認して再読み込みしてね。');
+  $('bootError').classList.add('show');
 }
-function hideToast() { $('toast').classList.remove('show'); }
-function setLoadingText(text) { $('loadingText').textContent = text; }
-function setPhase(next) {
-  phase = next;
-  $('pauseBtn').style.display = next === 'playing' || next === 'paused' ? 'grid' : 'none';
-  $('warning').classList.remove('show');
-  if (next === 'playing') $('statusLine').textContent = 'LAST BEAN STANDING';
-  if (next === 'ready') $('statusLine').textContent = 'SOLO PRACTICE · READY';
-  if (next === 'paused') $('statusLine').textContent = 'ROUND PAUSED';
+function setPhysxStatus(text, ok=true){
+  $('physxStatus').textContent = text;
+  $('physxStatus').style.color = ok ? '#a8f2d0' : '#ffd18a';
+  $('physxStatus').style.borderColor = ok ? '#8fffd044' : '#ffd18a44';
+}
+function toast(text, duration=1700){
+  const el=$('toast'); el.textContent=text; el.classList.add('show');
+  clearTimeout(toastTimeout); toastTimeout=setTimeout(()=>el.classList.remove('show'),duration);
 }
 
-function makeRenderer() {
-  renderer = new THREE.WebGLRenderer({ canvas: $('scene'), antialias: true, alpha: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isTouchDevice ? 1.7 : 2));
-  renderer.setSize(window.innerWidth, window.innerHeight, false);
+// Scene setup. The physics scene settings intentionally follow the uploaded Roll Off bundle:
+// PGS solver, patch friction, PCM, CCD and enhanced determinism.
+async function initPhysics(){
+  setPhysxStatus('PHYSX · INITIALIZING');
+  const PX = await PhysX();
+  physxApi = PX;
+  const foundation = PX.CreateFoundation(PX.PHYSICS_VERSION, new PX.PxDefaultAllocator(), new PX.PxDefaultErrorCallback());
+  const tolerances = new PX.PxTolerancesScale();
+  physics = PX.CreatePhysics(PX.PHYSICS_VERSION, foundation, tolerances);
+  PX.InitExtensions(physics);
+  const dispatcher = PX.DefaultCpuDispatcherCreate(0);
+  const desc = new PX.PxSceneDesc(tolerances);
+  desc.gravity = new PX.PxVec3(0, -9.81, 0);
+  desc.cpuDispatcher = dispatcher;
+  desc.filterShader = PX.DefaultFilterShader();
+  desc.frictionType = PX.PxFrictionTypeEnum.ePATCH;
+  desc.solverType = PX.PxSolverTypeEnum.ePGS;
+  desc.bounceThresholdVelocity = 2;
+  desc.flags.raise(PX.PxSceneFlagEnum.eENABLE_PCM);
+  desc.flags.raise(PX.PxSceneFlagEnum.eENABLE_CCD);
+  desc.flags.raise(PX.PxSceneFlagEnum.eENABLE_ENHANCED_DETERMINISM);
+  const scene = physics.createScene(desc);
+  phys = {PX,foundation,tolerances,dispatcher,desc,scene,physics,materials:{}};
+  phys.materials.floor = physics.createMaterial(.82,.72,0.0);
+  phys.materials.player = physics.createMaterial(.62,.48,0.0);
+  phys.materials.bar = physics.createMaterial(.9,.76,0.0);
+  phys.materials.rail = physics.createMaterial(.7,.55,0.0);
+  setPhysxStatus('PHYSX 5 · WASM READY');
+}
+
+function pxVec(x=0,y=0,z=0){return new phys.PX.PxVec3(x,y,z)}
+function destroyPx(o){try{if(o)phys.PX.destroy(o)}catch{}}
+function pxQuat(axis,angle){const a=pxVec(axis.x,axis.y,axis.z);const q=new phys.PX.PxQuat(angle,a);destroyPx(a);return q}
+function pxPose(x,y,z,q=null){const p=pxVec(x,y,z);const rot=q||new phys.PX.PxQuat(phys.PX.PxIDENTITYEnum.PxIdentity);const pose=new phys.PX.PxTransform(p,rot);destroyPx(p);destroyPx(rot);return pose}
+function addShape(actor, geometry, material, localPosition=[0,0,0], localQuaternion=null, contact=.035){
+  const PX=phys.PX;
+  const flags=new PX.PxShapeFlags(PX.PxShapeFlagEnum.eSCENE_QUERY_SHAPE|PX.PxShapeFlagEnum.eSIMULATION_SHAPE);
+  const shape=physics.createShape(geometry,material,true,flags);
+  const pos=pxVec(...localPosition);
+  const q=localQuaternion || new PX.PxQuat(PX.PxIDENTITYEnum.PxIdentity);
+  const pose=new PX.PxTransform(pos,q);
+  shape.setLocalPose(pose);
+  shape.setContactOffset(contact);
+  shape.setRestOffset(0);
+  actor.attachShape(shape);
+  destroyPx(flags); destroyPx(geometry); destroyPx(pos); destroyPx(pose);
+  if(localQuaternion) destroyPx(localQuaternion);
+  return shape;
+}
+function createBody(kind, position, rotation=0){
+  const PX=phys.PX;
+  const pose=pxPose(position[0],position[1],position[2],pxQuat({x:0,y:1,z:0},rotation));
+  const actor=kind==='static'?physics.createRigidStatic(pose):physics.createRigidDynamic(pose);
+  if(kind==='kinematic') actor.setRigidBodyFlag(PX.PxRigidBodyFlagEnum.eKINEMATIC,true);
+  if(kind!=='static'){
+    actor.setSolverIterationCounts(12,4);
+    actor.setMaxDepenetrationVelocity(35);
+    actor.setSleepThreshold(.002);
+  }
+  phys.scene.addActor(actor);
+  destroyPx(pose);
+  return actor;
+}
+function setBodyPose(actor,x,y,z,angle=0,kinematic=false){
+  const pose=pxPose(x,y,z,pxQuat({x:0,y:1,z:0},angle));
+  if(kinematic) actor.setKinematicTarget(pose); else actor.setGlobalPose(pose);
+  destroyPx(pose);
+}
+function readActorPose(actor){
+  const p=actor.getGlobalPose();
+  const result={position:[p.p.x,p.p.y,p.p.z],quaternion:[p.q.x,p.q.y,p.q.z,p.q.w]};
+  destroyPx(p);
+  return result;
+}
+function setActorVelocity(actor,x,y,z){
+  const v=pxVec(x,y,z); actor.setLinearVelocity(v); destroyPx(v);
+}
+function createStaticBox(x,y,z,hx,hy,hz,material,rotation=0){
+  const actor=createBody('static',[x,y,z],rotation);
+  addShape(actor,new phys.PX.PxBoxGeometry(hx,hy,hz),material);
+  return actor;
+}
+
+function initRenderer(){
+  renderer = new THREE.WebGLRenderer({canvas,antialias:!isMobile,alpha:false,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, isMobile?1.55:2));
+  renderer.setSize(window.innerWidth,window.innerHeight,false);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
-}
-
-function makeWorldScene() {
+  renderer.toneMappingExposure = 1.14;
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x9bddf4);
-  scene.fog = new THREE.Fog(0x9bddf4, 27, 78);
-  camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 160);
-  camera.position.set(0, 7.4, 15.5);
-  camera.lookAt(0, 0.8, 0);
-  const hemi = new THREE.HemisphereLight(0xdff8ff, 0x915b89, 2.0);
-  scene.add(hemi);
-  const key = new THREE.DirectionalLight(0xfff2d5, 2.3);
-  key.position.set(-9, 18, 10);
-  key.castShadow = true;
-  key.shadow.mapSize.set(isTouchDevice ? 768 : 1280, isTouchDevice ? 768 : 1280);
-  key.shadow.camera.left = -14; key.shadow.camera.right = 14;
-  key.shadow.camera.top = 14; key.shadow.camera.bottom = -14;
-  key.shadow.bias = -0.00025;
-  scene.add(key);
-  const rim = new THREE.DirectionalLight(0xb2e9ff, 1.0);
-  rim.position.set(12, 8, -12); scene.add(rim);
-  scene.add(decorRoot, tileVisualRoot, barVisualRoot, playerVisualRoot);
-  buildEnvironment();
-  buildArenaVisual();
-  buildBarsVisual();
-  buildPlayerVisual();
+  scene.background = new THREE.Color(0x91d8fa);
+  scene.fog = new THREE.Fog(0xa5dcf0,30,78);
+  camera = new THREE.PerspectiveCamera(57,window.innerWidth/window.innerHeight,.1,180);
+  clock = new THREE.Clock();
+  const hemi = new THREE.HemisphereLight(0xe7f8ff,0x9a76a7,2.15); scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xfff1d1,3.0); sun.position.set(-9,18,8); sun.castShadow=true;
+  sun.shadow.mapSize.set(isMobile?1024:2048,isMobile?1024:2048);
+  sun.shadow.camera.left=-16; sun.shadow.camera.right=16; sun.shadow.camera.top=16; sun.shadow.camera.bottom=-16;
+  sun.shadow.bias=-.00035; sun.shadow.normalBias=.025; scene.add(sun);
+  const fill = new THREE.DirectionalLight(0x83dfff,1.0); fill.position.set(12,8,-14); scene.add(fill);
+  window.addEventListener('resize',onResize);
 }
-
-function buildEnvironment() {
-  const water = new THREE.Mesh(new THREE.CircleGeometry(42, 80), new THREE.MeshStandardMaterial({ color: 0xf779ad, roughness: 0.5, metalness: 0.02 }));
-  water.rotation.x = -Math.PI / 2; water.position.y = -4.8; water.receiveShadow = true; decorRoot.add(water);
-  for (let i = 0; i < 7; i++) {
-    const ring = new THREE.Mesh(new THREE.RingGeometry(9.2 + i * 1.15, 9.26 + i * 1.15, 96), new THREE.MeshBasicMaterial({ color: 0xffb0d1, transparent: true, opacity: 0.16 - i * 0.012, side: THREE.DoubleSide }));
-    ring.rotation.x = -Math.PI / 2; ring.position.y = -4.76 - i * .002; decorRoot.add(ring);
-  }
-  const cloudMat = new THREE.MeshStandardMaterial({ color: 0xf4fdff, roughness: 0.94 });
-  const hillMats = [0xb7e8c8,0x98d8c0,0xc4e6d2,0xffd3df].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 1 }));
-  for (let i = 0; i < 13; i++) {
-    const a = i / 13 * TAU;
-    const r = rand(24, 38);
-    const h = rand(3.4, 7.4);
-    const hill = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 1), hillMats[i % hillMats.length]);
-    hill.position.set(Math.cos(a) * r, -2.7 + h * .42, Math.sin(a) * r);
-    hill.scale.set(rand(4.2, 7.2), h, rand(4.2, 7.2));
-    hill.rotation.y = rand(0, TAU); decorRoot.add(hill);
-  }
-  for (let i = 0; i < 21; i++) {
-    const a = i / 21 * TAU + rand(-.1,.1);
-    const r = rand(20, 37);
-    const g = new THREE.Group();
-    const count = 3 + Math.floor(Math.random() * 3);
-    for (let j = 0; j < count; j++) {
-      const s = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), cloudMat);
-      s.position.set((j - (count - 1) / 2) * .8, rand(-.15,.3), rand(-.25,.25));
-      s.scale.set(rand(1.0,1.7), rand(.55,.9), rand(.65,1.15));
-      g.add(s);
-    }
-    g.position.set(Math.cos(a) * r, rand(7,15), Math.sin(a) * r);
-    g.scale.setScalar(rand(.8,1.45)); decorRoot.add(g);
-  }
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(8.55, 8.75, .34, 96, 1, true), new THREE.MeshStandardMaterial({ color: 0xf7ad69, metalness: .55, roughness: .38, side: THREE.DoubleSide }));
-  base.position.y = .20; decorRoot.add(base);
-  const outerBand = new THREE.Mesh(new THREE.TorusGeometry(8.47,.11,10,96), new THREE.MeshStandardMaterial({ color: 0xffd276, metalness: .65, roughness: .3 }));
-  outerBand.rotation.x = Math.PI / 2; outerBand.position.y = .47; decorRoot.add(outerBand);
-
-  // Bright orange support pylons around the arena, inspired by the original final-round set.
-  const supportMat = new THREE.MeshStandardMaterial({ color:0xf47b35, metalness:.34, roughness:.42 });
-  const capMat = new THREE.MeshStandardMaterial({ color:0xffd47a, metalness:.66, roughness:.28 });
-  for (let i=0;i<8;i++) {
-    const a=i/8*TAU;
-    const x=Math.cos(a)*8.58, z=Math.sin(a)*8.58;
-    const post=new THREE.Group(); post.position.set(x,-.20,z); post.rotation.y=-a;
-    const stem=new THREE.Mesh(new THREE.CylinderGeometry(.16,.21,1.48,14),supportMat);
-    stem.position.y=.18; stem.castShadow=true; post.add(stem);
-    const foot=new THREE.Mesh(new THREE.CylinderGeometry(.31,.36,.22,16),capMat);
-    foot.position.y=-.58; post.add(foot);
-    const cap=new THREE.Mesh(new THREE.CylinderGeometry(.25,.19,.22,16),capMat);
-    cap.position.y=.94; post.add(cap);
-    decorRoot.add(post);
-  }
-  const outerHalo = new THREE.Mesh(new THREE.TorusGeometry(8.66,.045,8,128), new THREE.MeshStandardMaterial({color:0xffa34c,metalness:.52,roughness:.34}));
-  outerHalo.rotation.x=Math.PI/2; outerHalo.position.y=.36; decorRoot.add(outerHalo);
-}
-
-function buildArenaVisual() {
-  for (let i = 0; i < TILE_COUNT; i++) {
-    const start = -Math.PI / 8 + i * SECTOR;
-    const end = start + SECTOR;
-    const mid = (start + end) / 2;
-    const centerR = (INNER_RADIUS + OUTER_RADIUS) / 2;
-    const cx = Math.cos(mid) * centerR;
-    const cz = Math.sin(mid) * centerR;
-    const group = new THREE.Group();
-    group.position.set(cx, TILE_BASE_Y, cz);
-    const shape = new THREE.Shape();
-    const pts = [];
-    const segments = 18;
-    for (let j = 0; j <= segments; j++) {
-      const a = lerp(start, end, j / segments);
-      pts.push([INNER_RADIUS * Math.cos(a) - cx, -(INNER_RADIUS * Math.sin(a) - cz)]);
-    }
-    for (let j = segments; j >= 0; j--) {
-      const a = lerp(start, end, j / segments);
-      pts.push([OUTER_RADIUS * Math.cos(a) - cx, -(OUTER_RADIUS * Math.sin(a) - cz)]);
-    }
-    shape.moveTo(pts[0][0], pts[0][1]);
-    for (let j = 1; j < pts.length; j++) shape.lineTo(pts[j][0], pts[j][1]);
-    shape.closePath();
-    const geo = new THREE.ExtrudeGeometry(shape, { depth: .5, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: .035, bevelThickness: .035, curveSegments: 4 });
-    geo.rotateX(-Math.PI / 2);
-    const color = i % 2 === 0 ? 0x128ee6 : 0xf0c83b;
-    const mat = new THREE.MeshStandardMaterial({ color, roughness: .34, metalness: .16, emissive: color, emissiveIntensity: .055 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.y = -.2;
-    mesh.castShadow = true; mesh.receiveShadow = true;
-    group.add(mesh);
-    const trimMat = new THREE.MeshStandardMaterial({ color: 0xffd57b, metalness: .72, roughness: .29 });
-    const outerPts = [];
-    for (let j = 0; j <= 22; j++) {
-      const a = lerp(start, end, j / 22);
-      outerPts.push(new THREE.Vector3(OUTER_RADIUS * Math.cos(a) - cx, .31, OUTER_RADIUS * Math.sin(a) - cz));
-    }
-    const outerLine = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outerPts), 44, .055, 8, false), trimMat);
-    group.add(outerLine);
-    const innerPts = [];
-    for (let j = 0; j <= 22; j++) {
-      const a = lerp(start, end, j / 22);
-      innerPts.push(new THREE.Vector3(INNER_RADIUS * Math.cos(a) - cx, .31, INNER_RADIUS * Math.sin(a) - cz));
-    }
-    const innerLine = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(innerPts), 44, .045, 8, false), trimMat);
-    group.add(innerLine);
-    tileVisualRoot.add(group);
-    tiles.push({ index:i, start, end, cx, cz, group, mesh, active:true, state:'active', warning:0, fallT:0, dropY:0, rotX:0, rotZ:0, body:null, collider:null });
-  }
-  const hubBase = new THREE.Mesh(new THREE.CylinderGeometry(1.65,1.65,.28,48), new THREE.MeshStandardMaterial({ color:0xffbd60, metalness:.68, roughness:.29 }));
-  hubBase.position.y = .50; decorRoot.add(hubBase);
-  const hub = new THREE.Mesh(new THREE.CylinderGeometry(.92,1.05,.56,40), new THREE.MeshStandardMaterial({ color:0xf8a547, metalness:.64, roughness:.28 }));
-  hub.position.y = 1.12; hub.castShadow = true; decorRoot.add(hub);
-  const hubTop = new THREE.Mesh(new THREE.CylinderGeometry(.7,.9,.18,40), new THREE.MeshStandardMaterial({ color:0xffe18d, metalness:.7, roughness:.24 }));
-  hubTop.position.y = 1.49; decorRoot.add(hubTop);
-  const core = new THREE.Mesh(new THREE.SphereGeometry(.34,24,16), new THREE.MeshStandardMaterial({ color:0xffe6a1, emissive:0xffa52f, emissiveIntensity:.42, metalness:.45, roughness:.22 }));
-  core.position.y = 1.64; decorRoot.add(core);
-}
-
-function buildBarsVisual() {
-  const lowMat = new THREE.MeshStandardMaterial({ color:0xffc04e, metalness:.58, roughness:.28, emissive:0x8f3b08, emissiveIntensity:.13 });
-  const highMat = new THREE.MeshStandardMaterial({ color:0xffb94b, metalness:.62, roughness:.27, emissive:0x7d2b00, emissiveIntensity:.16 });
-  const stripeMat = new THREE.MeshStandardMaterial({ color:0xffed9a, metalness:.48, roughness:.25 });
-  lowerPivot = new THREE.Group(); lowerPivot.position.y = 1.08; barVisualRoot.add(lowerPivot);
-  const lowBeam = new THREE.Mesh(new THREE.CylinderGeometry(.21,.21,16.12,24,1,false), lowMat);
-  lowBeam.rotation.z=Math.PI/2; lowBeam.castShadow = true; lowBeam.receiveShadow = true; lowerPivot.add(lowBeam);
-  const lowStripe = new THREE.Mesh(new THREE.BoxGeometry(15.72,.034,.075), stripeMat); lowStripe.position.set(0,.165,0); lowerPivot.add(lowStripe);
-  for (const x of [-8.02,8.02]) {
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(.22,16,12), new THREE.MeshStandardMaterial({color:0xffdf87,metalness:.6,roughness:.24}));
-    cap.position.x=x; lowerPivot.add(cap);
-  }
-  upperPivot = new THREE.Group(); upperPivot.position.y = 2.76; barVisualRoot.add(upperPivot);
-  const highBeam = new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,16.12,28,1,false), highMat);
-  highBeam.rotation.z=Math.PI/2; highBeam.castShadow = true; highBeam.receiveShadow = true; upperPivot.add(highBeam);
-  const highStripe = new THREE.Mesh(new THREE.BoxGeometry(15.78,.045,.12), stripeMat); highStripe.position.set(0,.285,0); upperPivot.add(highStripe);
-  for (const x of [-8.02,8.02]) {
-    const cap = new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.58,20), new THREE.MeshStandardMaterial({color:0xf6a144,metalness:.6,roughness:.26}));
-    cap.rotation.z=Math.PI/2; cap.position.x=x; upperPivot.add(cap);
-  }
-  const collar = new THREE.Mesh(new THREE.TorusGeometry(.84,.13,12,48), new THREE.MeshStandardMaterial({color:0xffda79,metalness:.72,roughness:.25}));
-  collar.rotation.x=Math.PI/2; collar.position.y=2.08; decorRoot.add(collar);
-}
-
-function buildPlayerVisual() {
-  playerArms=[]; playerFeet=[]; playerHands=[];
-  playerRoot = new THREE.Group();
-  playerVisualRoot.add(playerRoot);
-  beanBody = new THREE.Group();
-  playerRoot.add(beanBody);
-  const bodyMat = new THREE.MeshPhysicalMaterial({ color:0x31c9e8, roughness:.33, metalness:.04, clearcoat:.5, clearcoatRoughness:.28 });
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(.45,.46,8,20), bodyMat);
-  body.castShadow = true; body.receiveShadow = true; beanBody.add(body);
-  const belly = new THREE.Mesh(new THREE.SphereGeometry(.29,18,14), new THREE.MeshPhysicalMaterial({color:0x8af0ef,roughness:.42,clearcoat:.25}));
-  belly.scale.set(.94,.74,.34); belly.position.set(0,-.18,.34); beanBody.add(belly);
-  const eyeMat = new THREE.MeshBasicMaterial({color:0x17132e});
-  const shineMat = new THREE.MeshBasicMaterial({color:0xffffff});
-  const chestMark = new THREE.Mesh(new THREE.TorusGeometry(.105,.027,8,24),new THREE.MeshStandardMaterial({color:0xffd875,metalness:.42,roughness:.32}));
-  chestMark.position.set(0,-.39,.39); beanBody.add(chestMark);
-  for (const x of [-.135,.135]) {
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(.065,14,12),eyeMat);
-    eye.scale.set(.78,1.18,.5); eye.position.set(x,.18,.421); beanBody.add(eye);
-    const shine = new THREE.Mesh(new THREE.SphereGeometry(.018,8,8),shineMat);
-    shine.position.set(x-.012,.202,.45); beanBody.add(shine);
-  }
-  const armMat = new THREE.MeshPhysicalMaterial({color:0x25b8dc,roughness:.4,clearcoat:.2});
-  for (const side of [-1,1]) {
-    const arm = new THREE.Mesh(new THREE.CapsuleGeometry(.13,.28,5,10),armMat);
-    arm.position.set(side*.48,-.18,.01); arm.rotation.z=side*.65; arm.castShadow=true; beanBody.add(arm); playerArms.push(arm);
-    const hand = new THREE.Mesh(new THREE.SphereGeometry(.145,14,12),bodyMat);
-    hand.position.set(side*.54,-.35,.055); hand.scale.set(.95,.8,.8); hand.castShadow=true; beanBody.add(hand); playerHands.push(hand);
-    const cuff = new THREE.Mesh(new THREE.TorusGeometry(.135,.035,8,18),new THREE.MeshStandardMaterial({color:0xffd77a,metalness:.55,roughness:.3}));
-    cuff.position.set(side*.54,-.28,.055); cuff.rotation.z=side*.25; beanBody.add(cuff);
-    const foot = new THREE.Mesh(new THREE.SphereGeometry(.18,16,12),new THREE.MeshStandardMaterial({color:0x167bba,roughness:.55}));
-    foot.position.set(side*.23,-.68,.035); foot.scale.set(1,.75,1.15); foot.castShadow=true; beanBody.add(foot); playerFeet.push(foot);
-  }
-  const shadow = new THREE.Mesh(new THREE.CircleGeometry(.56,32),new THREE.MeshBasicMaterial({color:0x160e3d,transparent:true,opacity:.22,depthWrite:false}));
-  shadow.rotation.x=-Math.PI/2; shadow.position.y=-.685; playerRoot.add(shadow);
-  playerRoot.visible = true;
-}
-
-function makeTilePhysicsVertices(tile) {
-  const n = 18;
-  const topY = .30;
-  const bottomY = -.20;
-  const v = [];
-  for (let i=0;i<=n;i++) {
-    const a = lerp(tile.start,tile.end,i/n);
-    const ix = INNER_RADIUS*Math.cos(a)-tile.cx;
-    const iz = INNER_RADIUS*Math.sin(a)-tile.cz;
-    const ox = OUTER_RADIUS*Math.cos(a)-tile.cx;
-    const oz = OUTER_RADIUS*Math.sin(a)-tile.cz;
-    v.push(ix,topY,iz, ox,topY,oz);
-  }
-  const topCount = v.length / 3;
-  for (let i=0;i<=n;i++) {
-    const a = lerp(tile.start,tile.end,i/n);
-    const ix = INNER_RADIUS*Math.cos(a)-tile.cx;
-    const iz = INNER_RADIUS*Math.sin(a)-tile.cz;
-    const ox = OUTER_RADIUS*Math.cos(a)-tile.cx;
-    const oz = OUTER_RADIUS*Math.sin(a)-tile.cz;
-    v.push(ix,bottomY,iz, ox,bottomY,oz);
-  }
-  const idx = [];
-  const bot = topCount;
-  for (let i=0;i<n;i++) {
-    const ii=2*i, oi=ii+1, ii1=ii+2, oi1=ii+3;
-    idx.push(ii,ii1,oi1, ii,oi1,oi);
-    idx.push(bot+ii,bot+oi1,bot+ii1, bot+ii,bot+oi,bot+oi1);
-    idx.push(ii,bot+ii,bot+ii1, ii,bot+ii1,ii1);
-    idx.push(oi,oi1,bot+oi1, oi,bot+oi1,bot+oi);
-  }
-  const i0=0, o0=1, inN=2*n, outN=2*n+1;
-  idx.push(i0,o0,bot+o0, i0,bot+o0,bot+i0);
-  idx.push(inN,bot+inN,bot+outN, inN,bot+outN,outN);
-  return { vertices:new Float32Array(v), indices:new Uint32Array(idx) };
-}
-
-function setupPhysicsWorld() {
-  if (world) world.free();
-  world = new RAPIER.World({x:0,y:-21.5,z:0});
-  world.timestep = FIXED_DT;
-  if (world.integrationParameters) {
-    world.integrationParameters.numSolverIterations = 8;
-    world.integrationParameters.numInternalPgsIterations = 2;
-  }
-  for (const tile of tiles) {
-    tile.active = true; tile.state='active'; tile.warning=0; tile.fallT=0; tile.dropY=0; tile.rotX=0; tile.rotZ=0;
-    tile.group.visible=true;
-    tile.group.position.set(tile.cx,TILE_BASE_Y,tile.cz);
-    tile.group.rotation.set(0,0,0);
-    const rb = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(tile.cx,TILE_BASE_Y,tile.cz));
-    const mesh = makeTilePhysicsVertices(tile);
-    const cd = RAPIER.ColliderDesc.trimesh(mesh.vertices,mesh.indices).setFriction(.9).setRestitution(0);
-    tile.collider = world.createCollider(cd,rb);
-    tile.body = rb;
-  }
-  lowerBody = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0,1.08,0));
-  world.createCollider(RAPIER.ColliderDesc.cuboid(7.78,.105,.21).setFriction(.72).setRestitution(.02),lowerBody);
-  upperBody = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0,2.76,0));
-  world.createCollider(RAPIER.ColliderDesc.cuboid(7.78,.34,.34).setFriction(.72).setRestitution(.02),upperBody);
-  const playerDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(0,PLAYER_START_Y,6.1).setLinearDamping(.18).setAngularDamping(1.3).setCanSleep(false).setCcdEnabled(true).lockRotations();
-  playerBody = world.createRigidBody(playerDesc);
-  playerCollider = world.createCollider(RAPIER.ColliderDesc.capsule(PLAYER_HALF_SEGMENT,PLAYER_RADIUS).setFriction(.82).setRestitution(0).setDensity(1.1),playerBody);
-  playerBody.setAdditionalMass(1.0,true);
-}
-
-function getTileAt(x,z) {
-  const r = Math.hypot(x,z);
-  if (r < INNER_RADIUS + .02 || r > OUTER_RADIUS - .06) return null;
-  const a = Math.atan2(z,x);
-  const shifted = (a + Math.PI/8 + TAU) % TAU;
-  const i = Math.floor(shifted / SECTOR) % TILE_COUNT;
-  const tile = tiles[i];
-  return tile && tile.active && tile.state !== 'falling' ? tile : null;
-}
-
-function isOnFloor() {
-  if (!playerBody) return false;
-  const p = playerBody.translation();
-  const v = playerBody.linvel();
-  const tile = getTileAt(p.x,p.z);
-  const bottom = p.y - PLAYER_HALF_HEIGHT;
-  if (!tile || bottom > FLOOR_Y + .07 || bottom < FLOOR_Y - .14 || v.y > .35) return false;
-  return true;
-}
-
-function setTimerText(seconds) {
-  const s = Math.max(0,Math.ceil(seconds));
-  const m = Math.floor(s/60);
-  const r = s%60;
-  $('timer').textContent = `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
-}
-function updateHud() {
-  setTimerText(timeLeft);
-  const remaining = tiles.filter(t=>t.active).length;
-  $('alive').textContent = `${remaining} / 8`;
-  if (phase==='playing') $('statusLine').textContent = `SURVIVE · ${remaining} PLATFORMS REMAINING`;
-}
-
-function startRound() {
-  if (phase==='playing' || phase==='paused') return;
-  setupPhysicsWorld();
-  elapsed=0; timeLeft=ROUND_SECONDS; accumulator=0; barAngle=0; upperAngle=.18; barSpeed=.72;
-  nextCollapse=26; collapseQueue=null; collapseMessageTimer=0; countdownTimer=0;
-  jumpQueued=false; diveQueued=false; jumpCooldown=0; diveCooldown=0; diveTimer=0; grounded=true; coyoteTime=.12;
-  cameraYaw=0; cameraPitch=.30; cameraDistance=7.8; cameraMode=0; touchMove.x=touchMove.y=0;
-  playerRoot.position.set(0,PLAYER_START_Y,6.1); playerRoot.rotation.set(0,0,0);
-  lowerPivot.rotation.y=0; upperPivot.rotation.y=upperAngle;
-  setPhase('countdown');
-  $('startScreen').classList.add('hidden'); $('pauseScreen').style.display='none'; $('endScreen').style.display='none';
-  countdownValue=3;
-  showToast('3',.95);
-}
-let countdownValue=0;
-let countdownTimer=0;
-
-function endRound(won) {
-  if (phase==='won' || phase==='eliminated') return;
-  setPhase(won?'won':'eliminated');
-  $('pauseScreen').style.display='none';
-  $('endScreen').style.display='grid';
-  if (won) {
-    $('endEyebrow').textContent='FINAL ROUND CLEAR';
-    $('endTitle').textContent='QUALIFIED!';
-    $('endTitle').className='endTitle gold';
-    $('endSub').textContent='5分間生き残った！ このラウンドをクリア。';
-  } else {
-    $('endEyebrow').textContent='ELIMINATED';
-    $('endTitle').textContent='ELIMINATED';
-    $('endTitle').className='endTitle';
-    const survived = Math.floor(elapsed);
-    $('endSub').textContent=`生存時間 ${String(Math.floor(survived/60)).padStart(2,'0')}:${String(survived%60).padStart(2,'0')}。もう一度挑戦しよう。`;
-  }
-  updateHud();
-}
-
-function togglePause() {
-  if (phase==='playing') {
-    setPhase('paused'); $('pauseScreen').style.display='grid';
-    keys.clear(); touchMove.x=touchMove.y=0;
-    $('joystick').style.display='none';
-  } else if (phase==='paused') {
-    $('pauseScreen').style.display='none'; setPhase('playing');
-  }
-}
-
-function queueJump() { if (phase==='playing') jumpQueued=true; }
-function queueDive() { if (phase==='playing') diveQueued=true; }
-
-function sampleGamepad(dt) {
-  let moveX=0, moveY=0, lookX=0, lookY=0;
-  let pad = null;
-  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
-  if (padIndex!==null && pads[padIndex]) pad=pads[padIndex];
-  if (!pad) { pad = Array.from(pads).find(p=>p&&p.connected) || null; padIndex=pad?pad.index:null; }
-  if (pad) {
-    const dz = .17;
-    const ax = pad.axes[0] || 0, ay = pad.axes[1] || 0;
-    const rx = pad.axes[2] || 0, ry = pad.axes[3] || 0;
-    const remap = v => Math.abs(v)<dz ? 0 : Math.sign(v)*(Math.abs(v)-dz)/(1-dz);
-    if (Math.hypot(ax,ay)>.18) { moveX=remap(ax); moveY=-remap(ay); }
-    lookX=remap(rx); lookY=remap(ry);
-    const nowButtons = pad.buttons.map(b=>!!b.pressed);
-    const pressed = i => !!nowButtons[i] && !previousPadButtons[i];
-    if (pressed(0)) queueJump(); // A / Cross — uploaded source default
-    if (pressed(2)) queueDive(); // X / Square — uploaded source default
-    if (pressed(9)) togglePause();
-    if (pressed(11)) { cameraYaw=0; cameraPitch=.3; }
-    previousPadButtons=nowButtons;
-  } else {
-    previousPadButtons=[];
-  }
-  if (touchMove.x || touchMove.y) { moveX=touchMove.x; moveY=touchMove.y; }
-  if (keys.has('KeyA')||keys.has('ArrowLeft')) moveX-=1;
-  if (keys.has('KeyD')||keys.has('ArrowRight')) moveX+=1;
-  if (keys.has('KeyW')||keys.has('ArrowUp')) moveY+=1;
-  if (keys.has('KeyS')||keys.has('ArrowDown')) moveY-=1;
-  const len=Math.hypot(moveX,moveY);
-  if (len>1) { moveX/=len; moveY/=len; }
-  if (lookX || lookY) {
-    cameraYaw -= lookX * dt * 2.8;
-    cameraPitch = clamp(cameraPitch + lookY * dt * 1.9, .08, .92);
-  }
-  return {x:moveX,y:moveY};
-}
-
-function updateCharacterPhysics(dt, move) {
-  if (!playerBody) return;
-  const p=playerBody.translation();
-  const v=playerBody.linvel();
-  grounded=isOnFloor();
-  if (grounded) coyoteTime=.13; else coyoteTime=Math.max(0,coyoteTime-dt);
-  jumpCooldown=Math.max(0,jumpCooldown-dt);
-  diveCooldown=Math.max(0,diveCooldown-dt);
-  diveTimer=Math.max(0,diveTimer-dt);
-  const forwardX=-Math.sin(cameraYaw), forwardZ=-Math.cos(cameraYaw);
-  const rightX=Math.cos(cameraYaw), rightZ=-Math.sin(cameraYaw);
-  let dx=rightX*move.x + forwardX*move.y;
-  let dz=rightZ*move.x + forwardZ*move.y;
-  const dl=Math.hypot(dx,dz);
-  if (dl>.001) { dx/=dl; dz/=dl; lastMove.set(dx,0,dz); }
-  const desiredSpeed = diveTimer>0 ? 5.0 : 5.65;
-  const targetX=dx*desiredSpeed;
-  const targetZ=dz*desiredSpeed;
-  const accel=grounded?26:8.5;
-  const blend=1-Math.exp(-accel*dt);
-  let vx=lerp(v.x,targetX,blend);
-  let vz=lerp(v.z,targetZ,blend);
-  if (dl<.01 && grounded) { vx*=Math.exp(-8.5*dt); vz*=Math.exp(-8.5*dt); }
-  let vy=v.y;
-  if (jumpQueued && (grounded || coyoteTime>0) && jumpCooldown<=0) {
-    vy=8.25; jumpCooldown=.17; grounded=false; coyoteTime=0;
-    showToast('JUMP!',.45);
-  }
-  jumpQueued=false;
-  if (diveQueued && diveCooldown<=0) {
-    const fx=dl>.05?dx:lastMove.x;
-    const fz=dl>.05?dz:lastMove.z;
-    vx += fx*5.2; vz += fz*5.2;
-    vy = Math.min(vy,-3.2);
-    diveTimer=.58; diveCooldown=.85;
-    showToast('DIVE!',.42);
-  }
-  diveQueued=false;
-  playerBody.setLinvel({x:vx,y:vy,z:vz},true);
-  if (dl>.06) {
-    const facing=Math.atan2(dx,dz);
-    beanBody.rotation.y=lerpAngle(beanBody.rotation.y,facing,1-Math.exp(-12*dt));
-  }
-  beanBody.rotation.x=lerp(beanBody.rotation.x,diveTimer>0?-.86:0,1-Math.exp(12*dt));
-  const current=playerBody.translation();
-  playerRoot.position.set(current.x,current.y,current.z);
-  const verticalSpeed=playerBody.linvel().y;
-  const walk=elapsed*11.5;
-  const stride=grounded?Math.min(1,dl)*Math.sin(walk):0;
-  playerArms.forEach((arm,i)=>{
-    const side=i===0?-1:1;
-    arm.rotation.z=side*(.65+stride*.28);
-    arm.rotation.x=diveTimer>0?-.34:Math.max(-.25,Math.min(.25,-stride*.22));
-  });
-  playerFeet.forEach((foot,i)=>{
-    const side=i===0?-1:1;
-    foot.position.y=-.68+(grounded?Math.max(0,Math.sin(walk+side*Math.PI/2))*Math.min(1,dl)*.065:0);
-    foot.rotation.x=grounded?stride*.16:clamp(-verticalSpeed*.035,-.28,.28);
-  });
-  playerHands.forEach((hand,i)=>{ hand.rotation.x=diveTimer>0?-.25:0; });
-  let stretch=grounded?1+Math.sin(elapsed*13)*.012:1+clamp(verticalSpeed*.012,-.09,.11);
-  if (diveTimer>0) stretch=.84;
-  beanBody.scale.set(diveTimer>0?1.08:.98,stretch,diveTimer>0?1.12:1);
-  if (current.y < -3.5 || Math.hypot(current.x,current.z)>14.5) endRound(false);
-}
-
-function lerpAngle(a,b,t) {
-  let d=((b-a+Math.PI*3)%(Math.PI*2))-Math.PI;
-  return a+d*t;
-}
-
-function beginTileWarning() {
-  const live=tiles.filter(t=>t.active && t.state==='active');
-  if (live.length<=2) return;
-  const picked=live[Math.floor(Math.random()*live.length)];
-  picked.state='warning'; picked.warning=2.7;
-  collapseQueue=picked;
-  collapseMessageTimer=2.8;
-  $('warning').classList.add('show');
-  showToast('足場が崩れそうだ！',1.5);
-}
-
-function updateTiles(dt) {
-  for (const tile of tiles) {
-    if (!tile.active) continue;
-    if (tile.state==='warning') {
-      tile.warning-=dt;
-      const wobble=Math.sin(performance.now()*.045 + tile.index*2.2)*.045;
-      tile.group.position.set(tile.cx+wobble,TILE_BASE_Y+Math.abs(wobble)*.6,tile.cz-wobble*.4);
-      if (tile.warning<=0) { tile.state='falling'; tile.fallT=0; tile.group.position.set(tile.cx,TILE_BASE_Y,tile.cz); }
-    } else if (tile.state==='falling') {
-      tile.fallT+=dt;
-      tile.dropY=-Math.min(7.5,.5*8.5*tile.fallT*tile.fallT);
-      tile.rotX=Math.sin(tile.index*1.7+.8)*Math.min(1.1,tile.fallT*.9);
-      tile.rotZ=Math.cos(tile.index*1.9+.4)*Math.min(1.2,tile.fallT*1.1);
-      const y=TILE_BASE_Y+tile.dropY;
-      tile.group.position.set(tile.cx,y,tile.cz);
-      tile.group.rotation.set(tile.rotX,0,tile.rotZ);
-      const q=new THREE.Quaternion().setFromEuler(tile.group.rotation);
-      tile.body.setNextKinematicTranslation({x:tile.cx,y,z:tile.cz});
-      tile.body.setNextKinematicRotation({x:q.x,y:q.y,z:q.z,w:q.w});
-      if (tile.fallT>2.65) {
-        tile.active=false; tile.state='gone'; tile.group.visible=false;
-        world.removeRigidBody(tile.body); tile.body=null;
-        if (collapseQueue===tile) collapseQueue=null;
-      }
-    }
-  }
-  if (collapseMessageTimer>0) {
-    collapseMessageTimer-=dt;
-    if (collapseMessageTimer<=0) $('warning').classList.remove('show');
-  }
-}
-
-function updateBars(dt) {
-  const progress=clamp(elapsed/220,0,1);
-  barSpeed=.72 + progress*1.18;
-  barAngle += barSpeed*dt;
-  upperAngle += .30*dt;
-  lowerPivot.rotation.y=barAngle;
-  upperPivot.rotation.y=upperAngle;
-  const lo={x:0,y:Math.sin(barAngle/2),z:0,w:Math.cos(barAngle/2)};
-  const hi={x:0,y:Math.sin(upperAngle/2),z:0,w:Math.cos(upperAngle/2)};
-  lowerBody.setNextKinematicRotation(lo);
-  upperBody.setNextKinematicRotation(hi);
-}
-
-function stepSimulation(dt) {
-  if (phase==='playing') {
-    const move=sampleGamepad(dt);
-    updateCharacterPhysics(dt,move);
-    updateBars(dt);
-    if (!collapseQueue && elapsed>=nextCollapse && tiles.filter(t=>t.active).length>2) {
-      beginTileWarning();
-      nextCollapse=elapsed+rand(17,22);
-    }
-    updateTiles(dt);
-    elapsed+=dt; timeLeft=Math.max(0,ROUND_SECONDS-elapsed);
-    if (timeLeft<=0) endRound(true);
-  } else if (phase==='countdown') {
-    countdownTimer+=dt;
-    if (countdownTimer>=1) {
-      countdownTimer=0; countdownValue--;
-      if (countdownValue>0) showToast(String(countdownValue),.9);
-      else { setPhase('playing'); showToast('GO!',.9); }
-    }
-    updateBars(0);
-  } else if (phase==='ready') {
-    barAngle+=dt*.16; upperAngle+=dt*.30; lowerPivot.rotation.y=barAngle; upperPivot.rotation.y=upperAngle;
-  }
-}
-
-function updateCamera(dt) {
-  if (!playerBody) return;
-  const p=playerBody.translation();
-  const target=new THREE.Vector3(p.x,p.y+.30,p.z);
-  const distance=cameraMode===0?cameraDistance:4.6;
-  const cp=Math.cos(cameraPitch), sp=Math.sin(cameraPitch);
-  const offset=new THREE.Vector3(Math.sin(cameraYaw)*distance*cp, 1.5+sp*distance, Math.cos(cameraYaw)*distance*cp);
-  const desired=target.clone().add(offset);
-  camera.position.lerp(desired,1-Math.exp(-7.5*dt));
-  camera.lookAt(target);
-}
-
-function updateToast(dt) {
-  if (toastTimer>0) { toastTimer-=dt; if (toastTimer<=0) hideToast(); }
-}
-
-function animate(now) {
-  requestAnimationFrame(animate);
-  const dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000 || 0));
-  lastFrame=now;
-  updateToast(dt);
-  if (phase==='playing' || phase==='countdown') {
-    accumulator+=dt;
-    let steps=0;
-    while (accumulator>=FIXED_DT && steps<5 && phase!=='paused' && phase!=='won' && phase!=='eliminated') {
-      stepSimulation(FIXED_DT);
-      world.step();
-      if (phase==='playing') {
-        const p=playerBody.translation();
-        playerRoot.position.set(p.x,p.y,p.z);
-        if (isOnFloor()) coyoteTime=.13;
-      }
-      accumulator-=FIXED_DT; steps++;
-    }
-  } else if (phase==='ready') {
-    accumulator=0;
-    lowerPivot.rotation.y+=dt*.16; upperPivot.rotation.y+=dt*.30;
-  }
-  if (phase==='playing') updateHud();
-  updateCamera(dt || .016);
-  renderer.render(scene,camera);
-}
-
-function onResize() {
-  if (!renderer || !camera) return;
-  camera.aspect=window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,isTouchDevice?1.7:2));
+function onResize(){
+  if(!renderer||!camera)return;
   renderer.setSize(window.innerWidth,window.innerHeight,false);
+  camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,isMobile?1.55:2));
 }
 
-function setupKeyboardAndMouse() {
-  window.addEventListener('keydown', e=>{
-    if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
-    if (e.repeat && ['Space','ControlLeft','ControlRight'].includes(e.code)) return;
-    keys.add(e.code);
-    if (e.code==='Space') queueJump();
-    if (e.code==='ControlLeft'||e.code==='ControlRight') queueDive();
-    if (e.code==='KeyP'||e.code==='Escape') { if (phase==='playing'||phase==='paused') togglePause(); }
-    if (e.code==='KeyV' && phase==='playing') { cameraMode=1-cameraMode; }
-  },{passive:false});
-  window.addEventListener('keyup',e=>keys.delete(e.code));
-  window.addEventListener('blur',()=>{keys.clear();touchMove.x=touchMove.y=0;touchStates.clear();$('joystick').style.display='none';});
-  $('scene').addEventListener('contextmenu',e=>e.preventDefault());
-  $('scene').addEventListener('click',()=>{
-    if (!isTouchDevice && phase==='playing' && document.pointerLockElement!==$('scene') && $('scene').requestPointerLock) {
-      try { const lock=$('scene').requestPointerLock(); lock?.catch?.(()=>{}); } catch {}
-    }
-  });
-  document.addEventListener('mousemove',e=>{
-    if (phase!=='playing') return;
-    if (document.pointerLockElement===$('scene')) {
-      cameraYaw-=e.movementX*.0028;
-      cameraPitch=clamp(cameraPitch+e.movementY*.0021,.08,.92);
-    }
-  });
-  $('scene').addEventListener('mousedown',e=>{
-    if (e.button===1) { cameraYaw=0; cameraPitch=.3; }
-  });
-}
-
-function setupTouchControls() {
-  const joy=$('joystick'), knob=$('stickKnob');
-  function moveJoy(s) {
-    const dx=s.x-s.startX, dy=s.y-s.startY;
-    const dist=Math.hypot(dx,dy);
-    if (dist>9) s.moved=true;
-    if (!s.moved) return;
-    const max=42, factor=Math.min(1,max/(dist||1));
-    const kx=dx*factor, ky=dy*factor;
-    joy.style.left=`${s.startX}px`; joy.style.top=`${s.startY}px`; joy.style.display='block';
-    knob.style.transform=`translate(calc(-50% + ${kx}px),calc(-50% + ${ky}px))`;
-    touchMove.x=clamp(dx/max,-1,1);
-    touchMove.y=clamp(-dy/max,-1,1);
+function makeRingWedge(inner,outer,start,end,depth,color){
+  const group=new THREE.Group();
+  const steps=20, positions=[], indices=[];
+  for(let i=0;i<=steps;i++){
+    const a=start+(end-start)*i/steps;
+    const c=Math.cos(a),s=Math.sin(a);
+    positions.push(inner*c,FLOOR_TOP,inner*s, outer*c,FLOOR_TOP,outer*s,
+                   inner*c,-depth,inner*s, outer*c,-depth,outer*s);
   }
-  window.addEventListener('pointerdown',e=>{
-    if (e.pointerType!=='touch' || phase!=='playing') return;
-    if (e.target.closest && e.target.closest('button')) return;
-    e.preventDefault();
-    const right=e.clientX>=window.innerWidth*.5;
-    const s={id:e.pointerId,side:right?'right':'left',startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,moved:false};
-    touchStates.set(e.pointerId,s);
-    try {$('scene').setPointerCapture(e.pointerId);} catch {}
-  },{passive:false});
-  window.addEventListener('pointermove',e=>{
-    const s=touchStates.get(e.pointerId);
-    if (!s) return;
-    e.preventDefault();
-    const previousX=s.x, previousY=s.y;
-    const dx=e.clientX-s.startX, dy=e.clientY-s.startY;
-    s.x=e.clientX; s.y=e.clientY;
-    if (s.side==='left') moveJoy(s);
-    else {
-      if (Math.hypot(dx,dy)>8) s.moved=true;
-      if (s.moved) {
-        const deltaX=e.clientX-previousX, deltaY=e.clientY-previousY;
-        cameraYaw-=deltaX*.0042;
-        cameraPitch=clamp(cameraPitch+deltaY*.0042,.08,.92);
-      }
-    }
-  },{passive:false});
-  function release(e) {
-    const s=touchStates.get(e.pointerId);
-    if (!s) return;
-    touchStates.delete(e.pointerId);
-    if (s.side==='left') {
-      touchMove.x=0; touchMove.y=0; joy.style.display='none'; knob.style.transform='translate(-50%,-50%)';
-    } else if (!s.moved && phase==='playing') {
-      if (s.startY < window.innerHeight*.52) queueDive();
-      else queueJump();
-    }
+  for(let i=0;i<steps;i++){
+    const k=i*4;
+    indices.push(k,k+1,k+5,k,k+5,k+4);
+    indices.push(k+2,k+6,k+7,k+2,k+7,k+3);
+    indices.push(k,k+4,k+6,k,k+6,k+2);
+    indices.push(k+1,k+3,k+7,k+1,k+7,k+5);
   }
-  window.addEventListener('pointerup',release);
-  window.addEventListener('pointercancel',release);
+  // Close the two radial side faces.
+  indices.push(0,1,3,0,3,2);
+  const last=steps*4; indices.push(last,last+2,last+3,last,last+3,last+1);
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3)); geo.setIndex(indices); geo.computeVertexNormals();
+  const mat=new THREE.MeshStandardMaterial({color,roughness:.48,metalness:.14,side:THREE.DoubleSide});
+  const mesh=new THREE.Mesh(geo,mat); mesh.castShadow=true; mesh.receiveShadow=true; group.add(mesh);
+  // Fine edge piping follows each tile so the separate falling pieces are readable.
+  const outerPts=[]; for(let i=0;i<=24;i++){const a=start+(end-start)*i/24;outerPts.push(new THREE.Vector3(outer*Math.cos(a),FLOOR_TOP+.035,outer*Math.sin(a)))}
+  const edge=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outerPts),32,.065,8,false),new THREE.MeshStandardMaterial({color:0xffd16b,metalness:.65,roughness:.28})); group.add(edge);
+  const innerPts=[]; for(let i=0;i<=16;i++){const a=start+(end-start)*i/16;innerPts.push(new THREE.Vector3(inner*Math.cos(a),FLOOR_TOP+.035,inner*Math.sin(a)))}
+  const innerEdge=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(innerPts),24,.045,7,false),new THREE.MeshStandardMaterial({color:0xffc45e,metalness:.55,roughness:.32})); group.add(innerEdge);
+  return group;
 }
 
-async function boot() {
-  try {
-    setLoadingText('3D描画エンジンを準備中…');
-    makeRenderer(); makeWorldScene();
-    setLoadingText('3D物理エンジンを準備中…');
-    await RAPIER.init();
-    setupPhysicsWorld();
-    setupKeyboardAndMouse();
-    setupTouchControls();
-    window.addEventListener('resize',onResize);
-    $('loadingScreen').style.display='none';
-    $('pauseBtn').style.display='none';
-    $('startBtn').addEventListener('click',()=>startRound());
-    $('pauseBtn').addEventListener('click',togglePause);
-    $('resumeBtn').addEventListener('click',togglePause);
-    $('restartPauseBtn').addEventListener('click',()=>{ $('pauseScreen').style.display='none'; setPhase('ready'); startRound(); });
-    $('againBtn').addEventListener('click',()=>{ $('endScreen').style.display='none'; setPhase('ready'); startRound(); });
-    $('backBtn').addEventListener('click',()=>{ $('endScreen').style.display='none'; $('startScreen').classList.remove('hidden'); setPhase('ready'); });
-    setPhase('ready');
-    lastFrame=performance.now();
-    requestAnimationFrame(animate);
-  } catch (err) {
-    console.error(err);
-    $('loadingScreen').style.display='none';
-    $('errorText').textContent='3Dエンジンの読み込みに失敗した。ネット接続を確認して、Safari / ChromeでHTTPSのページから開き直してみて。詳細: '+(err?.message||String(err));
-    $('errorScreen').style.display='grid';
+function buildSlime(){
+  const geo=new THREE.PlaneGeometry(120,120,54,54); geo.rotateX(-Math.PI/2);
+  slimeGeo=geo; slimePositions=geo.attributes.position;
+  const mat=new THREE.MeshPhysicalMaterial({color:0xff70c3,roughness:.2,metalness:.15,clearcoat:1,clearcoatRoughness:.09,side:THREE.DoubleSide});
+  const water=new THREE.Mesh(geo,mat); water.position.y=-8.4; water.receiveShadow=true; scene.add(water);
+  const ringMat=new THREE.MeshBasicMaterial({color:0xffa4dc,transparent:true,opacity:.32,side:THREE.DoubleSide});
+  for(let i=0;i<4;i++){
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(8+i*3,.055,6,120),ringMat); ring.rotation.x=Math.PI/2; ring.position.y=-8.3+i*.012; scene.add(ring); ambientThings.push({kind:'ring',mesh:ring,phase:i*1.7});
+  }
+  for(let i=0;i<16;i++){
+    const b=new THREE.Mesh(new THREE.SphereGeometry(.12+Math.random()*.22,10,8),new THREE.MeshPhysicalMaterial({color:0xffb4e4,roughness:.18,transparent:true,opacity:.58}));
+    const a=Math.random()*TAU,r=8+Math.random()*25;b.position.set(Math.cos(a)*r,-7.8-Math.random()*4,Math.sin(a)*r);scene.add(b);ambientThings.push({kind:'bubble',mesh:b,phase:Math.random()*10,speed:.5+Math.random()*.9,baseY:b.position.y});
+  }
+}
+function buildBackdrop(){
+  const hillColors=[0xf7b6d5,0xf6d0b3,0xb9d9fb,0xf0c6ec,0xa9d8e6];
+  for(let i=0;i<12;i++){
+    const a=i/12*TAU+Math.random()*.15, r=30+Math.random()*8;
+    const h=5+Math.random()*7, w=7+Math.random()*7;
+    const hill=new THREE.Mesh(new THREE.SphereGeometry(1,18,12),new THREE.MeshStandardMaterial({color:hillColors[i%hillColors.length],roughness:1}));
+    hill.scale.set(w,h,w*.72);hill.position.set(Math.cos(a)*r,-5+Math.random()*1.5,Math.sin(a)*r);hill.castShadow=true;scene.add(hill);
+  }
+  for(let i=0;i<18;i++){
+    const cloud=new THREE.Group(),a=Math.random()*TAU,r=24+Math.random()*30;
+    const mat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+    const count=4+Math.floor(Math.random()*3);
+    for(let j=0;j<count;j++){
+      const s=new THREE.Mesh(new THREE.SphereGeometry(.8+Math.random()*.8,12,8),mat);
+      s.position.set((j-(count-1)/2)*1.15,Math.random()*.55,Math.random()*.6);s.scale.y=.65;cloud.add(s);
+    }
+    cloud.position.set(Math.cos(a)*r,7+Math.random()*13,Math.sin(a)*r);scene.add(cloud);ambientThings.push({kind:'cloud',mesh:cloud,phase:Math.random()*TAU});
   }
 }
 
+function buildArena(){
+  buildSlime(); buildBackdrop();
+  // Eight separately simulated falling sectors, alternating blue and warm yellow.
+  for(let i=0;i<TILE_COUNT;i++){
+    const center=i*TAU/TILE_COUNT;
+    const start=center-Math.PI/8+.012, end=center+Math.PI/8-.012;
+    const color=i%2===0?0x1799eb:0xf2d64f;
+    const mesh=makeRingWedge(PLATFORM_INNER,PLATFORM_OUTER,start,end,.34,color);
+    scene.add(mesh);
+    const body=createBody('kinematic',[0,FLOOR_CENTER,0],0);
+    const radialCenters=[2.55,4.23,5.91];
+    for(const r of radialCenters){
+      const halfWidth=Math.max(.45,r*Math.tan(Math.PI/8)*.91);
+      const radialDepth=1.88;
+      const x=Math.sin(center)*r, z=Math.cos(center)*r;
+      const q=pxQuat({x:0,y:1,z:0},center);
+      addShape(body,new phys.PX.PxBoxGeometry(halfWidth,.18,radialDepth/2),phys.materials.floor,[x,0,z],q,.025);
+    }
+    tileObjects.push({index:i,center,mesh,body,state:'alive',shakeAt:0,fallAt:0,fallStartY:FLOOR_CENTER,added:true});
+  }
+  // Central mechanical tower and the outer decorative rail.
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(.8,1.05,.55,32),new THREE.MeshStandardMaterial({color:0xffb340,metalness:.72,roughness:.28}));base.position.y=-.08;base.castShadow=true;scene.add(base);
+  const column=new THREE.Mesh(new THREE.CylinderGeometry(.32,.48,2.6,24),new THREE.MeshStandardMaterial({color:0xe28a35,metalness:.65,roughness:.3}));column.position.y=1.1;column.castShadow=true;scene.add(column);
+  const hubMat=new THREE.MeshStandardMaterial({color:0xffc85b,metalness:.75,roughness:.2});
+  for(const y of [.88,2.22]){
+    const hub=new THREE.Mesh(new THREE.CylinderGeometry(.82,.82,.23,32),hubMat);hub.position.y=y;hub.castShadow=true;scene.add(hub);
+    const cap=new THREE.Mesh(new THREE.TorusGeometry(.79,.08,8,36),new THREE.MeshStandardMaterial({color:0xfff0a5,metalness:.75,roughness:.22}));cap.rotation.x=Math.PI/2;cap.position.y=y+.13;scene.add(cap);
+  }
+  // Outer safety-looking trim, kept visual only so the playable edge remains faithful.
+  const railMat=new THREE.MeshStandardMaterial({color:0xf28f42,metalness:.45,roughness:.35});
+  const rail=new THREE.Mesh(new THREE.TorusGeometry(7.42,.12,8,100),railMat);rail.rotation.x=Math.PI/2;rail.position.y=.68;scene.add(rail);
+  const railLower=new THREE.Mesh(new THREE.TorusGeometry(7.43,.075,8,100),new THREE.MeshStandardMaterial({color:0xffd06b,metalness:.6,roughness:.28}));railLower.rotation.x=Math.PI/2;railLower.position.y=.33;scene.add(railLower);
+  for(let i=0;i<16;i++){
+    const a=i/16*TAU,post=new THREE.Mesh(new THREE.CylinderGeometry(.075,.09,.82,10),railMat);
+    post.position.set(7.42*Math.cos(a),.52,7.42*Math.sin(a));post.castShadow=true;scene.add(post);
+    const flag=new THREE.Mesh(new THREE.BoxGeometry(.14,.35,.035),new THREE.MeshStandardMaterial({color:i%2?0xffd36f:0xff7e4c,roughness:.55}));
+    flag.position.set(7.42*Math.cos(a),1.0,7.42*Math.sin(a));flag.rotation.y=-a;scene.add(flag);
+  }
+}
+
+function buildBars(){
+  const lowerMat=new THREE.MeshStandardMaterial({color:0xffcf63,metalness:.72,roughness:.22});
+  const upperMat=new THREE.MeshStandardMaterial({color:0xffb94c,metalness:.78,roughness:.19});
+  lowerVisual=new THREE.Group();upperVisual=new THREE.Group();
+  function makeBar(parent,radius,length,mat){
+    const core=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,length,24,1),mat);
+    core.rotation.z=Math.PI/2;core.castShadow=true;parent.add(core);
+    const stripeMat=new THREE.MeshStandardMaterial({color:0xfff0b0,metalness:.6,roughness:.22});
+    for(const x of [-length*.31,length*.31]){
+      const stripe=new THREE.Mesh(new THREE.CylinderGeometry(radius*1.035,radius*1.035,.13,20),stripeMat);stripe.rotation.z=Math.PI/2;stripe.position.x=x;parent.add(stripe);
+    }
+    for(const x of [-length/2,length/2]){
+      const cap=new THREE.Mesh(new THREE.SphereGeometry(radius*1.08,14,10),mat);cap.position.x=x;parent.add(cap);
+    }
+  }
+  makeBar(lowerVisual,.145,14.75,lowerMat); makeBar(upperVisual,.285,14.95,upperMat);
+  lowerVisual.position.y=.94; upperVisual.position.y=2.24;scene.add(lowerVisual,upperVisual);
+  lowerActor=createBody('kinematic',[0,.94,0],0);
+  addShape(lowerActor,new phys.PX.PxBoxGeometry(7.42,.145,.16),phys.materials.bar);
+  upperActor=createBody('kinematic',[0,2.24,0],0);
+  addShape(upperActor,new phys.PX.PxBoxGeometry(7.50,.285,.27),phys.materials.bar);
+}
+
+function buildBean(){
+  playerActor=createBody('dynamic',[0,.8,5.05],0);
+  const PX=phys.PX;
+  const capsuleQ=pxQuat({x:0,y:0,z:1},Math.PI/2);
+  addShape(playerActor,new PX.PxCapsuleGeometry(.425,.355),phys.materials.player,[0,0,0],capsuleQ,.035);
+  // Soft shoulder/arm contact volumes make the body feel closer to a Fall Guys bean.
+  addShape(playerActor,new PX.PxSphereGeometry(.155),phys.materials.player,[-.43,.03,0],null,.03);
+  addShape(playerActor,new PX.PxSphereGeometry(.155),phys.materials.player,[.43,.03,0],null,.03);
+  PX.PxRigidBodyExt.prototype.setMassAndUpdateInertia(playerActor,44);
+  playerActor.setLinearDamping(.48);playerActor.setAngularDamping(4.2);playerActor.setMaxAngularVelocity(18);
+  playerActor.setMaxDepenetrationVelocity(24);
+  playerActor.setRigidBodyFlag(PX.PxRigidBodyFlagEnum.eENABLE_CCD,true);
+  playerActor.setSolverIterationCounts(16,6);
+
+  playerVisual=new THREE.Group();
+  const bodyMat=new THREE.MeshStandardMaterial({color:0x14c9ba,roughness:.4,metalness:.02});
+  const limbMat=new THREE.MeshStandardMaterial({color:0x0caeaa,roughness:.5});
+  const accentMat=new THREE.MeshStandardMaterial({color:0xffd36d,roughness:.45});
+  const body=new THREE.Mesh(new THREE.CapsuleGeometry(.39,.55,8,18),bodyMat);body.castShadow=true;body.receiveShadow=true;playerVisual.add(body);
+  // Tiny arms and feet, rounded like the familiar bean silhouette.
+  for(const side of [-1,1]){
+    const arm=new THREE.Mesh(new THREE.SphereGeometry(.17,16,12),limbMat);arm.scale.set(.82,1.15,.92);arm.position.set(side*.45,-.04,.01);arm.castShadow=true;playerVisual.add(arm);
+    const foot=new THREE.Mesh(new THREE.SphereGeometry(.2,16,12),accentMat);foot.scale.set(1.12,.63,1.36);foot.position.set(side*.2,-.67,.045);foot.castShadow=true;playerVisual.add(foot);
+  }
+  const face=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),new THREE.MeshStandardMaterial({color:0x18233c,roughness:.28}));face.scale.set(.245,.315,.095);face.position.set(0,.13,-.355);playerVisual.add(face);
+  for(const side of [-1,1]){
+    const eye=new THREE.Mesh(new THREE.SphereGeometry(.065,16,12),new THREE.MeshBasicMaterial({color:0xffffff}));eye.position.set(side*.09,.17,-.438);playerVisual.add(eye);
+    const pupil=new THREE.Mesh(new THREE.SphereGeometry(.029,12,10),new THREE.MeshBasicMaterial({color:0x17203a}));pupil.position.set(side*.09,.163,-.493);playerVisual.add(pupil);
+    const glint=new THREE.Mesh(new THREE.SphereGeometry(.012,8,8),new THREE.MeshBasicMaterial({color:0xffffff}));glint.position.set(side*.09-.013,.182,-.514);playerVisual.add(glint);
+  }
+  const bib=new THREE.Mesh(new THREE.TorusGeometry(.21,.035,8,24),new THREE.MeshStandardMaterial({color:0xffe28c,metalness:.25,roughness:.4}));bib.scale.set(1,.83,1);bib.position.set(0,-.18,-.31);playerVisual.add(bib);
+  scene.add(playerVisual);
+}
+
+function createTileDots(){
+  const host=$('tileProgress');host.innerHTML='';
+  for(let i=0;i<TILE_COUNT;i++){const d=document.createElement('span');d.className='tile-dot live';d.dataset.tile=String(i);host.append(d)}
+}
+function updateTileHud(){
+  const alive=tileObjects.filter(t=>t.state!=='gone'&&t.state!=='falling').length;
+  $('platformCount').textContent=`${alive} / 8`;
+  for(const tile of tileObjects){const el=$(`tileProgress`).querySelector(`[data-tile="${tile.index}"]`);if(!el)continue;el.classList.toggle('live',tile.state==='alive');el.classList.toggle('warn',tile.state==='shaking');if(tile.state==='gone'||tile.state==='falling')el.style.opacity='.18';else el.style.opacity='1'}
+}
+function resetGame(){
+  elapsed=0;remaining=ROUND_SECONDS;nextCollapseAt=43;collapseSerial=0;lowerAngle=0;upperAngle=0;lowerSpeed=.67;upperSpeed=.43;diveTimer=0;isDiving=false;lastHitAt=-10;accumulator=0;jumpQueued=false;diveQueued=false;jumpWasDown=false;diveWasDown=false;
+  for(const tile of tileObjects){
+    tile.state='alive';tile.shakeAt=0;tile.fallAt=0;tile.fallStartY=FLOOR_CENTER;
+    if(!tile.added){phys.scene.addActor(tile.body);tile.added=true;}
+    setBodyPose(tile.body,0,FLOOR_CENTER,0,0,false);
+    tile.mesh.position.set(0,0,0);tile.mesh.rotation.set(0,0,0);tile.mesh.visible=true;
+  }
+  if(playerActor){setBodyPose(playerActor,0,.8,5.05,0,false);setActorVelocity(playerActor,0,0,0);const av=pxVec(0,0,0);playerActor.setAngularVelocity(av);destroyPx(av);}
+  setBodyPose(lowerActor,0,.94,0,0,false);setBodyPose(upperActor,0,2.24,0,0,false);
+  playerPosition.set(0,.8,5.05);playerQuaternion.identity();cameraYaw=.20;cameraPitch=.24;
+  updateTileHud();$('timer').textContent='5:00';
+}
+function startGame(){
+  resetGame();gameState='countdown';$('overlay').style.display='none';toast('3',650);
+  let count=3;
+  const countdown=setInterval(()=>{if(gameState!=='countdown'){clearInterval(countdown);return;}count--;if(count>0)toast(String(count),650);else{clearInterval(countdown);gameState='playing';toast('GO!',1000);}},700);
+}
+function finishGame(won){
+  if(gameState==='over'||gameState==='won')return;
+  gameState=won?'won':'over';
+  $('overlay').style.display='flex';$('startPanel').hidden=true;$('pausePanel').hidden=true;$('resultPanel').hidden=false;
+  $('resultTitle').textContent=won?'CROWN EARNED!':'ELIMINATED';
+  $('resultTitle').style.color=won?'#ffe28c':'#ff9db1';
+  const survive=ET(elapsed);
+  $('resultText').textContent=won?`5:00 SURVIVED！最後までスライムの上に残った！`:`生存時間 ${survive}。回転バーと足場の動きを見極めて、もう一度挑戦しよう。`;
+}
+function ET(sec){const n=Math.max(0,Math.floor(sec));return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`}
+function togglePause(){
+  if(gameState==='playing'){gameState='paused';$('overlay').style.display='flex';$('startPanel').hidden=true;$('resultPanel').hidden=true;$('pausePanel').hidden=false;}
+  else if(gameState==='paused'){gameState='playing';$('overlay').style.display='none';}
+}
+
+function scheduleCollapse(dt){
+  if(elapsed<nextCollapseAt)return;
+  const alive=tileObjects.filter(t=>t.state==='alive');
+  if(alive.length<=2)return;
+  const tile=alive[Math.floor(Math.random()*alive.length)];
+  tile.state='shaking';tile.shakeAt=elapsed;tile.fallStartY=FLOOR_CENTER;
+  collapseSerial++;nextCollapseAt=elapsed+22+Math.random()*7;
+  toast('足場が揺れている！',1350);updateTileHud();
+}
+function updateTiles(dt){
+  for(const tile of tileObjects){
+    if(tile.state==='shaking'){
+      const t=elapsed-tile.shakeAt;
+      const amp=Math.min(.13,.035+t*.035);
+      tile.mesh.position.y=Math.sin(t*34)*amp;
+      tile.mesh.rotation.z=Math.sin(t*22)*.012;
+      const wobble=pxPose(0,FLOOR_CENTER+tile.mesh.position.y,0,pxQuat({x:0,y:0,z:1},tile.mesh.rotation.z));
+      tile.body.setKinematicTarget(wobble);destroyPx(wobble);
+      if(t>2.55){tile.state='falling';tile.fallAt=elapsed;tile.mesh.rotation.z=0;}
+    }else if(tile.state==='falling'){
+      const t=elapsed-tile.fallAt;
+      const y=-Math.min(10,t*t*2.6);
+      tile.mesh.position.y=y;
+      tile.mesh.rotation.z=Math.sin(t*7)*.08;
+      const pose=pxPose(0,FLOOR_CENTER+y,0);
+      tile.body.setKinematicTarget(pose);destroyPx(pose);
+      if(t>2.3){tile.state='gone';tile.mesh.visible=false;if(tile.added){phys.scene.removeActor(tile.body);tile.added=false;}updateTileHud();}
+    }
+  }
+}
+function updateBars(dt){
+  lowerSpeed=.67+Math.min(1,elapsed/ROUND_SECONDS)*.82;
+  upperSpeed=.42+Math.min(1,elapsed/ROUND_SECONDS)*.45;
+  lowerAngle=wrapAngle(lowerAngle+lowerSpeed*dt);
+  upperAngle=wrapAngle(upperAngle+upperSpeed*dt);
+  lowerVisual.rotation.y=lowerAngle;upperVisual.rotation.y=upperAngle;
+  const lowerPose=pxPose(0,.94,0,pxQuat({x:0,y:1,z:0},lowerAngle));lowerActor.setKinematicTarget(lowerPose);destroyPx(lowerPose);
+  const upperPose=pxPose(0,2.24,0,pxQuat({x:0,y:1,z:0},upperAngle));upperActor.setKinematicTarget(upperPose);destroyPx(upperPose);
+}
+function updateAmbient(dt){
+  if(slimePositions){
+    const t=elapsed*.8;
+    for(let i=0;i<slimePositions.count;i++){
+      const x=slimePositions.getX(i),z=slimePositions.getZ(i);
+      slimePositions.setY(i,Math.sin(x*.15+t)*.08+Math.cos(z*.19-t*.7)*.06);
+    }
+    slimePositions.needsUpdate=true;slimeGeo.computeVertexNormals();
+  }
+  for(const item of ambientThings){
+    if(item.kind==='bubble'){item.mesh.position.y=item.baseY+Math.sin(elapsed*item.speed+item.phase)*.35;item.mesh.rotation.y+=dt*.15;}
+    if(item.kind==='ring'){const s=1+Math.sin(elapsed*.7+item.phase)*.012;item.mesh.scale.setScalar(s);}
+    if(item.kind==='cloud'){item.mesh.position.x+=dt*.18*Math.sin(item.phase);item.mesh.position.z+=dt*.18*Math.cos(item.phase);}
+  }
+}
+
+function getMoveInput(){
+  let x=0,y=0;
+  if(keys.has('KeyA')||keys.has('ArrowLeft'))x-=1;
+  if(keys.has('KeyD')||keys.has('ArrowRight'))x+=1;
+  if(keys.has('KeyW')||keys.has('ArrowUp'))y+=1;
+  if(keys.has('KeyS')||keys.has('ArrowDown'))y-=1;
+  if(leftTouch?.moved){x=inputX;y=inputY;}
+  const pads=navigator.getGamepads?navigator.getGamepads():[];
+  const gp=pads&&Array.from(pads).find(p=>p&&p.connected);
+  let jump=false,dive=false;
+  if(gp){
+    const ax=gp.axes||[];
+    if(Math.hypot(ax[0]||0,ax[1]||0)>.14){x=ax[0];y=-(ax[1]||0)}
+    if(Math.abs(ax[2]||0)>.12)cameraYaw-=(ax[2]||0)*.045;
+    if(Math.abs(ax[3]||0)>.12)cameraPitch=clamp(cameraPitch+(ax[3]||0)*.025,-.03,.72);
+    const btn=gp.buttons||[];
+    jump=!!(btn[0]?.pressed||btn[7]?.pressed);
+    dive=!!(btn[1]?.pressed||btn[6]?.pressed);
+  }
+  return {x:clamp(x,-1,1),y:clamp(y,-1,1),jump,dive};
+}
+function applyPlayerMovement(dt){
+  const control=getMoveInput();
+  inputX=control.x;inputY=control.y;
+  if(control.jump&&!jumpWasDown)jumpQueued=true;
+  if(control.dive&&!diveWasDown)diveQueued=true;
+  jumpWasDown=control.jump;diveWasDown=control.dive;
+  moveForward.set(-Math.sin(cameraYaw),0,-Math.cos(cameraYaw));
+  moveRight.set(Math.cos(cameraYaw),0,-Math.sin(cameraYaw));
+  moveWish.copy(moveRight).multiplyScalar(inputX).addScaledVector(moveForward,inputY);
+  if(moveWish.lengthSq()>1)moveWish.normalize();
+  const pose=readActorPose(playerActor);playerPosition.set(...pose.position);playerQuaternion.set(...pose.quaternion);
+  const v=playerActor.getLinearVelocity();
+  if(Math.hypot(v.x,v.z)>7.3 || Math.abs(v.y)>8.2)lastHitAt=elapsed;
+  const p=playerPosition;
+  const radial=Math.hypot(p.x,p.z);
+  const angle=wrapAngle(Math.atan2(p.x,p.z)+Math.PI/8);
+  const angleFromX=wrapAngle(Math.atan2(p.z,p.x)+Math.PI/8);
+  const tileIndex=Math.floor(angleFromX/(TAU/TILE_COUNT))%TILE_COUNT;
+  const tile=tileObjects[tileIndex];
+  const onLiveTile=!!tile&&tile.state!=='gone'&&tile.state!=='falling'&&radial>PLATFORM_INNER-.18&&radial<PLATFORM_OUTER+.1;
+  grounded=onLiveTile&&p.y<.93&&p.y>.48&&v.y<.7&&v.y>-.65;
+  if(grounded&&!wasGrounded){diveTimer=Math.min(diveTimer,0)}
+  wasGrounded=grounded;
+  const mass=44,accel=grounded?15:7.5;
+  if(moveWish.lengthSq()>.001){
+    const desiredX=moveWish.x*5.45,desiredZ=moveWish.z*5.45;
+    const fx=clamp((desiredX-v.x)*accel*mass,-mass*accel,mass*accel);
+    const fz=clamp((desiredZ-v.z)*accel*mass,-mass*accel,mass*accel);
+    const force=pxVec(fx,0,fz);playerActor.addForce(force,phys.PX.PxForceModeEnum.eFORCE);destroyPx(force);
+  }
+  if(jumpQueued){
+    if(grounded){const current=playerActor.getLinearVelocity();const impulse=pxVec(current.x,7.15,current.z);playerActor.setLinearVelocity(impulse);destroyPx(current);destroyPx(impulse);grounded=false;wasGrounded=false;toast('JUMP!',450);}
+    jumpQueued=false;
+  }
+  if(diveQueued){
+    if(!isDiving){
+      const dir=moveWish.lengthSq()>.04?moveWish.clone().normalize():moveForward.clone();
+      const current=playerActor.getLinearVelocity();
+      const next=pxVec(current.x+dir.x*4.25,Math.max(current.y,-1.2),current.z+dir.z*4.25);
+      playerActor.setLinearVelocity(next);destroyPx(current);destroyPx(next);
+      isDiving=true;diveTimer=.62;toast('DIVE!',450);
+    }
+    diveQueued=false;
+  }
+  if(isDiving){diveTimer-=dt;if(diveTimer<=0)isDiving=false;}
+  destroyPx(v);
+  // A gentle upright assist between impacts keeps normal walking readable, but never cancels a knockdown.
+  if(grounded&&elapsed-lastHitAt>.38){
+    const up=new THREE.Vector3(0,1,0).applyQuaternion(playerQuaternion);
+    const torqueVec=new THREE.Vector3().crossVectors(up,worldUp).multiplyScalar(34);
+    const tq=pxVec(torqueVec.x,torqueVec.y,torqueVec.z);playerActor.addTorque(tq,phys.PX.PxForceModeEnum.eFORCE);destroyPx(tq);
+  }
+  if(p.y< -3.5 || radial>13 || p.y>22){finishGame(false)}
+}
+function updatePlayerVisual(){
+  if(!playerVisual||!playerActor)return;
+  const pose=readActorPose(playerActor);
+  playerVisual.position.set(...pose.position);
+  playerVisual.quaternion.set(...pose.quaternion);
+  // During a dive, tip forward just a little more for a readable pose.
+  if(isDiving){const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-.42);playerVisual.quaternion.multiply(q)}
+}
+function updateCamera(dt){
+  if(!playerActor)return;
+  const pose=readActorPose(playerActor);const p=new THREE.Vector3(...pose.position);
+  const cp=Math.cos(cameraPitch),sp=Math.sin(cameraPitch);
+  const offset=new THREE.Vector3(-Math.sin(cameraYaw)*cameraDistance*cp, cameraDistance*(.34+sp*.72), Math.cos(cameraYaw)*cameraDistance*cp);
+  const target=p.clone().add(new THREE.Vector3(0,.58,0));
+  const dest=p.clone().add(offset);
+  camera.position.lerp(dest,1-Math.exp(-7*dt));camera.lookAt(target);
+}
+function cameraLook(dx,dy){cameraYaw-=dx*.0065;cameraPitch=clamp(cameraPitch+dy*.0048,-.08,.78)}
+
+function simulate(dt){
+  phys.scene.simulate(dt);phys.scene.fetchResults(true);
+}
+function updateGame(dt){
+  if(gameState!=='playing')return;
+  elapsed+=dt;remaining=Math.max(0,ROUND_SECONDS-elapsed);
+  updateBars(dt);scheduleCollapse(dt);updateTiles(dt);
+  applyPlayerMovement(dt);
+  simulate(dt);
+  updatePlayerVisual();updateCamera(dt);updateTileHud();
+  $('timer').textContent=ET(remaining);
+  if(remaining<=0)finishGame(true);
+}
+function renderFrame(){
+  requestAnimationFrame(renderFrame);
+  const dt=Math.min(clock.getDelta(),.05);
+  if(gameState==='playing'){
+    accumulator+=dt;
+    while(accumulator>=FIXED_DT){updateGame(FIXED_DT);accumulator-=FIXED_DT;if(gameState!=='playing')break;}
+  }else if(gameState==='countdown'){
+    updateCamera(dt);updatePlayerVisual();
+  }else if(gameState==='paused'){
+    // no simulation while paused
+  }else{
+    if(worldReady){updateAmbient(dt);updateCamera(dt);}
+  }
+  if(worldReady){updateAmbient(dt);renderer.render(scene,camera)}
+}
+
+// Keyboard and desktop pointer controls.
+window.addEventListener('keydown',e=>{
+  if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
+  keys.add(e.code);
+  if(e.code==='Space'&&!e.repeat)jumpQueued=true;
+  if((e.code==='ShiftLeft'||e.code==='ShiftRight'||e.code==='KeyX')&&!e.repeat)diveQueued=true;
+  if(e.code==='Escape'&&gameState==='playing')togglePause();
+  if((e.code==='Enter'||e.code==='Space')&&gameState==='menu')startGame();
+},{passive:false});
+window.addEventListener('keyup',e=>keys.delete(e.code));
+let mouseDown=false,lastMouseX=0,lastMouseY=0;
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='mouse')return;
+  if(e.button===2){mouseDown=true;lastMouseX=e.clientX;lastMouseY=e.clientY;canvas.setPointerCapture?.(e.pointerId);}
+});
+canvas.addEventListener('pointermove',e=>{
+  if(e.pointerType==='mouse'&&mouseDown){cameraLook(e.clientX-lastMouseX,e.clientY-lastMouseY);lastMouseX=e.clientX;lastMouseY=e.clientY;}
+});
+canvas.addEventListener('pointerup',e=>{if(e.pointerType==='mouse'&&e.button===2)mouseDown=false});
+canvas.addEventListener('click',()=>{if(!isMobile&&document.pointerLockElement!==canvas&&gameState==='playing')canvas.requestPointerLock?.()});
+document.addEventListener('pointerlockchange',()=>{});
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement===canvas)cameraLook(e.movementX,e.movementY)});
+
+// Touch: a left-side tap does nothing. A left-side swipe reveals the virtual stick.
+// On the right: swipes rotate the camera; a stationary upper/lower tap is dive/jump.
+const joy=$('joystick'),knob=$('stickKnob');
+let leftTouch=null,rightTouch=null;
+function updateJoy(clientX,clientY){
+  if(!leftTouch)return;
+  const dx=clientX-leftTouch.x,dy=clientY-leftTouch.y;
+  const max=42,len=Math.hypot(dx,dy),scale=len>max?max/len:1;
+  const sx=dx*scale,sy=dy*scale;
+  knob.style.transform=`translate(${sx}px,${sy}px)`;
+  inputX=clamp(sx/max,-1,1);inputY=clamp(-sy/max,-1,1);
+}
+canvas.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch')return;
+  e.preventDefault();canvas.setPointerCapture?.(e.pointerId);
+  if(e.clientX<window.innerWidth*.47&&!leftTouch){leftTouch={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false};}
+  else if(e.clientX>=window.innerWidth*.47&&!rightTouch){rightTouch={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,moved:false};}
+},{passive:false});
+canvas.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch')return;e.preventDefault();
+  if(leftTouch&&leftTouch.id===e.pointerId){
+    const d=Math.hypot(e.clientX-leftTouch.x,e.clientY-leftTouch.y);
+    if(d>8&&!leftTouch.moved){leftTouch.moved=true;joy.style.display='block';joy.style.left=`${leftTouch.x}px`;joy.style.top=`${leftTouch.y}px`;}
+    if(leftTouch.moved)updateJoy(e.clientX,e.clientY);
+  }
+  if(rightTouch&&rightTouch.id===e.pointerId){
+    const dx=e.clientX-rightTouch.lastX,dy=e.clientY-rightTouch.lastY;
+    if(Math.hypot(e.clientX-rightTouch.x,e.clientY-rightTouch.y)>8)rightTouch.moved=true;
+    if(rightTouch.moved)cameraLook(dx,dy);
+    rightTouch.lastX=e.clientX;rightTouch.lastY=e.clientY;
+  }
+},{passive:false});
+function finishTouch(e){
+  if(e.pointerType!=='touch')return;
+  if(leftTouch&&leftTouch.id===e.pointerId){leftTouch=null;inputX=0;inputY=0;joy.style.display='none';knob.style.transform='translate(0,0)';}
+  if(rightTouch&&rightTouch.id===e.pointerId){
+    const wasTap=!rightTouch.moved;rightTouch=null;
+    if(wasTap){if(e.clientY<window.innerHeight*.5)diveQueued=true;else jumpQueued=true;}
+  }
+}
+canvas.addEventListener('pointerup',finishTouch,{passive:false});canvas.addEventListener('pointercancel',finishTouch,{passive:false});
+
+$('startBtn').addEventListener('click',startGame);
+$('restartBtn').addEventListener('click',()=>{ $('resultPanel').hidden=true;$('startPanel').hidden=false;startGame();});
+$('pauseBtn').addEventListener('click',()=>{if(gameState==='playing')togglePause();else if(gameState==='paused')togglePause()});
+$('resumeBtn').addEventListener('click',togglePause);
+$('pauseRestartBtn').addEventListener('click',()=>{ $('pausePanel').hidden=true;$('startPanel').hidden=false;startGame();});
+
+async function boot(){
+  try{
+    initRenderer();
+    await initPhysics();
+    buildArena();buildBars();buildBean();createTileDots();
+    worldReady=true;
+    resetGame();
+    updateCamera(1/60);
+    renderFrame();
+  }catch(err){showBootError(err)}
+}
 boot();
 </script>
 </body>
