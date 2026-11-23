@@ -1,370 +1,787 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#21123e">
-<title>JUMP SHOWDOWN - Solo Practice</title>
-<style>
-:root{--ink:#261044;--deep:#170a2e;--panel:#30165bdb;--pink:#ff58a7;--gold:#ffd84b;--blue:#39b8ff;--mint:#72f0cd;--white:#fff}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#efa1c7;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;user-select:none;-webkit-user-select:none;touch-action:none}
-canvas{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
-#shade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(28,12,57,.13),transparent 25%,transparent 70%,rgba(20,8,37,.26))}
-#hud{position:fixed;inset:0;pointer-events:none;display:none}
-.panel{background:linear-gradient(145deg,rgba(58,25,104,.91),rgba(31,13,62,.88));border:2px solid rgba(255,255,255,.86);box-shadow:0 6px 0 rgba(24,7,48,.55),0 14px 36px rgba(13,4,25,.28);border-radius:18px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-#topLeft{position:absolute;top:max(14px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));padding:9px 14px;min-width:152px}
-.eyebrow{font-size:10px;font-weight:900;letter-spacing:.17em;color:#b9a6dc}.biglabel{font-weight:1000;letter-spacing:.03em;text-shadow:0 2px 0 #241041}
-#timerPanel{position:absolute;top:max(13px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);padding:8px 24px 9px;text-align:center;min-width:140px;border-radius:999px}
-#timer{font-size:34px;line-height:1;font-weight:1000;letter-spacing:.04em;font-variant-numeric:tabular-nums;text-shadow:0 3px 0 #241041}
-#topRight{position:absolute;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));padding:9px 14px;text-align:right;min-width:146px}
-#tilesCount{font-weight:1000;font-size:22px;color:var(--gold);text-shadow:0 2px 0 #241041}
-#toast{position:absolute;top:95px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:999px;background:rgba(35,14,65,.86);border:1px solid rgba(255,255,255,.5);font-size:13px;font-weight:800;white-space:nowrap;opacity:0;transition:opacity .2s}
-#toast.show{opacity:1}
-#bottomLeft{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:max(14px,env(safe-area-inset-left));padding:8px 12px;font-size:11px;line-height:1.55;color:#eee4ff;max-width:230px}
-#bottomRight{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:flex;gap:8px;pointer-events:auto}
-.hudBtn{pointer-events:auto;width:46px;height:46px;border:2px solid white;border-radius:14px;background:rgba(42,18,80,.82);color:white;font-size:19px;font-weight:900;box-shadow:0 4px 0 rgba(19,7,38,.6);cursor:pointer}
-.hudBtn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(19,7,38,.6)}
-#speedPanel{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);padding:6px 13px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.06em;color:#e6d9ff}
-#speed{color:var(--gold)}
-#screen{position:fixed;inset:0;display:grid;place-items:center;padding:20px;z-index:5;background:linear-gradient(130deg,rgba(38,13,68,.4),rgba(30,11,57,.12));}
-#screen[hidden]{display:none}
-.menuCard{width:min(520px,94vw);max-height:calc(100dvh - 36px);overflow:auto;padding:clamp(18px,4vw,30px);text-align:center;pointer-events:auto}
-.logoMark{width:66px;height:66px;margin:0 auto 8px;border-radius:22px;display:grid;place-items:center;background:linear-gradient(145deg,#ffe977,#ff9f30);border:4px solid white;box-shadow:0 6px 0 #7c3e1e,0 10px 24px #16082e77;transform:rotate(-5deg);font-size:35px;color:#4b226c;text-shadow:0 2px 0 #fff7}
-.kicker{font-size:11px;font-weight:1000;letter-spacing:.22em;color:#d9c6ff}
-h1{margin:4px 0 0;font-size:clamp(34px,8vw,54px);line-height:.98;font-weight:1000;letter-spacing:-.045em;color:#fff;text-shadow:0 4px 0 #35135d,0 7px 0 #1c0a36,2px 8px 16px #0006;-webkit-text-stroke:1px rgba(38,12,70,.35)}
-.subtitle{margin:10px auto 18px;max-width:360px;font-weight:700;color:#e9ddff;font-size:13px;line-height:1.5}
-.ruleStrip{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:0 0 17px}
-.rulePill{font-size:11px;font-weight:900;padding:6px 10px;border:1px solid #ffffff9c;border-radius:999px;background:#ffffff17;color:#fff}
-.primary{width:100%;border:3px solid white;border-radius:16px;padding:13px 18px;background:linear-gradient(#ffe76a,#ffad2e);color:#421c63;font-size:19px;font-weight:1000;letter-spacing:.05em;box-shadow:0 6px 0 #8b4a1d,0 10px 20px #12052366;cursor:pointer}
-.primary:active{transform:translateY(3px);box-shadow:0 3px 0 #8b4a1d,0 5px 12px #12052366}
-.secondary{width:100%;margin-top:10px;border:2px solid #ffffffb5;border-radius:13px;padding:10px;background:#ffffff19;color:white;font-size:14px;font-weight:900;cursor:pointer}
-.controls{margin-top:16px;padding:13px;text-align:left;border-radius:14px;background:#16082e77;border:1px solid #ffffff42}
-.controlsTitle{font-size:10px;font-weight:1000;letter-spacing:.18em;color:#cdb8fa;margin-bottom:8px}
-.controlGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;font-size:11px;color:#f2eaff}
-.controlGrid b{color:#ffe477}
-.footnote{margin:13px 2px 0;color:#d4c3ec;font-size:10px;line-height:1.45;opacity:.82}
-#mobileHint{display:none}
-#touchLayer{position:fixed;inset:0;z-index:3;display:none;pointer-events:none;touch-action:none}
-#joyBase{position:absolute;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;border:2px solid #ffffffa0;background:#27104b55;box-shadow:inset 0 0 0 8px #ffffff14;display:none}
-#joyKnob{position:absolute;width:48px;height:48px;left:32px;top:32px;border-radius:50%;background:linear-gradient(#fff,#c6b5ff);border:3px solid #fff;box-shadow:0 4px 0 #321456;}
-#mobileHelp{position:absolute;bottom:max(86px,calc(env(safe-area-inset-bottom) + 86px));right:12px;color:#fff;font-size:10px;font-weight:900;text-align:right;text-shadow:0 2px 5px #21103a;opacity:.9}
-#mobileHelp span{display:inline-block;margin:2px;padding:5px 8px;border-radius:8px;background:#2b1255ad;border:1px solid #fff7}
-@media(pointer:coarse),(max-width:700px){#touchLayer{display:block}#bottomLeft{display:none}#speedPanel{display:none}#topLeft{min-width:110px;padding:7px 10px}#topRight{min-width:105px;padding:7px 10px}#timerPanel{min-width:112px;padding:7px 15px}#timer{font-size:27px}#tilesCount{font-size:19px}#mobileHint{display:block}.menuCard{padding:18px} .controlGrid{grid-template-columns:1fr 1fr}}
-@media(max-height:560px){.menuCard{padding:14px}.logoMark{width:48px;height:48px;font-size:27px;margin-bottom:4px}h1{font-size:34px}.subtitle{margin:6px auto 10px}.controls{margin-top:9px;padding:8px}.footnote{margin-top:7px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#17102f">
+  <title>JUMP CLUB / JUMP SHOWDOWN - Solo Practice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #fff;
+      --muted: #c7c3d9;
+      --panel: rgba(24, 17, 48, .88);
+      --line: rgba(255,255,255,.18);
+      --pink: #ff3c9e;
+      --green: #39e49a;
+      --gold: #ffc849;
+      --blue: #21b7f1;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #17102f; color: var(--ink); font-family: Inter, ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { user-select: none; -webkit-user-select: none; touch-action: none; }
+    button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+    #app { position: fixed; inset: 0; overflow: hidden; background: linear-gradient(#7ac9ff, #e9a5e9 75%, #ff7cc8); }
+    #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+    #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 46%, rgba(21,8,41,.19) 100%); z-index: 1; }
+    .hidden { display: none !important; }
+    #hud { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+    .topbar { position: absolute; left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right)); top: max(12px, env(safe-area-inset-top)); display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .hud-card { background: rgba(22, 13, 46, .72); border: 1px solid rgba(255,255,255,.25); box-shadow: 0 8px 24px rgba(20,5,40,.22); border-radius: 15px; padding: 9px 14px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .round-name { font-weight: 950; letter-spacing: .09em; font-size: clamp(12px, 2vw, 16px); text-shadow: 0 2px 3px #32205a; }
+    .round-sub { color: #ded7f2; font-size: 10px; margin-top: 2px; letter-spacing: .04em; }
+    .timer-card { min-width: 100px; text-align: center; }
+    #timer { font-variant-numeric: tabular-nums; font-size: clamp(22px, 4vw, 31px); font-weight: 950; line-height: 1; letter-spacing: .04em; }
+    #phase-label { color: #f7dff5; font-size: 10px; font-weight: 800; margin-top: 4px; letter-spacing: .12em; }
+    .hud-actions { display: flex; gap: 7px; pointer-events: auto; }
+    .icon-btn { min-width: 42px; height: 42px; border-radius: 13px; background: rgba(22,13,46,.72); border: 1px solid rgba(255,255,255,.25); box-shadow: 0 6px 18px rgba(20,5,40,.2); font-size: 18px; }
+    .icon-btn:active { transform: translateY(1px) scale(.98); }
+    #objective { position: absolute; left: 50%; top: max(77px, calc(env(safe-area-inset-top) + 66px)); transform: translateX(-50%); white-space: nowrap; text-align: center; background: rgba(22,13,46,.55); border: 1px solid rgba(255,255,255,.17); border-radius: 99px; padding: 7px 14px; font-size: 11px; font-weight: 800; letter-spacing: .04em; color: #fff; }
+    #center-count { position: absolute; left: 50%; top: 44%; transform: translate(-50%,-50%); font-weight: 1000; font-size: clamp(46px, 13vw, 100px); text-shadow: 0 7px 0 rgba(52,24,96,.28), 0 10px 28px rgba(30,10,55,.45); color: #fff; }
+    #bottom-help { position: absolute; bottom: max(16px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); background: rgba(22,13,46,.63); border: 1px solid rgba(255,255,255,.18); border-radius: 99px; padding: 8px 14px; color: #f4edff; font-size: 11px; white-space: nowrap; backdrop-filter: blur(8px); }
+    #touch-input { position: absolute; inset: 0; z-index: 4; pointer-events: auto; touch-action: none; }
+    #stick-base { position: absolute; width: 118px; height: 118px; border: 2px solid rgba(255,255,255,.55); border-radius: 50%; background: rgba(24,15,53,.27); box-shadow: inset 0 0 22px rgba(255,255,255,.12), 0 5px 25px rgba(0,0,0,.15); display: none; transform: translate(-50%,-50%); }
+    #stick-knob { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; border-radius: 50%; transform: translate(-50%,-50%); background: rgba(255,255,255,.75); border: 2px solid rgba(255,255,255,.9); box-shadow: 0 3px 10px rgba(0,0,0,.22); }
+    #touch-zones { position: absolute; right: 0; bottom: max(10px, env(safe-area-inset-bottom)); width: 48%; height: 66%; display: none; }
+    .touch-zone { position: absolute; right: 14px; width: 76px; height: 76px; border-radius: 50%; border: 1px solid rgba(255,255,255,.30); background: rgba(25,15,53,.18); display: grid; place-items: center; text-align: center; color: rgba(255,255,255,.8); font-size: 10px; font-weight: 900; letter-spacing: .04em; }
+    #zone-dive { top: 15%; }
+    #zone-jump { bottom: 5%; background: rgba(25,15,53,.28); }
+    .overlay { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; padding: 18px; background: linear-gradient(135deg, rgba(19,10,42,.64), rgba(38,11,65,.30)); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+    .panel { width: min(780px, 100%); max-height: min(92vh, 900px); overflow: auto; border-radius: 25px; border: 1px solid rgba(255,255,255,.24); background: linear-gradient(145deg, rgba(35,24,68,.96), rgba(17,13,42,.94)); box-shadow: 0 25px 80px rgba(10,3,26,.48); padding: clamp(20px, 4vw, 34px); }
+    .eyebrow { color: #ffd36b; font-weight: 900; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; }
+    h1 { margin: 7px 0 6px; font-size: clamp(32px, 7vw, 58px); line-height: .98; font-weight: 1000; letter-spacing: -.055em; }
+    .lead { margin: 12px 0 20px; max-width: 650px; color: #dcd6ee; line-height: 1.6; font-size: 14px; }
+    .mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px; }
+    .mode-card { text-align: left; position: relative; overflow: hidden; min-height: 170px; border-radius: 18px; border: 2px solid rgba(255,255,255,.17); padding: 15px; background: #283b6b; transition: .18s ease; }
+    .mode-card.selected { border-color: #ffe08a; box-shadow: 0 0 0 3px rgba(255,214,104,.18), 0 9px 26px rgba(0,0,0,.2); transform: translateY(-2px); }
+    .mode-card:active { transform: scale(.99); }
+    .mode-card.club { background: radial-gradient(circle at 80% 20%, #ff5aa9 0 7%, transparent 8%), linear-gradient(135deg,#1d9de1,#2653ab 65%,#6b3eaf); }
+    .mode-card.showdown { background: radial-gradient(circle at 85% 18%, #ffe07b 0 8%, transparent 9%), linear-gradient(135deg,#214b9a,#3b4e8a 60%,#8e52a6); }
+    .mini-ring { position: absolute; width: 138px; height: 138px; right: -12px; bottom: -48px; border: 18px solid rgba(255,255,255,.78); border-radius: 50%; opacity: .55; transform: rotate(-24deg); }
+    .mini-ring:before,.mini-ring:after { content:""; position:absolute; left:-24px; width: 150px; height: 10px; border-radius: 99px; background: #ff55a8; top: 39px; transform: rotate(35deg); box-shadow: 0 0 8px rgba(0,0,0,.2); }
+    .mini-ring:after { top: 73px; background: #43edb0; height: 7px; }
+    .showdown .mini-ring:before,.showdown .mini-ring:after { background:#ffd15a; height: 11px; }
+    .mode-title { position: relative; font-weight: 1000; font-size: 22px; letter-spacing: -.03em; text-shadow: 0 2px 5px rgba(0,0,0,.28); }
+    .mode-desc { position: relative; display: block; margin-top: 7px; max-width: 60%; line-height: 1.45; font-size: 11px; color: #f5efff; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 99px; padding: 5px 9px; font-size: 10px; font-weight: 900; background: rgba(13,10,31,.35); margin-top: 12px; }
+    .primary { display: inline-flex; justify-content: center; align-items: center; min-height: 49px; min-width: 180px; border-radius: 14px; padding: 0 24px; background: linear-gradient(110deg,#ff3c9e,#ff7c65); box-shadow: 0 7px 0 #a62678, 0 13px 28px rgba(255,47,149,.25); font-weight: 1000; letter-spacing: .07em; font-size: 16px; }
+    .primary:active { transform: translateY(4px); box-shadow: 0 3px 0 #a62678, 0 7px 18px rgba(255,47,149,.2); }
+    .secondary { min-height: 43px; border-radius: 13px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); padding: 0 15px; font-weight: 800; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 22px; }
+    .fine { color: #bcb4d2; font-size: 11px; line-height: 1.55; }
+    .controls { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 16px; }
+    .control { min-height: 54px; border-radius: 12px; padding: 9px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); font-size: 11px; color: #d9d2eb; }
+    kbd { display: inline-block; color: white; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.25); border-radius: 5px; padding: 2px 6px; font: 800 11px ui-monospace,monospace; margin-right: 4px; }
+    #result-title { font-size: clamp(38px,8vw,64px); }
+    .result-stat { display:flex; gap:8px; flex-wrap:wrap; margin-top:15px; }
+    .result-chip { padding: 9px 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.07); border-radius: 12px; color:#e5dff1; font-size:12px; }
+    #notice { position:absolute; left:50%; bottom: max(54px,calc(env(safe-area-inset-bottom) + 50px)); transform:translateX(-50%); z-index:12; background:rgba(18,11,40,.85); border:1px solid rgba(255,255,255,.2); padding:8px 12px; border-radius:10px; font-size:11px; opacity:0; transition:opacity .2s; pointer-events:none; white-space:nowrap; }
+    #notice.show { opacity:1; }
+    @media (max-width:600px) {
+      .mode-grid { grid-template-columns:1fr; }
+      .mode-card { min-height: 135px; }
+      .mode-desc { max-width: 68%; }
+      .controls { grid-template-columns:1fr 1fr; }
+      #bottom-help { display:none; }
+      #touch-zones { display:block; }
+      #objective { top: calc(env(safe-area-inset-top) + 65px); font-size:10px; }
+      .topbar { gap:6px; }
+      .hud-card { padding:8px 10px; }
+      .timer-card { min-width:78px; }
+      .icon-btn { min-width:38px; height:38px; }
+      .round-sub { font-size:9px; }
+    }
+    @media (max-height:650px) and (min-width:601px) {
+      .panel { padding:18px 24px; }
+      .mode-card { min-height:130px; }
+      .lead { margin-bottom:12px; }
+    }
+  </style>
 </head>
 <body>
-<div id="shade"></div>
-<div id="hud">
-  <div id="topLeft" class="panel"><div class="eyebrow">SOLO PRACTICE</div><div class="biglabel">STAY ABOVE THE SLIME</div></div>
-  <div id="timerPanel" class="panel"><div class="eyebrow">SURVIVE</div><div id="timer">5:00</div></div>
-  <div id="topRight" class="panel"><div class="eyebrow">PLATFORMS LEFT</div><div id="tilesCount">8 / 8</div></div>
-  <div id="toast"></div>
-  <div id="bottomLeft" class="panel">WASD / 矢印: 移動<br>マウスドラッグ: 視点変更<br>Space: ジャンプ　Ctrl: ダイブ<br>ゲームパッド: 左スティック移動 / 右スティック視点 / Aジャンプ / Bダイブ</div>
-  <div id="speedPanel" class="panel">BAR SPEED <span id="speed">1.0×</span></div>
-  <div id="bottomRight"><button class="hudBtn" id="pauseBtn" aria-label="Pause">Ⅱ</button><button class="hudBtn" id="restartBtn" aria-label="Restart">↻</button></div>
-</div>
-<div id="touchLayer">
-  <div id="joyBase"><div id="joyKnob"></div></div>
-  <div id="mobileHelp"><span>右上スワイプ: 視点</span><span>右上タップ: ダイブ</span><br><span>右下タップ: ジャンプ</span></div>
-</div>
-<div id="screen">
-  <section class="menuCard panel" id="menuCard">
-    <div class="logoMark">★</div>
-    <div class="kicker">FINAL ROUND · SOLO</div>
-    <h1>JUMP<br>SHOWDOWN</h1>
-    <p class="subtitle">回転する2本のバーをかわし、崩れていく足場から落ちずに生き残ろう！</p>
-    <div class="ruleStrip"><span class="rulePill">⏱ 5 MINUTES</span><span class="rulePill">◉ 8 FALLING TILES</span><span class="rulePill">↻ DOUBLE BEAM</span></div>
-    <button class="primary" id="playBtn">PLAY SOLO</button>
-    <button class="secondary" id="fullscreenBtn">FULL SCREEN</button>
-    <div class="controls">
-      <div class="controlsTitle">HOW TO PLAY</div>
-      <div class="controlGrid">
-        <div><b>W A S D</b> · 移動</div><div><b>マウスドラッグ</b> · 視点</div>
-        <div><b>SPACE</b> · ジャンプ</div><div><b>CTRL</b> · ダイブ</div>
-        <div><b>左スティック</b> · 移動</div><div><b>右スティック</b> · 視点</div>
-        <div><b>A / ×</b> · ジャンプ</div><div><b>B / ○</b> · ダイブ</div>
+<div id="app">
+  <canvas id="scene" aria-label="3D Fall Guys inspired jump round practice"></canvas>
+  <div id="vignette"></div>
+  <div id="hud" class="hidden">
+    <div class="topbar">
+      <div class="hud-card">
+        <div class="round-name" id="round-name">JUMP CLUB</div>
+        <div class="round-sub" id="round-sub">SURVIVAL · SOLO PRACTICE</div>
       </div>
-      <div id="mobileHint" class="footnote">スマホ: 左側をスワイプすると移動スティックが出現。右側スワイプで視点変更、右下タップでジャンプ、右上タップでダイブ。</div>
+      <div class="hud-card timer-card">
+        <div id="timer">1:30</div>
+        <div id="phase-label">READY</div>
+      </div>
+      <div class="hud-actions">
+        <button class="icon-btn" id="view-btn" title="視点切替">◉</button>
+        <button class="icon-btn" id="pause-btn" title="一時停止">Ⅱ</button>
+        <button class="icon-btn" id="home-btn" title="メニュー">⌂</button>
+      </div>
     </div>
-    <p class="footnote">このページは1人用の練習版。対戦・他プレイヤー・オンライン機能はありません。</p>
+    <div id="objective">回転するバーをよけて、生き残れ！</div>
+    <div id="center-count"></div>
+    <div id="bottom-help">WASD 移動　·　Space ジャンプ　·　Ctrl ダイブ　·　ドラッグで視点</div>
+  </div>
+  <div id="touch-input" class="hidden">
+    <div id="stick-base"><div id="stick-knob"></div></div>
+    <div id="touch-zones"><div class="touch-zone" id="zone-dive">DIVE</div><div class="touch-zone" id="zone-jump">JUMP</div></div>
+  </div>
+  <div id="notice"></div>
+
+  <section class="overlay" id="menu-screen">
+    <div class="panel">
+      <div class="eyebrow">FALL GUYS · SOLO TRAINING</div>
+      <h1>JUMP<br>CHALLENGE</h1>
+      <p class="lead">ジャンプ・クラブとジャンプ・ショーダウンを、3Dアリーナで練習。回転バーのタイミングを読み、足場から落ちずに生き残ろう。対戦相手・Bot・オンライン機能はありません。</p>
+      <div class="mode-grid">
+        <button class="mode-card club selected" data-mode="club" aria-pressed="true">
+          <span class="mini-ring"></span><span class="mode-title">JUMP CLUB</span>
+          <span class="mode-desc">青い円形ステージ。ピンクの上段バーとグリーンの下段バーを避けるサバイバル。</span>
+          <span class="pill">⏱ 1:30 · SURVIVAL</span>
+        </button>
+        <button class="mode-card showdown" data-mode="showdown" aria-pressed="false">
+          <span class="mini-ring"></span><span class="mode-title">JUMP SHOWDOWN</span>
+          <span class="mode-desc">金色の2本バーと、徐々に崩れる8枚の足場。最後まで残ろう。</span>
+          <span class="pill">⏱ 5:00 · FINAL</span>
+        </button>
+      </div>
+      <div class="actions">
+        <button class="primary" id="start-btn">PLAY</button>
+        <button class="secondary" id="controls-btn">操作方法</button>
+      </div>
+      <p class="fine" style="margin:17px 0 0">※ ファンメイドの練習用プロトタイプ。ゲーム本編との完全な物理・演出一致を保証するものではありません。</p>
+    </div>
+  </section>
+
+  <section class="overlay hidden" id="controls-screen">
+    <div class="panel" style="max-width:620px">
+      <div class="eyebrow">CONTROL GUIDE</div>
+      <h1 style="font-size:36px">操作方法</h1>
+      <div class="controls">
+        <div class="control"><kbd>W A S D</kbd><br>移動</div>
+        <div class="control"><kbd>Space</kbd><br>ジャンプ</div>
+        <div class="control"><kbd>Ctrl</kbd><br>ダイブ</div>
+        <div class="control"><kbd>マウスドラッグ</kbd><br>視点変更</div>
+        <div class="control"><kbd>V</kbd><br>視点距離切替</div>
+        <div class="control"><kbd>Esc</kbd><br>一時停止</div>
+        <div class="control"><kbd>Pad 左スティック</kbd><br>移動</div>
+        <div class="control"><kbd>Pad A / ×</kbd><br>ジャンプ</div>
+        <div class="control"><kbd>Pad X / □</kbd><br>ダイブ</div>
+      </div>
+      <p class="fine" style="margin-top:17px">スマホ：左側をスワイプすると移動スティックが出現。右側をスワイプすると視点変更。右上をタップでダイブ、右下をタップでジャンプ（タップだけでは移動しません）。</p>
+      <div class="actions"><button class="primary" id="controls-back">戻る</button></div>
+    </div>
+  </section>
+
+  <section class="overlay hidden" id="pause-screen">
+    <div class="panel" style="max-width:500px;text-align:center">
+      <div class="eyebrow">PAUSED</div><h1>PAUSE</h1>
+      <p class="lead" style="margin-left:auto;margin-right:auto">ゲームを一時停止中。</p>
+      <div class="actions" style="justify-content:center">
+        <button class="primary" id="resume-btn">再開</button>
+        <button class="secondary" id="restart-btn">最初から</button>
+        <button class="secondary" id="pause-home-btn">メニュー</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="overlay hidden" id="result-screen">
+    <div class="panel" style="max-width:560px;text-align:center">
+      <div class="eyebrow" id="result-eyebrow">ROUND COMPLETE</div>
+      <h1 id="result-title">QUALIFIED!</h1>
+      <p class="lead" id="result-message" style="margin-left:auto;margin-right:auto">最後まで生き残った！</p>
+      <div class="result-stat" id="result-stats" style="justify-content:center"></div>
+      <div class="actions" style="justify-content:center">
+        <button class="primary" id="again-btn">もう一度</button>
+        <button class="secondary" id="result-home-btn">モード選択</button>
+      </div>
+    </div>
   </section>
 </div>
+
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
 
-// -----------------------------------------------------------------------------
-// Playable prototype physics.
-// The supplied Roll Off archive contains the PhysX JS bindings and PhysicsManager
-// wrapper, but does not contain physx-js-webidl-CKkc7g22.wasm. This self-contained
-// fixed-step controller is therefore a temporary gameplay simulation, not PhysX.
-// -----------------------------------------------------------------------------
-const TAU=Math.PI*2, TILE_COUNT=8, FLOOR_Y=.50, INNER_R=2.25, OUTER_R=6.18;
-const PLAYER_H=1.55, PLAYER_R=.34, FIXED_DT=1/120;
-const $=id=>document.getElementById(id);
-const screen=$('screen'), hud=$('hud'), playBtn=$('playBtn'), toast=$('toast');
-let renderer,scene,camera,clock,world,playerRoot,beanGroup,lowerPivot,upperPivot,tiles=[],decor=[],state='menu';
-let lastFrame=0,accumulator=0,elapsed=0,roundLeft=300,fallTimer=22,nextDropAt=22,fallSequence=0,barPhase=0;
-let cameraYaw=.72,cameraPitch=.42,cameraDistance=10.6,cameraTarget=new THREE.Vector3(0,1,0);
-let pointerDrag=null,keys=new Set(),touches=new Map(),stick={x:0,y:0},look={x:0,y:0},gamepad={moveX:0,moveY:0,lookX:0,lookY:0,jump:false,dive:false},touchAction=null;
-let toastTimer=0, raf=0, startRequested=false, winReason='';
-const v3=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const damp=(a,b,l,dt)=>THREE.MathUtils.damp(a,b,l,dt);
+// ------------------------------------------------------------
+// Jump Club / Jump Showdown solo practice prototype.
+// The source archive's PhysX WebIDL glue was inspected, but its
+// required physx-js-webidl .wasm binary was not included in the ZIP.
+// This self-contained fixed-step player controller is therefore a
+// compatible stand-in, NOT the original PhysX runtime.
+// ------------------------------------------------------------
 
-function init(){
-  scene=new THREE.Scene(); scene.background=new THREE.Color(0xeca8cc); scene.fog=new THREE.Fog(0xeca8cc,24,65);
-  camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,120);
-  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.65)); renderer.setSize(innerWidth,innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.15;
-  renderer.domElement.id='scene'; renderer.domElement.tabIndex=0; document.body.insertBefore(renderer.domElement,document.body.firstChild);
-  scene.add(new THREE.HemisphereLight(0xffe8fa,0x50306d,2.0));
-  const key=new THREE.DirectionalLight(0xffffff,3.1); key.position.set(-7,13,6); key.castShadow=true; key.shadow.mapSize.set(1536,1536); key.shadow.camera.left=-12;key.shadow.camera.right=12;key.shadow.camera.top=12;key.shadow.camera.bottom=-12;key.shadow.bias=-.00025;scene.add(key);
-  const rim=new THREE.DirectionalLight(0x9bdcff,1.5);rim.position.set(8,7,-8);scene.add(rim);
-  buildArena(); buildPlayer(); resetPlayer(); clock=new THREE.Clock();
-  window.addEventListener('resize',onResize,{passive:true}); bindInputs(); updateCamera(1); loop();
-}
-function mat(color,roughness=.55,metalness=.05,extra={}){return new THREE.MeshStandardMaterial({color,roughness,metalness,...extra});}
-function buildArena(){
-  // Pink slime basin and a soft rim underneath the circular stage.
-  const slime=new THREE.Mesh(new THREE.CircleGeometry(22,96),new THREE.MeshStandardMaterial({color:0xf074b2,roughness:.26,metalness:.03}));slime.rotation.x=-Math.PI/2;slime.position.y=-2.4;slime.receiveShadow=true;scene.add(slime);
-  const slimeInner=new THREE.Mesh(new THREE.CircleGeometry(9,64),new THREE.MeshStandardMaterial({color:0xff91c9,roughness:.28,transparent:true,opacity:.42}));slimeInner.rotation.x=-Math.PI/2;slimeInner.position.y=-2.38;scene.add(slimeInner);
-  const base=new THREE.Mesh(new THREE.CylinderGeometry(OUTER_R+.2,OUTER_R+.4,.34,96,1,true),mat(0x682a88,.55,.18));base.position.y=.05;base.receiveShadow=true;scene.add(base);
-  const bottomRim=new THREE.Mesh(new THREE.TorusGeometry(OUTER_R+.12,.16,12,96),mat(0xffb64a,.36,.25));bottomRim.rotation.x=Math.PI/2;bottomRim.position.y=-.1;scene.add(bottomRim);
-  // Ring floor is split into eight independent falling wedges.
-  const colors=[0x22a9f2,0xffc93e,0x279be8,0xffd04b,0x31b4ed,0xffc53a,0x269ee5,0xffd34c];
-  for(let i=0;i<TILE_COUNT;i++){
-    const g=new THREE.Group();scene.add(g);
-    const shape=new THREE.Shape(); const a0=i*TAU/TILE_COUNT+.012,a1=(i+1)*TAU/TILE_COUNT-.012;
-    shape.absarc(0,0,OUTER_R,a0,a1,false);shape.lineTo(INNER_R*Math.cos(a1),INNER_R*Math.sin(a1));
-    const hole=new THREE.Path();hole.absarc(0,0,INNER_R,a1,a0,true);shape.holes.push(hole);
-    const geom=new THREE.ExtrudeGeometry(shape,{depth:.32,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.035,bevelThickness:.035,curveSegments:12});
-    geom.rotateX(-Math.PI/2);geom.translate(0,.15,0);
-    const tile=new THREE.Mesh(geom,[mat(colors[i],.5,.1),mat(0x8a4b99,.65,.12)]);tile.castShadow=true;tile.receiveShadow=true;g.add(tile);
-    const stripe=new THREE.Mesh(new THREE.TorusGeometry(OUTER_R-.08,.045,8,40,TAU/TILE_COUNT-.05),mat(0xffe69a,.42,.2));
-    stripe.rotation.x=-Math.PI/2;stripe.rotation.z=a0;stripe.position.y=.50;g.add(stripe);
-    tiles.push({group:g,mesh:tile,index:i,state:'solid',shake:0,dropTime:0,baseY:0,baseRot:0});
-  }
-  const innerTrim=new THREE.Mesh(new THREE.TorusGeometry(INNER_R,.12,12,72),mat(0xffd95d,.32,.34));innerTrim.rotation.x=Math.PI/2;innerTrim.position.y=.5;scene.add(innerTrim);
-  const outerTrim=new THREE.Mesh(new THREE.TorusGeometry(OUTER_R,.14,12,96),mat(0xf8a83d,.35,.28));outerTrim.rotation.x=Math.PI/2;outerTrim.position.y=.54;scene.add(outerTrim);
-  // Eight decorative outer pylons and small pennants.
-  for(let i=0;i<8;i++){
-    const a=i*TAU/8, x=Math.cos(a)*(OUTER_R+.42),z=Math.sin(a)*(OUTER_R+.42);
-    const post=new THREE.Mesh(new THREE.CylinderGeometry(.12,.17,1.18,12),mat(0x7d2e9c,.4,.15));post.position.set(x,.65,z);post.castShadow=true;scene.add(post);
-    const cap=new THREE.Mesh(new THREE.SphereGeometry(.2,16,12),mat(0xffd85a,.35,.2));cap.position.set(x,1.3,z);scene.add(cap);
-    const pennant=new THREE.Mesh(new THREE.BoxGeometry(.12,.55,.7),mat(i%2?0xff68a8:0x58cfff,.45,.03));pennant.position.set(x,1.72,z);pennant.rotation.y=-a;scene.add(pennant);
-  }
-  // Rotating central hub, lower jump bar and upper clearance bar.
-  const hub=new THREE.Mesh(new THREE.CylinderGeometry(.34,.44,.65,24),mat(0xffb62f,.32,.35));hub.position.y=.75;hub.castShadow=true;scene.add(hub);
-  const hubTop=new THREE.Mesh(new THREE.SphereGeometry(.38,20,14),mat(0xffdf62,.27,.3));hubTop.position.y=1.12;scene.add(hubTop);
-  lowerPivot=new THREE.Group();lowerPivot.position.y=.89;scene.add(lowerPivot);
-  upperPivot=new THREE.Group();upperPivot.position.y=2.38;scene.add(upperPivot);
-  makeBeam(lowerPivot, .145, 12.85, 0xffbd42);
-  makeBeam(upperPivot, .255, 12.55, 0xffd66a);
-  for(const p of [lowerPivot,upperPivot]){
-    const center=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.22,24),mat(0xffe47b,.28,.3));center.position.y=0;p.add(center);
-  }
-  // Distant soft cloud props add scale without copying game art.
-  const cloudMat=mat(0xfff4fb,.95,0);
-  for(let i=0;i<11;i++){
-    const a=i*TAU/11+.2,r=17+(i%3)*1.6,x=Math.cos(a)*r,z=Math.sin(a)*r,y=5+(i%4)*.65;
-    const cloud=new THREE.Group();
-    for(let j=0;j<4;j++){const m=new THREE.Mesh(new THREE.SphereGeometry(.65+(j%2)*.15,14,10),cloudMat);m.position.set((j-1.5)*.62,Math.sin(j)*.18,0);m.scale.y=.66;cloud.add(m);}
-    cloud.position.set(x,y,z);cloud.scale.setScalar(.7+(i%3)*.13);scene.add(cloud);
-  }
-  // Subtle sky grid, more like a bright toy arena than a realistic scene.
-  const skyDome=new THREE.Mesh(new THREE.SphereGeometry(80,32,18),new THREE.MeshBasicMaterial({color:0xf3b6d2,side:THREE.BackSide}));scene.add(skyDome);
-}
-function makeBeam(parent,radius,length,color){
-  const body=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,length,24,1),mat(color,.28,.38,{metalness:.28}));body.rotation.z=Math.PI/2;body.castShadow=true;body.receiveShadow=true;parent.add(body);
-  const endMat=mat(0xff8d2d,.35,.25);
-  for(const s of [-1,1]){const end=new THREE.Mesh(new THREE.SphereGeometry(radius*1.04,14,10),endMat);end.position.x=s*length/2;parent.add(end);}
-  const stripeMat=mat(0xffef9c,.26,.35);
-  for(let x=-length/2+1.1;x<length/2-1;x+=1.6){const stripe=new THREE.Mesh(new THREE.TorusGeometry(radius*1.01,.025,6,18),stripeMat);stripe.rotation.y=Math.PI/2;stripe.position.x=x;parent.add(stripe);}
-}
-function buildPlayer(){
-  playerRoot=new THREE.Group();scene.add(playerRoot);beanGroup=new THREE.Group();playerRoot.add(beanGroup);
-  const bodyMat=mat(0x29c2df,.42,.02); const bellyMat=mat(0x34d8ef,.36,.02);const faceMat=mat(0xf4fdff,.28,0);const eyeMat=mat(0x21143a,.2,0);
-  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.58,7,18),bodyMat);torso.position.y=.76;torso.castShadow=true;beanGroup.add(torso);
-  const belly=new THREE.Mesh(new THREE.SphereGeometry(.30,20,14),bellyMat);belly.scale.set(1,.78,.38);belly.position.set(0,.7,.29);beanGroup.add(belly);
-  const face=new THREE.Mesh(new THREE.SphereGeometry(.255,22,14),faceMat);face.scale.set(1,.73,.25);face.position.set(0,1.18,.31);beanGroup.add(face);
-  for(const x of [-.092,.092]){const eye=new THREE.Mesh(new THREE.SphereGeometry(.046,12,10),eyeMat);eye.position.set(x,1.205,.53);beanGroup.add(eye);}
-  const footMat=mat(0x30204b,.8,0);
-  for(const x of [-.22,.22]){const foot=new THREE.Mesh(new THREE.SphereGeometry(.19,14,10),footMat);foot.scale.set(1,.62,1.25);foot.position.set(x,.13,.015);beanGroup.add(foot);}
-  const armMat=mat(0x22a9c8,.48,0);
-  for(const s of [-1,1]){const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.12,.36,4,12),armMat);arm.position.set(s*.43,.78,.01);arm.rotation.z=s*.28;beanGroup.add(arm);}
-  // Tiny player marker.
-  const marker=new THREE.Mesh(new THREE.ConeGeometry(.13,.25,12),mat(0xffee6e,.5,0));marker.position.set(0,1.78,0);marker.rotation.x=Math.PI;beanGroup.add(marker);
-}
-const player={pos:v3(0,FLOOR_Y+PLAYER_H/2,4.1),vel:v3(),yaw:0,grounded:true,stun:0,dive:0,falling:false,eliminated:false,landLock:0,barHitCooldown:0};
-function resetPlayer(){player.pos.set(0,FLOOR_Y+PLAYER_H/2,4.2);player.vel.set(0,0,0);player.yaw=0;player.grounded=true;player.stun=0;player.dive=0;player.falling=false;player.eliminated=false;player.landLock=0;player.barHitCooldown=0;player.jumpQueued=false;player.diveQueued=false;beanGroup.rotation.set(0,0,0);playerRoot.position.set(player.pos.x,player.pos.y-PLAYER_H/2,player.pos.z);}
-function resetRound(){
-  elapsed=0;roundLeft=300;nextDropAt=22;fallSequence=0;barPhase=0;lowerPivot.rotation.y=0;upperPivot.rotation.y=0;
-  tiles.forEach(t=>{t.state='solid';t.shake=0;t.dropTime=0;t.group.position.set(0,0,0);t.group.rotation.set(0,0,0);t.group.visible=true;});
-  resetPlayer();accumulator=0;showToast('READY!');
-}
-function beginGame(){resetRound();state='playing';screen.hidden=true;hud.style.display='block';$('pauseBtn').textContent='Ⅱ';lastFrame=performance.now();}
-function pauseGame(){if(state==='playing'){state='paused';screen.hidden=false;showMenu('PAUSED','一時停止中。準備ができたら続きから再開しよう。','RESUME');}else if(state==='paused'){state='playing';screen.hidden=true;$('bottomLeft').style.display='';lastFrame=performance.now();}}
-function showMenu(title,sub,buttonLabel){
-  const card=$('menuCard');card.querySelector('.kicker').textContent=title==='PAUSED'?'PAUSED':'ROUND RESULT';card.querySelector('h1').innerHTML=title==='PAUSED'?'GAME<br>PAUSED':title==='YOU WIN!'?'YOU<br>WIN!':'ELIMINATED';card.querySelector('.subtitle').textContent=sub;
-  $('playBtn').textContent=buttonLabel; $('playBtn').onclick=()=>{if(state==='paused'){state='playing';screen.hidden=true;lastFrame=performance.now();}else beginGame();};$('fullscreenBtn').textContent='RESTART ROUND';$('fullscreenBtn').onclick=()=>beginGame();$('bottomLeft').style.display='none';screen.hidden=false;
-}
-function showResult(win){state=win?'won':'lost';hud.style.display='none';screen.hidden=false;const card=$('menuCard');card.querySelector('.kicker').textContent='SOLO PRACTICE COMPLETE';card.querySelector('h1').innerHTML=win?'YOU<br>WIN!':'ELIMINATED';card.querySelector('.subtitle').textContent=win?'5分間生存！ジャンプ・ショーダウンをクリアした！':'足場かバーに捕まってしまった。もう一度挑戦しよう！';$('playBtn').textContent='PLAY AGAIN';$('playBtn').onclick=beginGame;$('fullscreenBtn').textContent='FULL SCREEN';$('fullscreenBtn').onclick=toggleFullscreen;}
-function showToast(text){toast.textContent=text;toast.classList.add('show');toastTimer=1.8;}
-function onResize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.65));}
-function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.().catch(()=>{});else document.exitFullscreen?.();}
+const $ = (id) => document.getElementById(id);
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const isMobile = matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-function bindInputs(){
-  $('pauseBtn').addEventListener('click',pauseGame);$('restartBtn').addEventListener('click',()=>{if(state==='playing'||state==='paused')beginGame();});
-  window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys.add(e.code);if(e.code==='Escape'&&state==='playing')pauseGame();},{passive:false});
-  window.addEventListener('keyup',e=>keys.delete(e.code));
-  renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){pointerDrag={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false};renderer.domElement.setPointerCapture?.(e.pointerId);}});
-  window.addEventListener('pointermove',e=>{if(pointerDrag&&e.pointerId===pointerDrag.id){const dx=e.clientX-pointerDrag.x,dy=e.clientY-pointerDrag.y;if(Math.abs(dx)+Math.abs(dy)>1)pointerDrag.moved=true;cameraYaw-=dx*.006;cameraPitch=clamp(cameraPitch+dy*.004,-.02,1.08);pointerDrag.x=e.clientX;pointerDrag.y=e.clientY;}});
-  window.addEventListener('pointerup',e=>{if(pointerDrag&&e.pointerId===pointerDrag.id)pointerDrag=null;});
-  renderer.domElement.addEventListener('wheel',e=>{cameraDistance=clamp(cameraDistance+e.deltaY*.008,7,15);},{passive:true});
-  const layer=$('touchLayer'),base=$('joyBase'),knob=$('joyKnob');
-  layer.addEventListener('pointerdown',e=>{
-    if(e.pointerType==='mouse')return; const side=e.clientX<innerWidth*.5?'left':'right';
-    touches.set(e.pointerId,{side,startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,moved:false});layer.setPointerCapture?.(e.pointerId);
-    e.preventDefault();
-  },{passive:false});
-  layer.addEventListener('pointermove',e=>{
-    const t=touches.get(e.pointerId);if(!t)return;t.x=e.clientX;t.y=e.clientY;
-    const dx=e.clientX-t.startX,dy=e.clientY-t.startY,dist=Math.hypot(dx,dy);
-    if(dist>10)t.moved=true;
-    if(t.side==='left'&&t.moved){const l=Math.min(1,dist/57);stick.x=clamp(dx/57,-1,1);stick.y=clamp(-dy/57,-1,1);base.style.display='block';base.style.left=t.startX+'px';base.style.top=t.startY+'px';knob.style.transform=`translate(${clamp(dx,-57,57)}px,${clamp(dy,-57,57)}px)`;}
-    else if(t.side==='right'&&t.moved){look.x=dx;look.y=dy;cameraYaw-=dx*.006;cameraPitch=clamp(cameraPitch+dy*.004,-.02,1.08);t.startX=e.clientX;t.startY=e.clientY;}
-    e.preventDefault();
-  },{passive:false});
-  const releaseTouch=e=>{const t=touches.get(e.pointerId);if(!t)return;const dx=e.clientX-t.startX,dy=e.clientY-t.startY;
-    if(t.side==='right'&&!t.moved&&state==='playing'){if(e.clientY<innerHeight*.48)requestDive();else requestJump();}
-    if(t.side==='left'){stick.x=0;stick.y=0;base.style.display='none';knob.style.transform='translate(0,0)';}
-    touches.delete(e.pointerId);e.preventDefault();
-  };
-  layer.addEventListener('pointerup',releaseTouch,{passive:false});layer.addEventListener('pointercancel',releaseTouch,{passive:false});
-  window.addEventListener('blur',()=>{keys.clear();stick.x=stick.y=0;});
-}
-function requestJump(){player.jumpQueued=true;}
-function requestDive(){player.diveQueued=true;}
+const ui = {
+  hud: $('hud'), menu: $('menu-screen'), controls: $('controls-screen'), pause: $('pause-screen'), result: $('result-screen'),
+  touch: $('touch-input'), stickBase: $('stick-base'), stickKnob: $('stick-knob'), centerCount: $('center-count'),
+  timer: $('timer'), phase: $('phase-label'), roundName: $('round-name'), roundSub: $('round-sub'), objective: $('objective'),
+  notice: $('notice'), bottomHelp: $('bottom-help')
+};
 
-function readInput(dt){
-  let mx=0,my=0,lx=0,ly=0;
-  if(keys.has('KeyA')||keys.has('ArrowLeft'))mx-=1;if(keys.has('KeyD')||keys.has('ArrowRight'))mx+=1;
-  if(keys.has('KeyW')||keys.has('ArrowUp'))my+=1;if(keys.has('KeyS')||keys.has('ArrowDown'))my-=1;
-  if(Math.abs(stick.x)+Math.abs(stick.y)>.05){mx=stick.x;my=stick.y;}
-  let jump=!!(keys.has('Space')||keys.has('KeyZ')),dive=!!(keys.has('ControlLeft')||keys.has('ControlRight')||keys.has('ShiftLeft')||keys.has('ShiftRight')||keys.has('KeyX'));
-  const pads=navigator.getGamepads?.()||[];let pad=null;for(const p of pads){if(p&&p.connected){pad=p;break;}}
-  if(pad){const dz=x=>Math.abs(x)<.16?0:(Math.abs(x)-.16)/.84*Math.sign(x);mx=dz(pad.axes?.[0]||0);my=-dz(pad.axes?.[1]||0);lx=dz(pad.axes?.[2]||0);ly=dz(pad.axes?.[3]||0);jump=jump||!!pad.buttons?.[0]?.pressed;dive=dive||!!pad.buttons?.[1]?.pressed;}
-  if(lx||ly){cameraYaw-=lx*2.4*dt;cameraPitch=clamp(cameraPitch+ly*1.9*dt,-.02,1.08);}
-  return {mx:clamp(mx,-1,1),my:clamp(my,-1,1),jump,dive};
+const renderer = new THREE.WebGLRenderer({ canvas: $('scene'), antialias: true, alpha: false, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, isMobile ? 1.5 : 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.12;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x8bcdf5);
+scene.fog = new THREE.Fog(0x9acdf0, 32, 95);
+const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 180);
+
+const hemi = new THREE.HemisphereLight(0xe9f6ff, 0x8564a0, 2.1); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff4dd, 3.0); sun.position.set(-13, 22, 12); sun.castShadow = true;
+sun.shadow.mapSize.set(1536, 1536); sun.shadow.camera.left = -18; sun.shadow.camera.right = 18; sun.shadow.camera.top = 18; sun.shadow.camera.bottom = -18; sun.shadow.bias = -0.0005; scene.add(sun);
+
+const world = new THREE.Group(); scene.add(world);
+const arena = new THREE.Group(); world.add(arena);
+const decor = new THREE.Group(); world.add(decor);
+
+function mat(color, roughness=0.76, metalness=0) { return new THREE.MeshStandardMaterial({ color, roughness, metalness }); }
+const mats = {
+  blue: mat(0x188ed8), blue2: mat(0x249fdf), purple: mat(0x7653bb), purple2: mat(0x8a62cc),
+  gold: mat(0xffc64d, .42, .18), goldDark: mat(0xc98025, .48, .14), pink: mat(0xff4b9d, .38), green: mat(0x4ce2a0, .42),
+  orange: mat(0xff9a38, .52), white: mat(0xffffff, .42), dark: mat(0x231a39, .48), slime: mat(0xff4ca8, .32),
+  rail: mat(0xffc35c, .45, .12), cloud: mat(0xf7fbff, .95)
+};
+
+// Large pink slime plane and atmospheric scenery.
+const slime = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), mats.slime);
+slime.rotation.x = -Math.PI / 2; slime.position.y = -8.5; slime.receiveShadow = true; world.add(slime);
+const distantDisc = new THREE.Mesh(new THREE.CircleGeometry(45, 64), mat(0xff80c4));
+distantDisc.rotation.x = -Math.PI/2; distantDisc.position.y = -8.42; world.add(distantDisc);
+
+function makeCloud(x,y,z,s=1) {
+  const g = new THREE.Group();
+  for (const [px,py,pz,r] of [[0,0,0,1],[.75,.05,.05,.72],[-.72,-.08,0,.62],[.15,.38,-.05,.64]]) {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r*s, 12, 10), mats.cloud);
+    m.position.set(px*s,py*s,pz*s); m.scale.y=.72; g.add(m);
+  }
+  g.position.set(x,y,z); decor.add(g);
+}
+for (let i=0;i<14;i++) {
+  const a=i/14*TAU, r=25+(i%3)*4;
+  makeCloud(Math.cos(a)*r, 7+(i%4)*2, Math.sin(a)*r, 1.15+(i%3)*.25);
 }
 
-function currentTileAt(x,z){const r=Math.hypot(x,z);if(r<INNER_R-.10||r>OUTER_R+.1)return null;let a=Math.atan2(-z,x);if(a<0)a+=TAU;return Math.floor(a/TAU*TILE_COUNT)%TILE_COUNT;}
-function platformAliveAt(x,z){const id=currentTileAt(x,z);if(id===null)return false;return tiles[id].state==='solid'||tiles[id].state==='shaking';}
-function stepPhysics(dt,input){
-  if(state!=='playing')return;
-  elapsed+=dt;roundLeft=Math.max(0,300-elapsed);
-  const tileId=currentTileAt(player.pos.x,player.pos.z);
-  const hasFloor=tileId!==null&&platformAliveAt(player.pos.x,player.pos.z);
-  const inArena=Math.hypot(player.pos.x,player.pos.z)<OUTER_R+.25;
-  // Tile warnings and delayed collapse. The final two platforms are preserved.
-  const solid=tiles.filter(t=>t.state==='solid'||t.state==='shaking');
-  if(solid.length>2&&elapsed>=nextDropAt){const candidates=solid.filter(t=>t.state==='solid');if(candidates.length){const pick=candidates[Math.floor(Math.random()*candidates.length)];pick.state='shaking';pick.shake=0;fallSequence++;nextDropAt=elapsed+Math.max(13,22-fallSequence*.8)+Math.random()*5;showToast('FLOOR WARNING!');}}
-  for(const t of tiles){
-    if(t.state==='shaking'){t.shake+=dt;const q=Math.sin(t.shake*32)*Math.min(.12,t.shake*.025);t.group.position.y=q;if(t.shake>=3){t.state='falling';t.dropTime=0;}}
-    else if(t.state==='falling'){t.dropTime+=dt;t.group.position.y-=dt*(1.2+t.dropTime*3.3);t.group.rotation.z=Math.sin(t.index*2+t.dropTime*3)*Math.min(.2,t.dropTime*.12);if(t.group.position.y<-7){t.state='gone';t.group.visible=false;}}
+const OUTER_R = 9.25, INNER_R = 2.05, TILE_COUNT = 8;
+let floorTiles = [], beams = [], player = null, currentMode = 'club';
+let roundState = 'menu', roundElapsed = 0, countdown = 0, duration = 90, accumulator = 0, lastFrame = performance.now();
+let nextTileWarning = 12.5, lastBarHit = -10, paused = false, viewNear = false;
+let selectedMode = 'club';
+
+function makeSectorGeometry(index) {
+  const a0 = index/TILE_COUNT*TAU + .012;
+  const a1 = (index+1)/TILE_COUNT*TAU - .012;
+  const steps = 12, positions = [];
+  for (let i=0;i<steps;i++) {
+    const t0=lerp(a0,a1,i/steps), t1=lerp(a0,a1,(i+1)/steps);
+    const p=(r,a)=>[r*Math.cos(a),0,r*Math.sin(a)];
+    const ip0=p(INNER_R,t0), op0=p(OUTER_R,t0), ip1=p(INNER_R,t1), op1=p(OUTER_R,t1);
+    // Winding is reversed so the top surface normal points upward.
+    positions.push(...ip0,...op1,...op0, ...ip0,...ip1,...op1);
   }
-  // Character movement in camera-relative horizontal coordinates.
-  if(player.stun>0)player.stun=Math.max(0,player.stun-dt);if(player.barHitCooldown>0)player.barHitCooldown=Math.max(0,player.barHitCooldown-dt);
-  const moving=Math.hypot(input.mx,input.my)>.08;
-  const forward=v3(Math.sin(cameraYaw),0,Math.cos(cameraYaw));const right=v3(Math.cos(cameraYaw),0,-Math.sin(cameraYaw));
-  let desired=v3().addScaledVector(right,input.mx).addScaledVector(forward,input.my);if(desired.lengthSq()>1)desired.normalize();
-  const maxSpeed=player.dive>0?8.2:5.25;const accel=player.stun>0?0:19;
-  player.vel.x=damp(player.vel.x,desired.x*maxSpeed,accel,dt);player.vel.z=damp(player.vel.z,desired.z*maxSpeed,accel,dt);
-  if(!moving&&player.grounded){player.vel.x=damp(player.vel.x,0,13,dt);player.vel.z=damp(player.vel.z,0,13,dt);}
-  if(moving&&player.stun<=0){player.yaw=Math.atan2(desired.x,desired.z);}
-  if((input.jump||player.jumpQueued)&&player.grounded&&player.stun<=0&&!player.eliminated){player.vel.y=7.45;player.grounded=false;player.jumpQueued=false;}
-  if((input.dive||player.diveQueued)&&!player.eliminated&&player.dive<=0){const dir=moving?desired:v3(Math.sin(player.yaw),0,Math.cos(player.yaw));player.vel.x+=dir.x*5.8;player.vel.z+=dir.z*5.8;player.vel.y=Math.max(player.vel.y,1.6);player.dive=.48;player.grounded=false;player.diveQueued=false;}
-  if(player.dive>0)player.dive=Math.max(0,player.dive-dt);
-  // Gravity and integration.
-  player.vel.y-=18.5*dt;player.pos.addScaledVector(player.vel,dt);
-  const nowTile=currentTileAt(player.pos.x,player.pos.z),floorOk=nowTile!==null&&platformAliveAt(player.pos.x,player.pos.z);
-  if(floorOk&&player.pos.y-PLAYER_H/2<=FLOOR_Y&&player.vel.y<=0){player.pos.y=FLOOR_Y+PLAYER_H/2;player.vel.y=0;player.grounded=true;}
-  else player.grounded=false;
-  // Double-bar contacts: finite rotating segments approximated as swept capsules.
-  checkBeamHit(lowerPivot,.145,.89,false,dt);
-  checkBeamHit(upperPivot,.255,2.38,true,dt);
-  // Mild horizontal damping while airborne; never allow impossible infinite speed.
-  if(!player.grounded){player.vel.x*=Math.pow(.995,dt*60);player.vel.z*=Math.pow(.995,dt*60);}
-  const speed=Math.hypot(player.vel.x,player.vel.z);if(speed>10.5){player.vel.x*=10.5/speed;player.vel.z*=10.5/speed;}
-  if(player.pos.y<-3.6&&!player.eliminated){player.eliminated=true;showResult(false);}
-  if(roundLeft<=0&&state==='playing'){showResult(true);}
-}
-function checkBeamHit(pivot,radius,height,isUpper,dt){
-  if(player.barHitCooldown>0)return;
-  // Local-space bar runs along X; rotate into world space around the Y axis.
-  const a=pivot.rotation.y, c=Math.cos(a),s=Math.sin(a);
-  const lx=player.pos.x*c-player.pos.z*s, lz=player.pos.x*s+player.pos.z*c;
-  const half=6.42;if(Math.abs(lx)>half+PLAYER_R)return;
-  const side=Math.abs(lz),verticalGap=Math.abs(player.pos.y-(height));
-  const playerBottom=player.pos.y-PLAYER_H/2,playerTop=player.pos.y+PLAYER_H/2;
-  const barBottom=height-radius,barTop=height+radius;
-  const verticalOverlap=playerBottom<barTop&&playerTop>barBottom;
-  if(side>radius+PLAYER_R||!verticalOverlap)return;
-  if(isUpper){
-    // Upper beam is mainly a head-clearance hazard while the player is airborne.
-    if(player.grounded||playerBottom>barTop+.08)return;
-  }
-  // A short impulse and a stumble state communicate a physical hit.
-  const sign=Math.sign(pivot===lowerPivot?1:1);const tangentX=-player.pos.z,tangentZ=player.pos.x;const len=Math.hypot(tangentX,tangentZ)||1;
-  const omega=pivot===lowerPivot?barSpeed:barSpeed*.24;player.barHitCooldown=.58;
-  player.vel.x+=(tangentX/len)*omega*2.6*sign;player.vel.z+=(tangentZ/len)*omega*2.6*sign;
-  if(!isUpper){player.vel.y=Math.max(player.vel.y,2.1);player.stun=Math.max(player.stun,.52);}else{player.vel.y=Math.min(player.vel.y,-1.4);player.stun=Math.max(player.stun,.35);}
-}
-let barSpeed=.72;
-function updateRound(dt){
-  if(state!=='playing')return;
-  const speedFactor=1+Math.min(1,elapsed/300)*.8;barSpeed=.72*speedFactor;
-  lowerPivot.rotation.y+=barSpeed*dt;upperPivot.rotation.y+=barSpeed*.24*dt;
-  const solidCount=tiles.filter(t=>t.state==='solid'||t.state==='shaking').length;
-  $('timer').textContent=`${Math.floor(roundLeft/60)}:${String(Math.ceil(roundLeft%60)).padStart(2,'0')}`;
-  $('tilesCount').textContent=`${solidCount} / 8`;$('speed').textContent=speedFactor.toFixed(1)+'×';
-  if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)toast.classList.remove('show');}
-}
-function updateVisuals(dt){
-  playerRoot.position.set(player.pos.x,player.pos.y-PLAYER_H/2,player.pos.z);playerRoot.rotation.y=player.yaw;
-  const fallTilt=player.stun>0?Math.sin(elapsed*30)*.22:0;
-  beanGroup.rotation.z=damp(beanGroup.rotation.z,fallTilt,12,dt);
-  const bob=player.grounded?Math.sin(elapsed*10)*.025:0;beanGroup.position.y=bob;
-  const moving=Math.hypot(player.vel.x,player.vel.z);beanGroup.rotation.x=damp(beanGroup.rotation.x,player.dive>0?-.55:0,10,dt);
-  // A slight camera shake on platform collapse.
-  if(tiles.some(t=>t.state==='falling'&&t.dropTime<.8))camera.position.y+=Math.sin(elapsed*32)*.003;
-}
-function updateCamera(dt){
-  const target=v3(player.pos.x,player.pos.y+.48,player.pos.z);cameraTarget.lerp(target,1-Math.exp(-6*dt));
-  const horiz=Math.cos(cameraPitch)*cameraDistance, y=Math.sin(cameraPitch)*cameraDistance;
-  const pos=v3(cameraTarget.x-Math.sin(cameraYaw)*horiz,cameraTarget.y+y,cameraTarget.z-Math.cos(cameraYaw)*horiz);
-  camera.position.lerp(pos,1-Math.exp(-7*dt));camera.lookAt(cameraTarget);
-}
-function loop(now=performance.now()){
-  raf=requestAnimationFrame(loop);const dt=Math.min(.05,(now-lastFrame)/1000||0);lastFrame=now;
-  if(state==='playing'){
-    accumulator+=dt;const input=readInput(dt);let steps=0;
-    while(accumulator>=FIXED_DT&&steps<8){stepPhysics(FIXED_DT,input);updateRound(FIXED_DT);accumulator-=FIXED_DT;steps++;if(state!=='playing')break;}
-    if(steps===8)accumulator=0;
-    updateVisuals(dt);
-  }
-  updateCamera(dt);renderer.render(scene,camera);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geo.computeVertexNormals();
+  return geo;
 }
 
-// Startup / page lifecycle.
-init();
-playBtn.onclick=beginGame;
-$('fullscreenBtn').onclick=toggleFullscreen;
-window.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pauseGame();});
+function makeBeam(color, radius, y, length, index) {
+  const group = new THREE.Group();
+  group.position.y = y;
+  const geo = new THREE.CylinderGeometry(radius, radius, length, 28, 1, false);
+  geo.rotateZ(Math.PI/2);
+  const beamMat = color === 'pink' ? mats.pink : color === 'green' ? mats.green : mats.gold;
+  const body = new THREE.Mesh(geo, beamMat); body.castShadow = true; body.receiveShadow = true; group.add(body);
+  const capGeo = new THREE.SphereGeometry(radius*1.18, 16, 12);
+  for (const s of [-1,1]) { const cap=new THREE.Mesh(capGeo,beamMat); cap.position.x=s*length/2; cap.scale.x=.75; group.add(cap); }
+  if (color === 'gold') {
+    // Small raised arrow chevrons to make rotation direction readable.
+    for (let x=-3.2;x<=3.2;x+=1.6) {
+      const mark = new THREE.Mesh(new THREE.BoxGeometry(.36,.025,.11), mats.white);
+      mark.position.set(x, radius*.83, 0); mark.rotation.y=.18; group.add(mark);
+    }
+  }
+  group.userData = { index, angle: index===0?0:Math.PI*.34, speed: 0, y, radius, length };
+  arena.add(group); return group;
+}
+
+function makeArena(mode) {
+  while (arena.children.length) {
+    const c=arena.children[0];
+    arena.remove(c);
+    c.traverse?.(o=>{ if(o.geometry) o.geometry.dispose(); });
+  }
+  floorTiles=[]; beams=[];
+  const base = new THREE.Group(); arena.add(base);
+  for (let i=0;i<TILE_COUNT;i++) {
+    const color = mode==='showdown' ? (i%2===0?mats.blue:mats.gold) : (i%2===0?mats.blue:mats.purple);
+    const mesh = new THREE.Mesh(makeSectorGeometry(i),color);
+    mesh.position.y=0; mesh.castShadow=true; mesh.receiveShadow=true; base.add(mesh);
+    const side = new THREE.Mesh(new THREE.CylinderGeometry(OUTER_R,OUTER_R,.34,12,1,true, i/TILE_COUNT*TAU, TAU/TILE_COUNT), color);
+    // Geometry side walls are intentionally subtle; custom ring sectors carry the visible floor.
+    side.visible=false;
+    floorTiles.push({index:i,mesh,state:'solid',y:0,fallV:0,warning:0,falling:false});
+  }
+  // Inner lip and outer guard ring.
+  const innerLip = new THREE.Mesh(new THREE.TorusGeometry(INNER_R,.18,12,64),mats.goldDark);
+  innerLip.rotation.x=Math.PI/2; innerLip.position.y=.08; arena.add(innerLip);
+  const outerRail = new THREE.Mesh(new THREE.TorusGeometry(OUTER_R+.12,.20,14,96),mats.rail);
+  outerRail.rotation.x=Math.PI/2; outerRail.position.y=.35; outerRail.castShadow=true; arena.add(outerRail);
+  for(let i=0;i<16;i++) {
+    const a=i/16*TAU, post=new THREE.Mesh(new THREE.CylinderGeometry(.14,.18,.72,10),mats.orange);
+    post.position.set(Math.cos(a)*(OUTER_R+.12),.04,Math.sin(a)*(OUTER_R+.12)); post.castShadow=true; arena.add(post);
+  }
+  // Central support housing below the open hole.
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(.9,.95,1.15,24),mats.goldDark);
+  hub.position.y=-.95; hub.castShadow=true; arena.add(hub);
+  const hubCap = new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,.16,32),mats.gold);
+  hubCap.position.y=-.34; arena.add(hubCap);
+  if(mode==='club') {
+    beams.push(makeBeam('green',.20,.72,18.25,0));
+    beams.push(makeBeam('pink',.43,2.16,18.25,1));
+  } else {
+    beams.push(makeBeam('gold',.26,.80,18.25,0));
+    beams.push(makeBeam('gold',.43,2.16,18.25,1));
+  }
+  // Side-mounted orange support stanchions.
+  for(let i=0;i<4;i++) {
+    const a=i/4*TAU+Math.PI/4;
+    const x=Math.cos(a)*9.0,z=Math.sin(a)*9.0;
+    const pole=new THREE.Mesh(new THREE.CylinderGeometry(.13,.18,2.55,12),mats.orange);
+    pole.position.set(x,1.0,z); pole.castShadow=true; arena.add(pole);
+  }
+}
+
+function makeBean() {
+  const root = new THREE.Group();
+  const bodyMat = mat(0x2ce0bf,.55);
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(.40,.63,7,16),bodyMat);
+  body.position.y=.77; body.castShadow=true; root.add(body);
+  const face = new THREE.Mesh(new THREE.SphereGeometry(1,20,14),mat(0x17172b,.28));
+  face.scale.set(.255,.30,.095); face.position.set(0,.91,-.365); root.add(face);
+  const eyeMat=mat(0xffffff,.26), pupilMat=mat(0x161324,.3);
+  for(const x of [-.09,.09]) {
+    const eye=new THREE.Mesh(new THREE.SphereGeometry(.055,12,10),eyeMat); eye.position.set(x,.97,-.445); root.add(eye);
+    const pupil=new THREE.Mesh(new THREE.SphereGeometry(.027,10,8),pupilMat); pupil.position.set(x,.966,-.492); root.add(pupil);
+  }
+  const belly = new THREE.Mesh(new THREE.SphereGeometry(.19,14,10),mat(0x91f7e1,.6));
+  belly.scale.set(1,.78,.2); belly.position.set(0,.49,-.05); root.add(belly);
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(.56,24),new THREE.MeshBasicMaterial({color:0x18213c,transparent:true,opacity:.23,depthWrite:false}));
+  shadow.rotation.x=-Math.PI/2; shadow.position.y=.025; root.add(shadow);
+  arena.add(root);
+  return {root, body, bodyMat, x:0,z:5.2,y:0,vx:0,vz:0,vy:0,grounded:true,standingIndex:-1,stun:0,diveTimer:0,diveCooldown:0,jumpBuffer:0,coyote:.1,lastGround:0, hitCooldown:0, bob:0, tilt:0};
+}
+
+function setupRound(mode) {
+  currentMode=mode; roundElapsed=0; countdown=3.2; accumulator=0; nextTileWarning=12.5; lastBarHit=-10;
+  duration=mode==='club'?90:300;
+  paused=false; roundState='countdown'; viewNear=false;
+  makeArena(mode);
+  if(player) { arena.remove(player.root); }
+  player=makeBean(); player.x=0; player.z=5.1; player.y=0; player.vx=player.vz=player.vy=0; player.grounded=true;
+  player.root.position.set(player.x,player.y,player.z);
+  cameraYaw=0; cameraPitch=.38;
+  ui.hud.classList.remove('hidden'); ui.touch.classList.toggle('hidden',!isMobile);
+  ui.roundName.textContent=mode==='club'?'JUMP CLUB':'JUMP SHOWDOWN';
+  ui.roundSub.textContent=mode==='club'?'SURVIVAL · SOLO PRACTICE':'FINAL · SOLO PRACTICE';
+  ui.objective.textContent=mode==='club'?'下段バーをジャンプ！ 上段バーにも注意！':'床が崩れる前に移動し、金色のバーを避けろ！';
+  ui.phase.textContent='GET READY'; ui.centerCount.textContent='3';
+  updateTimer();
+  $('menu-screen').classList.add('hidden'); $('pause-screen').classList.add('hidden'); $('result-screen').classList.add('hidden');
+  toast(mode==='club'?'ジャンプ・クラブ開始！':'ジャンプ・ショーダウン開始！');
+}
+
+function updateTimer() {
+  const left=Math.max(0,duration-roundElapsed);
+  const mm=Math.floor(left/60), ss=Math.floor(left%60);
+  ui.timer.textContent=`${mm}:${String(ss).padStart(2,'0')}`;
+}
+
+function tileAt(x,z) {
+  const r=Math.hypot(x,z);
+  if(r<INNER_R+.03 || r>OUTER_R-.03) return null;
+  let a=Math.atan2(z,x); if(a<0)a+=TAU;
+  const i=Math.min(TILE_COUNT-1,Math.floor(a/TAU*TILE_COUNT));
+  const t=floorTiles[i];
+  if(!t || t.state==='gone') return null;
+  return t;
+}
+
+function triggerTileFall() {
+  const candidates=floorTiles.filter(t=>t.state==='solid' || t.state==='warning');
+  if(candidates.length<=2) return;
+  let chosen=candidates[Math.floor(Math.random()*candidates.length)];
+  if(chosen.state==='warning') return;
+  chosen.state='warning'; chosen.warning=2.3;
+  toast(`足場 ${chosen.index+1} が揺れている！`);
+}
+
+function updateTiles(dt) {
+  if(currentMode!=='showdown') return;
+  if(roundElapsed>=nextTileWarning) {
+    triggerTileFall();
+    nextTileWarning += Math.max(10.5,16.5-roundElapsed*.009) + Math.random()*2.5;
+  }
+  for(const t of floorTiles) {
+    if(t.state==='warning') {
+      t.warning-=dt;
+      const shake=Math.sin((2.3-t.warning)*38)*.055;
+      t.mesh.position.x=shake; t.mesh.position.z=Math.cos((2.3-t.warning)*34)*.045;
+      if(t.warning<=0) { t.state='falling'; t.fallV=-.8; t.falling=true; toast(`足場 ${t.index+1} が落下！`); }
+    } else if(t.state==='falling') {
+      t.fallV-=13*dt; t.y+=t.fallV*dt; t.mesh.position.y=t.y;
+      t.mesh.rotation.x += dt*.22; t.mesh.rotation.z += dt*.13;
+      if(t.y < -9) { t.state='gone'; t.mesh.visible=false; t.mesh.position.set(0,-10,0); }
+    }
+  }
+}
+
+let cameraYaw=0, cameraPitch=.38, cameraDistance=9.7;
+function updateCamera(dt) {
+  if(!player) return;
+  const target=new THREE.Vector3(player.x,player.y+1.05,player.z);
+  const dist=viewNear?5.4:cameraDistance;
+  const cp=Math.cos(cameraPitch), sp=Math.sin(cameraPitch);
+  const offset=new THREE.Vector3(Math.sin(cameraYaw)*dist*cp,dist*sp,Math.cos(cameraYaw)*dist*cp);
+  const desired=target.clone().add(offset);
+  camera.position.lerp(desired,1-Math.exp(-dt*8));
+  camera.lookAt(target);
+}
+
+function hitBeam(beam, dt) {
+  const d=beam.userData, angle=d.angle;
+  const c=Math.cos(angle), s=Math.sin(angle);
+  const along=player.x*c-player.z*s;
+  const across=player.x*s+player.z*c;
+  if(Math.abs(along)>d.length*.5+.35 || Math.abs(across)>.65) return false;
+  const pBottom=player.y, pTop=player.y+1.5;
+  if(pTop<d.y-d.radius || pBottom>d.y+d.radius) return false;
+  if(roundElapsed-lastBarHit<.72 || player.stun>0) return true;
+  lastBarHit=roundElapsed;
+  const sign=across>=0?1:-1;
+  const tangentX=-Math.sin(angle), tangentZ=-Math.cos(angle);
+  const normalX=Math.sin(angle)*sign, normalZ=Math.cos(angle)*sign;
+  const spinSign=Math.sign(d.speed)||1;
+  player.vx += normalX*2.4 + tangentX*spinSign*3.1;
+  player.vz += normalZ*2.4 + tangentZ*spinSign*3.1;
+  player.vy=Math.max(player.vy,2.2);
+  player.stun=.62; player.grounded=false; player.standingIndex=-1;
+  toast('バーに当たった！');
+  return true;
+}
+
+function physicsStep(dt, input) {
+  if(!player || roundState!=='playing') return;
+  updateTiles(dt);
+  const progress=clamp(roundElapsed/92,0,1);
+  for(let i=0;i<beams.length;i++) {
+    const b=beams[i].userData;
+    const clubBase=i===0?.78:.42;
+    const speed=clubBase + progress*(i===0?.85:.53);
+    b.speed=speed;
+    b.angle+=speed*dt;
+    beams[i].rotation.y=b.angle;
+  }
+
+  player.jumpBuffer=Math.max(0,player.jumpBuffer-dt);
+  player.coyote=player.grounded?.11:Math.max(0,player.coyote-dt);
+  player.stun=Math.max(0,player.stun-dt);
+  player.diveCooldown=Math.max(0,player.diveCooldown-dt);
+  player.diveTimer=Math.max(0,player.diveTimer-dt);
+  player.hitCooldown=Math.max(0,player.hitCooldown-dt);
+
+  const moveX=input.x, moveY=input.y;
+  // Follow a platform while standing on it as it begins to collapse.
+  if(player.grounded && player.standingIndex>=0) {
+    const standing=floorTiles[player.standingIndex];
+    const under=tileAt(player.x,player.z);
+    if(standing && standing.state==='falling' && under?.index===standing.index) {
+      player.y=standing.y; player.vy=standing.fallV;
+    }
+  }
+  // Camera-relative movement; original Roll Off defaults are WASD / Space / Ctrl.
+  const fx=-Math.sin(cameraYaw), fz=-Math.cos(cameraYaw);
+  const rx=Math.cos(cameraYaw), rz=-Math.sin(cameraYaw);
+  let wishX=rx*moveX+fx*(-moveY), wishZ=rz*moveX+fz*(-moveY);
+  const wl=Math.hypot(wishX,wishZ); if(wl>1){wishX/=wl;wishZ/=wl;}
+  if(player.stun<=0) {
+    const maxSpeed=6.15, accel=player.grounded?29:13.5;
+    const targetVX=wishX*maxSpeed, targetVZ=wishZ*maxSpeed;
+    player.vx += (targetVX-player.vx)*Math.min(1,accel*dt/Math.max(1,maxSpeed));
+    player.vz += (targetVZ-player.vz)*Math.min(1,accel*dt/Math.max(1,maxSpeed));
+    if(wl<.05 && player.grounded) { player.vx*=Math.exp(-7.5*dt); player.vz*=Math.exp(-7.5*dt); }
+  } else { player.vx*=Math.exp(-1.2*dt); player.vz*=Math.exp(-1.2*dt); }
+
+  if(input.jump) player.jumpBuffer=.13;
+  if(player.jumpBuffer>0 && player.coyote>0 && player.stun<=0) {
+    player.vy=8.35; player.grounded=false; player.coyote=0; player.jumpBuffer=0; player.standingIndex=-1;
+    player.diveTimer=0; toast('JUMP!');
+  }
+  if(input.dive && player.diveCooldown<=0 && player.stun<=0) {
+    player.diveCooldown=.85; player.diveTimer=.52;
+    let dx=wishX, dz=wishZ;
+    if(Math.hypot(dx,dz)<.1) { dx=-Math.sin(cameraYaw); dz=-Math.cos(cameraYaw); }
+    player.vx+=dx*3.7; player.vz+=dz*3.7;
+    player.vy=Math.max(player.vy,-1.3);
+  }
+  if(player.diveTimer>0) { player.vy-=2.6*dt; }
+  player.vy-=21.5*dt;
+  player.x+=player.vx*dt; player.z+=player.vz*dt;
+  player.y+=player.vy*dt;
+
+  // If standing on a collapsing tile, its height follows the physical platform.
+  const tile=tileAt(player.x,player.z);
+  let floorY=tile?tile.y:null;
+  const wasGrounded=player.grounded;
+  if(floorY!==null && player.vy<=0 && player.y<=floorY+.06) {
+    player.y=floorY; player.vy=0; player.grounded=true; player.standingIndex=tile.index; player.coyote=.11;
+  } else {
+    player.grounded=false;
+    if(!player.grounded) player.standingIndex=-1;
+  }
+  if(player.y< -9.4) { finishRound(false,'落下してしまった…'); return; }
+
+  // Beam collisions use the same rotating-bar layout as the rendered meshes.
+  for(const b of beams) hitBeam(b,dt);
+
+  // Lean and simple squash/stretch feedback.
+  const speed=Math.hypot(player.vx,player.vz);
+  const lean=clamp(-player.vx*.045,-.28,.28);
+  player.root.rotation.z=lerp(player.root.rotation.z,lean,Math.min(1,dt*8));
+  player.root.rotation.x=lerp(player.root.rotation.x,player.diveTimer>0?-.9:(player.stun>0?.35:0),Math.min(1,dt*9));
+  player.root.position.set(player.x,player.y,player.z);
+  player.bob+=dt*(5+speed*1.5);
+  player.body.scale.y=player.diveTimer>0?.82:lerp(player.body.scale.y,1+Math.sin(player.bob)*.018,dt*7);
+  if(speed>.2) player.root.rotation.y=lerpAngle(player.root.rotation.y,Math.atan2(player.vx,-player.vz),Math.min(1,dt*9));
+}
+
+function lerpAngle(a,b,t) { let d=((b-a+Math.PI*3)%TAU)-Math.PI; return a+d*t; }
+
+function readInput() {
+  let x=0,y=0,jump=jumpQueued,dive=diveQueued;
+  jumpQueued=false; diveQueued=false;
+  if(keys.has('KeyA')||keys.has('ArrowLeft')) x-=1;
+  if(keys.has('KeyD')||keys.has('ArrowRight')) x+=1;
+  if(keys.has('KeyW')||keys.has('ArrowUp')) y+=1;
+  if(keys.has('KeyS')||keys.has('ArrowDown')) y-=1;
+  if(keys.has('ControlLeft')||keys.has('ControlRight')) dive=true;
+  // Gamepad: source mapping uses button 0 for jump, 2 for dive.
+  const pads=navigator.getGamepads?.()||[];
+  const pad=Array.from(pads).find(Boolean);
+  if(pad) {
+    let ax=pad.axes[0]||0, ay=pad.axes[1]||0;
+    if(Math.hypot(ax,ay)>.14) { x+=ax; y+=-ay; }
+    const btn=(i)=>!!pad.buttons[i]?.pressed;
+    const nowJump=btn(0), nowDive=btn(2);
+    if(nowJump&&!padButtons.jump) jump=true;
+    if(nowDive&&!padButtons.dive) dive=true;
+    padButtons.jump=nowJump; padButtons.dive=nowDive;
+    const lookX=pad.axes[2]||0, lookY=pad.axes[3]||0;
+    if(Math.abs(lookX)>.18 || Math.abs(lookY)>.18) {
+      cameraYaw-=lookX*.045; cameraPitch=clamp(cameraPitch+lookY*.026,.16,.95);
+    }
+    if(btn(11)&&!padButtons.recenter) { cameraYaw=0; cameraPitch=.38; }
+    padButtons.recenter=btn(11);
+  } else { padButtons.jump=padButtons.dive=padButtons.recenter=false; }
+  // Virtual stick input is normalized by pointer movement and can override keyboard axes.
+  if(touchMove.active) { x=touchMove.x; y=touchMove.y; }
+  const len=Math.hypot(x,y); if(len>1){x/=len;y/=len;}
+  return {x,y,jump,dive};
+}
+
+const keys=new Set();
+let jumpQueued=false,diveQueued=false;
+const padButtons={jump:false,dive:false,recenter:false};
+const touchMove={active:false,x:0,y:0,pointerId:null,startX:0,startY:0};
+let touchRight=null, mouseLook=null;
+
+window.addEventListener('keydown',e=>{
+  if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  keys.add(e.code);
+  if(e.code==='Space'&&!e.repeat) jumpQueued=true;
+  if(e.code==='KeyV'&&!e.repeat) viewNear=!viewNear;
+  if(e.code==='Escape'&&!e.repeat) togglePause();
+},{passive:false});
+window.addEventListener('keyup',e=>keys.delete(e.code));
+window.addEventListener('blur',()=>{keys.clear();touchMove.active=false;});
+document.addEventListener('contextmenu',e=>e.preventDefault());
+
+function showStick(x,y,dx=0,dy=0) {
+  ui.stickBase.style.display='block'; ui.stickBase.style.left=`${x}px`; ui.stickBase.style.top=`${y}px`;
+  const radius=34, len=Math.hypot(dx,dy), scale=len>radius?radius/len:1;
+  ui.stickKnob.style.transform=`translate(calc(-50% + ${dx*scale}px),calc(-50% + ${dy*scale}px))`;
+}
+function hideStick() { ui.stickBase.style.display='none'; ui.stickKnob.style.transform='translate(-50%,-50%)'; }
+
+const touchLayer=$('touch-input');
+touchLayer.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch' || roundState!=='playing') return;
+  if(e.clientY < 60) return;
+  e.preventDefault();
+  try { touchLayer.setPointerCapture(e.pointerId); } catch {}
+  if(e.clientX < innerWidth*.5) {
+    touchMove.pointerId=e.pointerId; touchMove.startX=e.clientX; touchMove.startY=e.clientY; touchMove.active=false; touchMove.x=0; touchMove.y=0;
+  } else {
+    touchRight={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,moved:false,startTime:performance.now()};
+  }
+},{passive:false});
+touchLayer.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch') return;
+  if(e.pointerId===touchMove.pointerId) {
+    const dx=e.clientX-touchMove.startX, dy=e.clientY-touchMove.startY;
+    if(Math.hypot(dx,dy)>10) touchMove.active=true;
+    if(touchMove.active) {
+      const radius=49, len=Math.hypot(dx,dy), scale=len>radius?radius/len:1;
+      const cx=dx*scale, cy=dy*scale;
+      touchMove.x=cx/radius; touchMove.y=-cy/radius;
+      showStick(touchMove.startX,touchMove.startY,cx,cy);
+    }
+  }
+  if(touchRight&&e.pointerId===touchRight.id) {
+    const dx=e.clientX-touchRight.lastX, dy=e.clientY-touchRight.lastY;
+    if(Math.hypot(e.clientX-touchRight.x,e.clientY-touchRight.y)>8) touchRight.moved=true;
+    if(touchRight.moved) { cameraYaw-=dx*.006; cameraPitch=clamp(cameraPitch+dy*.004,.16,.95); }
+    touchRight.lastX=e.clientX; touchRight.lastY=e.clientY;
+  }
+},{passive:false});
+touchLayer.addEventListener('pointerup',e=>{
+  if(e.pointerId===touchMove.pointerId) {
+    if(touchMove.active) { touchMove.active=false; touchMove.x=touchMove.y=0; }
+    touchMove.pointerId=null; hideStick();
+  }
+  if(touchRight&&e.pointerId===touchRight.id) {
+    if(!touchRight.moved && roundState==='playing') {
+      if(touchRight.y > innerHeight*.56) jumpQueued=true;
+      else diveQueued=true;
+    }
+    touchRight=null;
+  }
+},{passive:true});
+touchLayer.addEventListener('pointercancel',e=>{
+  if(e.pointerId===touchMove.pointerId){touchMove.pointerId=null;touchMove.active=false;touchMove.x=touchMove.y=0;hideStick();}
+  if(touchRight&&e.pointerId===touchRight.id)touchRight=null;
+});
+
+// Desktop mouse camera drag. The middle/right button behavior is also supported.
+$('scene').addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse' && (e.button===0||e.button===1||e.button===2)) mouseLook={id:e.pointerId,x:e.clientX,y:e.clientY};
+});
+window.addEventListener('pointermove',e=>{
+  if(mouseLook&&e.pointerId===mouseLook.id) {
+    const dx=e.clientX-mouseLook.x,dy=e.clientY-mouseLook.y;
+    cameraYaw-=dx*.0045; cameraPitch=clamp(cameraPitch+dy*.003,.16,.95);
+    mouseLook.x=e.clientX; mouseLook.y=e.clientY;
+  }
+});
+window.addEventListener('pointerup',e=>{if(mouseLook&&e.pointerId===mouseLook.id)mouseLook=null;});
+$('scene').addEventListener('wheel',e=>{cameraDistance=clamp(cameraDistance+e.deltaY*.008,6.5,14);},{passive:true});
+
+$('view-btn').addEventListener('click',()=>{viewNear=!viewNear;toast(viewNear?'近距離視点':'通常視点');});
+$('pause-btn').addEventListener('click',togglePause);
+$('home-btn').addEventListener('click',goHome);
+$('start-btn').addEventListener('click',()=>setupRound(selectedMode));
+$('controls-btn').addEventListener('click',()=>{ui.menu.classList.add('hidden');ui.controls.classList.remove('hidden');});
+$('controls-back').addEventListener('click',()=>{ui.controls.classList.add('hidden');ui.menu.classList.remove('hidden');});
+$('resume-btn').addEventListener('click',()=>{paused=false;roundState='playing';ui.pause.classList.add('hidden');ui.phase.textContent='SURVIVE';});
+$('restart-btn').addEventListener('click',()=>setupRound(currentMode));
+$('pause-home-btn').addEventListener('click',goHome);
+$('again-btn').addEventListener('click',()=>setupRound(currentMode));
+$('result-home-btn').addEventListener('click',goHome);
+$('menu-screen').querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+  selectedMode=btn.dataset.mode;
+  $('menu-screen').querySelectorAll('[data-mode]').forEach(b=>{b.classList.toggle('selected',b===btn);b.setAttribute('aria-pressed',b===btn?'true':'false');});
+}));
+
+function togglePause() {
+  if(roundState!=='playing' && roundState!=='countdown' && roundState!=='paused') return;
+  if(roundState==='paused') { paused=false;roundState='playing';ui.pause.classList.add('hidden');ui.phase.textContent='SURVIVE'; }
+  else { paused=true;roundState='paused';ui.pause.classList.remove('hidden');ui.phase.textContent='PAUSED'; }
+}
+function goHome() {
+  paused=false;roundState='menu';ui.hud.classList.add('hidden');ui.touch.classList.add('hidden');ui.pause.classList.add('hidden');ui.result.classList.add('hidden');ui.controls.classList.add('hidden');ui.menu.classList.remove('hidden');
+}
+function finishRound(win,message) {
+  if(roundState==='result')return;
+  roundState='result'; paused=false;
+  ui.centerCount.textContent=''; ui.phase.textContent=win?'QUALIFIED':'ELIMINATED';
+  $('result-eyebrow').textContent=win?'ROUND COMPLETE':'ROUND OVER';
+  $('result-title').textContent=win?'QUALIFIED!':'ELIMINATED';
+  $('result-title').style.color=win?'#ffe27c':'#ff82ad';
+  $('result-message').textContent=message;
+  const survival=Math.floor(roundElapsed);
+  $('result-stats').innerHTML=`<span class="result-chip">ROUND: ${currentMode==='club'?'JUMP CLUB':'JUMP SHOWDOWN'}</span><span class="result-chip">生存時間: ${Math.floor(survival/60)}:${String(survival%60).padStart(2,'0')}</span>`;
+  ui.result.classList.remove('hidden');
+}
+let toastTimer=null;
+function toast(text) {
+  ui.notice.textContent=text;ui.notice.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>ui.notice.classList.remove('show'),1500);
+}
+
+function updateRound(dt) {
+  if(roundState==='countdown') {
+    countdown-=dt;
+    const n=Math.max(0,Math.ceil(countdown));
+    ui.centerCount.textContent=n>0?String(n):'GO!';
+    if(countdown<=0) {roundState='playing';ui.centerCount.textContent='';ui.phase.textContent='SURVIVE';}
+  } else if(roundState==='playing') {
+    roundElapsed+=dt;
+    if(currentMode==='club') {
+      if(roundElapsed>=duration) {roundElapsed=duration;updateTimer();finishRound(true,'90秒間、生き残った！ 次のショーへ進もう。');return;}
+    } else if(roundElapsed>=duration) {
+      roundElapsed=duration;updateTimer();finishRound(true,'5分間、最後まで生き残った！');return;
+    }
+    updateTimer();
+    const input=readInput();
+    physicsStep(dt,input);
+  }
+}
+
+function renderPreview(dt) {
+  if(roundState==='menu' || roundState==='paused' || roundState==='result') {
+    if(beams.length) { for(let i=0;i<beams.length;i++){beams[i].userData.angle+=beams[i].userData.speed*dt*.22;beams[i].rotation.y=beams[i].userData.angle;} }
+    if(player) player.root.rotation.y+=dt*.25;
+  }
+}
+
+// Menu arena preview is rendered as Jump Club by default.
+makeArena('club');
+player=makeBean(); player.root.position.set(0,0,5.2);
+camera.position.set(0,8.2,14); camera.lookAt(0,1,0);
+
+function animate(now) {
+  requestAnimationFrame(animate);
+  let frameDt=Math.min(.05,(now-lastFrame)/1000); lastFrame=now;
+  if(!paused) {
+    if(roundState==='countdown' || roundState==='playing') {
+      accumulator+=frameDt;
+      const step=1/60;
+      while(accumulator>=step) { updateRound(step); accumulator-=step; }
+    } else renderPreview(frameDt);
+  }
+  updateCamera(frameDt);
+  renderer.render(scene,camera);
+}
+requestAnimationFrame(animate);
+
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1.5:2));renderer.setSize(innerWidth,innerHeight);
+});
+
+// A small, visible diagnostic for the original archive limitation.
+// The game runs without networked opponents; Three.js itself is loaded from CDN.
+console.info('[Jump Practice] fixed timestep = 1/60 s; source archive PhysX .wasm was absent, using local capsule controller.');
 </script>
 </body>
 </html>
