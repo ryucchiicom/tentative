@@ -127,15 +127,74 @@ function finishGame(winner,reason,onlineActor=null){if(over)return;if(mode==='ai
 async function newGame(){if(aiTimer){clearTimeout(aiTimer);aiTimer=null;}if(mode==='online'){await restartOnlineGame();return;}if(mode==='ai')commitPending();startPosition();toast('新しい対局を開始しました。');}
 async function changeMode(m){if(mode===m)return;if(onlineBusy){toast('オンライン接続処理中です。完了してから切り替えてください。');return;}if(aiTimer){clearTimeout(aiTimer);aiTimer=null;}if(mode==='ai')commitPending();if(mode==='online')await releaseOnlineRoom();mode=m;startPosition();$('onlinePanel').hidden=mode!=='online';renderOnlineControls();toast(mode==='ai'?'報酬学習AIとの対戦です。':mode==='online'?'オンライン対戦です。部屋を作成するか、コードで参加してください。':'通常対戦です。上下のプレイヤーが交互に操作してください。');}
 function renderOnlineControls(){const active=!!onlineRoomRef;$('onlineStatusMain').textContent=!active?(onlineBusy?'接続中…':'未接続'):onlineConnected?'対戦中':'相手の参加待ち';$('onlineRoomInfo').textContent=active?`部屋コード：${onlineRoomCode} ／ あなたは${onlineSide===0?'先手':'後手'}`:'部屋を作るか、相手のコードを入力してください。';$('createRoomBtn').disabled=active||onlineBusy;$('joinRoomBtn').disabled=active||onlineBusy;$('roomCodeInput').disabled=active||onlineBusy;$('copyRoomBtn').disabled=!active;$('leaveRoomBtn').disabled=!active;$('newGame').disabled=mode==='online'&&(!active||!onlineConnected||onlineSide!==0);$('endNewGame').disabled=mode==='online'&&(!active||!onlineConnected||onlineSide!==0);}
-async function ensureFirebaseUser(){if(!window.firebase||!firebase.auth||!firebase.database)throw new Error('Firebase SDKを読み込めません。ネット接続を確認してください。');if(!fbApp){fbApp=firebase.apps.length?firebase.app():firebase.initializeApp(firebaseConfig);fbAuth=firebase.auth();fbDb=firebase.database();}if(fbAuth.currentUser){fbUser=fbAuth.currentUser;return fbUser;}const credential=await fbAuth.signInAnonymously();fbUser=credential.user;return fbUser;}
+async function ensureFirebaseUser(){
+ if(!window.firebase||!firebase.auth||!firebase.database)throw new Error('Firebase SDKを読み込めません。ネット接続を確認してください。');
+ if(!fbApp){fbApp=firebase.apps.length?firebase.app():firebase.initializeApp(firebaseConfig);fbAuth=firebase.auth();fbDb=firebase.database();}
+ // LOCAL persistence shares one anonymous UID across tabs on the same origin.
+ // SESSION persistence allows each tab to represent a separate player.
+ try{await fbAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);}catch(error){console.warn('Could not set tab-scoped Firebase Auth persistence:',error);}
+ if(fbAuth.currentUser){fbUser=fbAuth.currentUser;return fbUser;}
+ const credential=await fbAuth.signInAnonymously();fbUser=credential.user;return fbUser;
+}
 function firebaseErrorText(error){const code=error&&error.code||'';if(code==='auth/operation-not-allowed')return 'Firebase Authenticationで匿名ログインを有効にしてください。';if(code==='database/permission-denied'||code==='PERMISSION_DENIED')return 'Realtime Databaseのセキュリティルールを確認してください。';if(code==='auth/network-request-failed'||code==='database/disconnected')return 'ネットワークに接続できません。通信状態を確認してください。';if(code==='auth/api-key-not-valid.-please-pass-a-valid-api-key.'||code==='auth/invalid-api-key')return 'FirebaseのWebアプリ設定（apiKeyなど）を確認してください。';return error&&error.message?error.message:'Firebaseへの接続に失敗しました。';}
 function makeRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const bytes=new Uint8Array(6);if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<6;i++)bytes[i]=Math.floor(Math.random()*256);return Array.from(bytes,b=>chars[b%chars.length]).join('');}
 function serializeOnlineState(revision){return {revision,board:board.flat().map(p=>p?`${p.type}${p.owner}${p.promoted?1:0}`:'---').join(''),hands:{0:{...hands[0]},1:{...hands[1]}},turn,over,moveNo,historyJson:JSON.stringify(history.slice(0,12).map(h=>({tag:String(h.tag||''),text:String(h.text||''),...(Number.isFinite(h.reward)?{reward:h.reward}:{})}))),winner:gameWinner,reason:gameReason};}
 function applyOnlineState(s){if(!s||typeof s.board!=='string'||s.board.length!==243)return;const validTypes=new Set(TYPES),cells=[];for(let i=0;i<81;i++){const token=s.board.slice(i*3,i*3+3);if(token==='---'){cells.push(null);continue;}const type=token[0],owner=Number(token[1]);if(!validTypes.has(type)||![0,1].includes(owner)){cells.push(null);continue;}cells.push({type,owner,promoted:token[2]==='1',lastAiAction:null});}board=Array.from({length:9},(_,y)=>cells.slice(y*9,y*9+9));hands=[0,1].map(i=>{const src=s.hands&&s.hands[i]||{};const h=emptyHand();for(const t of Object.keys(h))h[t]=Math.max(0,Math.min(99,Math.floor(Number(src[t])||0)));return h;});turn=Number(s.turn)===1?1:0;over=!!s.over;moveNo=Math.max(0,Math.floor(Number(s.moveNo)||0));gameWinner=s.winner===0||s.winner===1?s.winner:null;gameReason=typeof s.reason==='string'?s.reason.slice(0,300):'';try{const parsed=JSON.parse(s.historyJson||'[]');history=Array.isArray(parsed)?parsed.slice(0,12).map(h=>({tag:String(h&&h.tag||'INFO').slice(0,12),text:String(h&&h.text||'').slice(0,160),...(Number.isFinite(Number(h&&h.reward))?{reward:Number(h.reward)}:{})})):[{tag:'INFO',text:'オンライン対局'}];}catch{history=[{tag:'INFO',text:'オンライン対局'}];}selected=null;moves=[];pending=null;promotionChoice=null;onlineRevision=Math.max(0,Math.floor(Number(s.revision)||0));render();if(over){$('endTitle').textContent=gameWinner===onlineSide?'あなたの勝ち！':'相手の勝ち！';$('endText').textContent=gameReason;$('endCover').classList.add('show');}else $('endCover').classList.remove('show');}
 function forgetOnlineRoom(message){if(onlineRoomRef&&onlineRoomListener)onlineRoomRef.off('value',onlineRoomListener);onlineRoomRef=null;onlineRoomListener=null;onlineRoomCode=null;onlineSide=null;onlineRevision=-1;onlineConnected=false;onlineBusy=false;selected=null;moves=[];startPosition();renderOnlineControls();if(message)toast(message);}
 function watchOnlineRoom(ref,code){onlineRoomListener=snapshot=>{const room=snapshot.val();if(!room){forgetOnlineRoom('部屋が終了しました。');return;}if(!fbUser||room.hostUid!==fbUser.uid&&room.guestUid!==fbUser.uid){forgetOnlineRoom('この部屋から退出しました。');return;}onlineConnected=!!room.hostUid&&!!room.guestUid;if(onlineSide===1&&room.guestUid!==fbUser.uid){forgetOnlineRoom('部屋から退出されました。');return;}if(room.state&&Number(room.state.revision)!==onlineRevision)applyOnlineState(room.state);else render();renderOnlineControls();};ref.on('value',onlineRoomListener,error=>toast(firebaseErrorText(error)));renderOnlineControls();}
-async function createOnlineRoom(){if(onlineBusy||onlineRoomRef)return;onlineBusy=true;renderOnlineControls();try{const user=await ensureFirebaseUser();let made=false;for(let attempt=0;attempt<8&&!made;attempt++){const code=makeRoomCode(),ref=fbDb.ref(`shogiOnlineRooms/${code}`);startPosition();const room={app:'reward-shogi',version:1,hostUid:user.uid,guestUid:null,status:'waiting',createdAt:Date.now(),state:serializeOnlineState(0)};const result=await ref.transaction(current=>current===null?room:undefined,undefined,false);if(result.committed){onlineRoomCode=code;onlineRoomRef=ref;onlineSide=0;onlineRevision=-1;onlineConnected=false;watchOnlineRoom(ref,code);made=true;}}if(!made)throw new Error('部屋コードを確保できませんでした。もう一度お試しください。');toast('部屋を作成しました。コードを相手に共有してください。');}catch(error){toast(firebaseErrorText(error));}finally{onlineBusy=false;renderOnlineControls();}}
-async function joinOnlineRoom(){if(onlineBusy||onlineRoomRef)return;const code=$('roomCodeInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length!==6){toast('6文字の部屋コードを入力してください。');return;}onlineBusy=true;renderOnlineControls();try{const user=await ensureFirebaseUser();const ref=fbDb.ref(`shogiOnlineRooms/${code}`);const result=await ref.transaction(current=>{if(!current||!current.hostUid||current.hostUid===user.uid||current.guestUid)return;current.guestUid=user.uid;current.status='playing';current.updatedAt=Date.now();return current;},undefined,false);if(!result.committed)throw new Error('部屋が見つからないか、すでに満員です。コードを確認してください。');onlineRoomCode=code;onlineRoomRef=ref;onlineSide=1;onlineRevision=-1;onlineConnected=true;watchOnlineRoom(ref,code);toast('部屋に参加しました。あなたは後手です。');}catch(error){toast(firebaseErrorText(error));}finally{onlineBusy=false;renderOnlineControls();}}
+async function createOnlineRoom(){
+ if(onlineBusy||onlineRoomRef)return;
+ onlineBusy=true;renderOnlineControls();
+ try{
+  const user=await ensureFirebaseUser();
+  let created=null;
+  for(let attempt=0;attempt<8&&!created;attempt++){
+   const code=makeRoomCode(),ref=fbDb.ref(`shogiOnlineRooms/${code}`);
+   startPosition();
+   const room={app:'reward-shogi',version:1,hostUid:user.uid,guestUid:null,status:'waiting',createdAt:Date.now(),state:serializeOnlineState(0)};
+   // 部屋作成は「作成」だけを行い、参加処理(joinOnlineRoom)は呼び出さない。
+   const result=await ref.transaction(current=>current===null?room:undefined,undefined,false);
+   if(result.committed)created={code,ref};
+  }
+  if(!created)throw new Error('部屋を作成できませんでした。Realtime DatabaseのRulesと接続先を確認してください。');
+  onlineRoomCode=created.code;onlineRoomRef=created.ref;onlineSide=0;onlineRevision=0;onlineConnected=false;
+  // 前回入力した古いコードが残って誤って参加処理されないよう消去する。
+  $('roomCodeInput').value='';
+  watchOnlineRoom(onlineRoomRef,onlineRoomCode);
+  toast(`部屋を作成しました。コード「${onlineRoomCode}」を相手に共有してください。`);
+ }catch(error){console.error('createOnlineRoom failed:',error);toast(firebaseErrorText(error));}
+ finally{onlineBusy=false;renderOnlineControls();}
+}
+async function joinOnlineRoom(){
+ if(onlineBusy||onlineRoomRef)return;
+ const code=$('roomCodeInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+ if(code.length!==6){toast('6文字の部屋コードを入力してください。');return;}
+ onlineBusy=true;renderOnlineControls();
+ try{
+  const user=await ensureFirebaseUser();
+  const ref=fbDb.ref(`shogiOnlineRooms/${code}`);
+  // 先に存在確認し、「存在しない」「自分が作成者」「満員」を分けて案内する。
+  const before=(await ref.once('value')).val();
+  if(!before||!before.hostUid)throw new Error(`部屋コード「${code}」が見つかりません。入力を確認してください。`);
+  if(before.hostUid===user.uid)throw new Error('このブラウザは部屋の作成者としてログイン中です。対戦相手は別の端末、または別ブラウザで参加してください。');
+  if(before.guestUid)throw new Error('この部屋はすでに参加者がいます。別の部屋コードを使ってください。');
+  const result=await ref.transaction(current=>{
+   if(!current||!current.hostUid||current.hostUid===user.uid||current.guestUid)return;
+   current.guestUid=user.uid;current.status='playing';current.updatedAt=Date.now();return current;
+  },undefined,false);
+  if(!result.committed){
+   const latest=result.snapshot&&result.snapshot.val();
+   if(!latest||!latest.hostUid)throw new Error(`部屋コード「${code}」が見つかりません。入力を確認してください。`);
+   if(latest.hostUid===user.uid)throw new Error('このブラウザは部屋の作成者としてログイン中です。対戦相手は別の端末、または別ブラウザで参加してください。');
+   if(latest.guestUid)throw new Error('この部屋はすでに参加者がいます。別の部屋コードを使ってください。');
+   throw new Error('部屋への参加に失敗しました。通信状態とRealtime DatabaseのRulesを確認してください。');
+  }
+  onlineRoomCode=code;onlineRoomRef=ref;onlineSide=1;onlineRevision=-1;onlineConnected=true;
+  watchOnlineRoom(ref,code);
+  toast('部屋に参加しました。あなたは後手です。');
+ }catch(error){console.error('joinOnlineRoom failed:',error);toast(firebaseErrorText(error));}
+ finally{onlineBusy=false;renderOnlineControls();}
+}
 async function syncOnlineMove(actor){if(mode!=='online'||!onlineRoomRef||!onlineConnected)return;const expectedRevision=onlineRevision,ref=onlineRoomRef,payload=serializeOnlineState(expectedRevision+1);try{const result=await ref.child('state').transaction(current=>{if(!current||Number(current.revision)!==expectedRevision||Number(current.turn)!==actor||current.over)return;return payload;},undefined,false);if(result.committed){onlineRevision=Number(result.snapshot.val().revision)||expectedRevision+1;}else{const latest=result.snapshot.val();if(latest)applyOnlineState(latest);toast('盤面の更新が競合したため、最新の状態に同期しました。');}}catch(error){toast('対局の同期に失敗しました：'+firebaseErrorText(error));}}
 async function restartOnlineGame(){if(!onlineRoomRef||!onlineConnected){toast('対戦相手が接続してから開始してください。');return;}if(onlineSide!==0){toast('新しい対局を始められるのは部屋を作った側（先手）です。');return;}const oldRevision=onlineRevision;startPosition();const payload=serializeOnlineState(oldRevision+1);try{const result=await onlineRoomRef.child('state').transaction(current=>{if(!current||Number(current.revision)!==oldRevision)return;return payload;},undefined,false);if(result.committed){onlineRevision=Number(result.snapshot.val().revision)||oldRevision+1;toast('新しいオンライン対局を開始しました。');}else{if(result.snapshot.val())applyOnlineState(result.snapshot.val());toast('相手側で盤面が変わったため、最新の状態に同期しました。');}}catch(error){toast(firebaseErrorText(error));}}
 async function releaseOnlineRoom(){const ref=onlineRoomRef,side=onlineSide;if(ref&&onlineRoomListener)ref.off('value',onlineRoomListener);onlineRoomRef=null;onlineRoomListener=null;onlineRoomCode=null;onlineSide=null;onlineRevision=-1;onlineConnected=false;onlineBusy=false;renderOnlineControls();if(!ref)return;try{if(side===0)await ref.remove();else await ref.update({guestUid:null,status:'waiting',updatedAt:Date.now()});}catch(error){console.warn('online room cleanup failed',error);}}
